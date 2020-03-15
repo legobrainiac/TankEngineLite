@@ -1,16 +1,15 @@
 #include "TelPCH.h"
-#include "Tel.h"
+
 #include <chrono>
 #include <thread>
-#include "InputManager.h"
-#include "Renderer.h"
-#include "ResourceManager.h"
 #include <SDL.h>
-#include "TextObject.h"
-#include "GameObject.h"
+
+#include "Tel.h"
+#include "Renderer.h"
+#include "InputManager.h"
+#include "ResourceManager.h"
 #include "BasicComponents.h"
 
-using namespace std;
 using namespace std::chrono;
 
 void TEngine::Initialize()
@@ -70,6 +69,15 @@ void TEngine::LoadGame()
 		m_pFpsTextComponent = pTextComponent;
 		pTextComponent->Initialize(" big lmao ", ResourceManager::GetInstance()->LoadFont("Lingua.otf", 20), { 255, 255, 0 });
 	}
+    
+    // Dae logo
+	{
+		auto pEntity = m_pWorld->CreateEntity();
+		auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, RenderComponent, TransformComponent>();
+		pRenderer->SetTexture(ResourceManager::GetInstance()->LoadTexture("ROSS1.png"));
+		pTransform->position = { 100.f, 100.f, 0.f };
+	}
+    
 }
 
 void TEngine::Cleanup()

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TEXTURE_2D_H
+#define TEXTURE_2D_H
+
 struct SDL_Texture;
 
 /**
@@ -15,6 +17,9 @@ public:
 	Texture2D(Texture2D&&) = delete;
 	Texture2D& operator= (const Texture2D&) = delete;
 	Texture2D& operator= (const Texture2D&&) = delete;
+    
 private:
 	SDL_Texture* m_Texture;
 };
+
+#endif // !TEXTURE_2D_H

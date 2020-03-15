@@ -16,6 +16,11 @@
 
 typedef unsigned int UINT;
 
+// TODO(tomas): Universe, contains all the worlds and a global resource repo
+// TODO(tomas): Worlds, contain all the systems and the entities connecting them and a local resource repo, systems can be optimized in memory per use case of world
+// TODO(tomas): WorldSystems containing all the components, these word systems are responsible for managing one type of component each. 
+// TODO(tomas): Entities built of thoser components, do ^^^ this well and there wont be a change in how the end user makes use of the Entity Component System.
+
 namespace ECS
 {
 

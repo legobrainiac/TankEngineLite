@@ -6,13 +6,16 @@
 #include <glm/vec3.hpp>
 #pragma warning(pop)
 
+#include <functional>
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 
 #include "ecs.h"
-#include "Renderer.h"
 #include "Font.h"
+#include "Renderer.h"
 #include "Texture2D.h"
+#include "InputManager.h"
 
 class Texture2D;
 
@@ -63,6 +66,8 @@ private:
 };
 
 // Render Component
+typedef std::function<void(ECS::Entity*)> CustomRenderFunction;
+
 class RenderComponent
     : public ECS::EntityComponent
 {
@@ -71,6 +76,7 @@ public:
         : ECS::EntityComponent(pE)
 		, pTexture(nullptr)
         , m_MeetsRequirements(false)
+        , m_bShouldCustomRender(false)
     {
         m_pTransform = pE->GetComponent<TransformComponent>();
         
@@ -86,10 +92,19 @@ public:
     
 	// These are made public for ease of access and manipulation
     Texture2D* pTexture;
-
+    
+    // Custom rendering function
+    // Can also be used if you need to inject something in to the rendering loop
+    inline void SetCustomRenderFunction(const CustomRenderFunction& crf);
+    inline void ResetToDefault() { m_bShouldCustomRender = false; } // Not sure why you'd need this but i'll leave it here anyways
+    
 private:
     TransformComponent* m_pTransform;
     bool m_MeetsRequirements;    
+    
+    // Custom rendering
+    CustomRenderFunction m_CustomRenderFunction;
+    bool m_bShouldCustomRender;
 };
 
 // Text Component
@@ -161,6 +176,46 @@ private:
 	bool m_NeedsUpdate;
 };
 
+class MovementComponent
+    : public ECS::EntityComponent
+{
+public:
+    MovementComponent(ECS::Entity* pE)
+        : ECS::EntityComponent(pE)
+        , m_MeetsRequirements(false)
+    {
+        m_pTransform = pE->GetComponent<TransformComponent>();
+        
+        if (m_pTransform != nullptr)
+            m_MeetsRequirements = true;
+    }
+    
+    void Update(float dt)
+    {
+        if(!m_MeetsRequirements) 
+            return;
+        
+        // Simple movement code
+        const float movementSpeed = 500.f;
+        auto pInputMananager = InputManager::GetInstance();
+        
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_W))
+            m_pTransform->position.y -= dt * movementSpeed;
+        
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_S))
+            m_pTransform->position.y += dt * movementSpeed;
+        
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_A))
+            m_pTransform->position.x -= dt * movementSpeed;
+        
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_D))
+            m_pTransform->position.x += dt * movementSpeed;
+    }
+    
+private:
+    TransformComponent* m_pTransform;
+    bool m_MeetsRequirements;        
+};
 
 #endif // !BASIC_COMPONENTS
 
