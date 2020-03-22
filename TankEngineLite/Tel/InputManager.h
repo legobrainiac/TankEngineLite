@@ -7,12 +7,22 @@
 #include <tuple>
 #include <XInput.h>
 
-enum class ControllerButton
+enum ControllerButton
 {
-	ButtonA,
-	ButtonB,
-	ButtonX,
-	ButtonY
+    DPAD_UP,
+    DPAD_DOWN,
+    DPAD_LEFT,
+    DPAD_RIGHT,
+    START,
+    BACK,
+    LEFT_THUMB,
+    RIGHT_THUMB,
+    LEFT_SHOULDER,
+    RIGHT_SHOULDER,
+    A,
+    B,
+    X,
+    Y
 };
 
 class InputManager final : public Singleton<InputManager>
@@ -33,8 +43,9 @@ public:
 	std::tuple<int, int, Uint32> GetMouseState();
     
 private:
-	XINPUT_STATE m_CurrentState{};
+	XINPUT_STATE m_XState{};
 	bool m_Keys[512];
+    bool m_PadKeys[18];
 };
 
 #endif // !INPUT_MANAGER_H

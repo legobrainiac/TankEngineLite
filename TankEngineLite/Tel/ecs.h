@@ -78,25 +78,6 @@ class Entity;
 class EntityComponent;
 
 //////////////////////////////////////////////////////////////////////////
-class EntityComponent
-{
-public:
-	EntityComponent() {}
-	EntityComponent(Entity* pE) : m_pOwner(pE) {}
-	virtual void CleanInitialize(Entity* pE) { m_pOwner = pE; }
-	virtual ~EntityComponent() {}
-
-	virtual void Update(float dt) { (void)dt; }
-	inline Entity* GetOwner() { return m_pOwner; }
-
-	inline void SetDirty(bool val) { m_IsDirty = val; }
-
-protected:
-	Entity* m_pOwner;
-	bool m_IsDirty = true;
-};
-
-//////////////////////////////////////////////////////////////////////////
 class System
 {
 public:
@@ -116,6 +97,31 @@ struct SystemIdentifier
 	uint32_t systemId;
 };
 
+//////////////////////////////////////////////////////////////////////////
+class EntityComponent
+{
+public:
+	EntityComponent() {}
+	EntityComponent(Entity* pE) : m_pOwner(pE) {}
+	virtual void CleanInitialize(Entity* pE) { m_pOwner = pE; }
+	virtual ~EntityComponent() {}
+
+	virtual void Update(float dt) { (void)dt; }
+	inline Entity* GetOwner() { return m_pOwner; }
+
+	inline void SetDirty(bool val) { m_IsDirty = val; }
+
+	// System
+	inline void SetSystem(System* pS) { m_pSystem = pS; }
+	inline System* GetSystem() { return m_pSystem; }
+
+protected:
+	Entity* m_pOwner;
+	System* m_pSystem;
+	bool m_IsDirty = true;
+};
+
+//////////////////////////////////////////////////////////////////////////
 template<typename T, uint32_t C, uint32_t I, SystemExecutionStyle E>
 class WorldSystem : public System
 {
@@ -147,7 +153,8 @@ public:
 	{
 		T* pEc = m_pComponentPool->Get();
 		pEc->CleanInitialize(pE);
-        pEc->SetDirty(false);
+		pEc->SetDirty(false);
+		pEc->SetSystem(this); // This is not rly idea xd
 		return pEc;
 	}
 
@@ -194,6 +201,7 @@ public:
 	~World();
 
 	inline Entity* CreateEntity();
+	inline void DestroyEntity(uint32_t id);
 
 	//////////////////////////////////////
 	// Push Systems impl
@@ -353,6 +361,18 @@ public:
 		return std::tuple<T * ...> { GetComponent<T>()... };
 	}
 
+	void CleanComponents()
+	{
+		for (auto comp : m_EntityComponents)
+		{
+			auto pComponent = comp.second;
+			auto pSystem = pComponent->GetSystem();
+			pSystem->PopComponent(pComponent);
+		}
+
+		m_EntityComponents.clear();
+	}
+
 public:
 	inline size_t GetComponentCount() const { return m_EntityComponents.size(); }
 	inline uint32_t GetId() const { return m_ID; }
@@ -365,12 +385,23 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-// World create entity declaration
+// World create entity and destroy entity declaration
 inline Entity* World::CreateEntity()
 {
 	auto pEntity = new Entity(m_IdCounter, this);
 	m_pEntities[m_IdCounter++] = pEntity;
 	return pEntity;
+}
+
+inline void World::DestroyEntity(uint32_t id)
+{
+	auto entityIt = m_pEntities.find(id);
+
+	if (entityIt != m_pEntities.end())
+	{
+		auto pEntity = *entityIt;
+		pEntity.second->CleanComponents();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

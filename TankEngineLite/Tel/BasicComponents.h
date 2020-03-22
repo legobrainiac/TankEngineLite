@@ -211,17 +211,20 @@ public:
         const float movementSpeed = 500.f;
         auto pInputMananager = InputManager::GetInstance();
         
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_W))
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_W) || pInputMananager->IsPressed(ControllerButton::DPAD_UP))
             m_pTransform->position.y -= dt * movementSpeed;
         
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_S))
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_S) || pInputMananager->IsPressed(ControllerButton::DPAD_DOWN))
             m_pTransform->position.y += dt * movementSpeed;
         
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_A))
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_A) || pInputMananager->IsPressed(ControllerButton::DPAD_LEFT))
             m_pTransform->position.x -= dt * movementSpeed;
         
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_D))
+        if(pInputMananager->IsKeyDown(SDL_SCANCODE_D) || pInputMananager->IsPressed(ControllerButton::DPAD_RIGHT))
             m_pTransform->position.x += dt * movementSpeed;
+        
+        if(pInputMananager->IsPressed(ControllerButton::START))
+            m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
     }
     
 private:

@@ -5,8 +5,8 @@
 
 bool InputManager::ProcessInput()
 {
-	ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
-	XInputGetState(0, &m_CurrentState);
+	ZeroMemory(&m_XState, sizeof(XINPUT_STATE));
+	DWORD dwResult = XInputGetState(0, &m_XState);
 
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) 
@@ -23,24 +23,38 @@ bool InputManager::ProcessInput()
         if(e.type == SDL_KEYDOWN)
             KeyDown(e.key.keysym.scancode);
 	}
+    
+    // Controller input
+	if (dwResult == ERROR_SUCCESS)
+	{
+        m_PadKeys[ControllerButton::DPAD_UP] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
+        m_PadKeys[ControllerButton::DPAD_DOWN] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
+        m_PadKeys[ControllerButton::DPAD_LEFT] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+        m_PadKeys[ControllerButton::DPAD_RIGHT] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
+        
+        m_PadKeys[ControllerButton::START] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_START;
+        m_PadKeys[ControllerButton::BACK] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
+        
+        m_PadKeys[ControllerButton::LEFT_THUMB] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
+        m_PadKeys[ControllerButton::RIGHT_THUMB] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
+        
+        m_PadKeys[ControllerButton::LEFT_SHOULDER] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+        m_PadKeys[ControllerButton::RIGHT_SHOULDER] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+		
+        m_PadKeys[ControllerButton::A] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
+		m_PadKeys[ControllerButton::B] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
+		m_PadKeys[ControllerButton::X] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
+		m_PadKeys[ControllerButton::Y] = m_XState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
+	}
+	else
+		std::cout << "not lmao" << std::endl;
 
 	return false;
 }
 
 bool InputManager::IsPressed(ControllerButton button) const
 {
-	switch (button)
-	{
-        case ControllerButton::ButtonA:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-        case ControllerButton::ButtonB:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
-        case ControllerButton::ButtonX:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
-        case ControllerButton::ButtonY:
-		return m_CurrentState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
-        default: return false;
-	}
+	return m_PadKeys[button];
 }
 
 void InputManager::KeyDown(SDL_Scancode key)

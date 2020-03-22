@@ -123,7 +123,7 @@ void TEngine::Run()
 
 			// Fps update
 			std::string text = std::to_string((int)(1 / dt.count())) + " FPS";
-			//m_pFpsTextComponent->SetText(text, { 255, 255, 0 });
+			m_pFpsTextComponent->SetText(text, { 255, 255, 0 });
 
 			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 			dt = t2 - t1;
