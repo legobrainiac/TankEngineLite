@@ -20,16 +20,15 @@ void Renderer::Render() const
 	SDL_RenderPresent(m_Renderer);
 }
 
-void Renderer::Render(ECS::WorldSystem* pWorld) const
+void Renderer::Render(ECS::System* pWorldRenderSystem) const
 {
 	SDL_RenderClear(m_Renderer);
 
 	// Render world
-	pWorld->ForAll<RenderComponent>(
-		[](RenderComponent* pRC) {
-			pRC->Render();
-		}
-	);
+	pWorldRenderSystem->ForAll([](ECS::EntityComponent* pC)
+		{
+			static_cast<RenderComponent*>(pC)->Render();
+		});
 
 	SDL_RenderPresent(m_Renderer);
 }

@@ -24,25 +24,28 @@ class TransformComponent
     : public ECS::EntityComponent
 {
 public:
-    TransformComponent(ECS::Entity* pE)
-		: ECS::EntityComponent(pE)
-        , position({0.f, 0.f, 0.f})
-        , rotation(0.f)
-    {
-    }
-    
+	TransformComponent() {}
     ~TransformComponent() { }
+
+	virtual void CleanInitialize(ECS::Entity* pE) override
+	{
+		m_pOwner = pE;
+		position = { 0.f, 0.f, 0.f };
+		rotation = 0.f;
+	}
     
     // These are made public for ease of access and manipulation
     glm::vec3 position;
     float rotation;
 };
 
+/*
 // Lifespan component
 class LifeSpan
     : public ECS::EntityComponent
 {
 public:
+	LifeSpan() {}
 	LifeSpan(ECS::Entity* pE)
 		: ECS::EntityComponent(pE)
 		, m_LifeSpan{ -1.f }
@@ -63,7 +66,7 @@ public:
 private:
 	float m_LifeSpan;
 	float m_Life;
-};
+};*/
 
 // Render Component
 typedef std::function<void(ECS::Entity*)> CustomRenderFunction;
@@ -72,17 +75,19 @@ class RenderComponent
     : public ECS::EntityComponent
 {
 public:
-    RenderComponent(ECS::Entity* pE)
-        : ECS::EntityComponent(pE)
-		, pTexture(nullptr)
-        , m_MeetsRequirements(false)
-        , m_bShouldCustomRender(false)
-    {
-        m_pTransform = pE->GetComponent<TransformComponent>();
-        
-        if (m_pTransform != nullptr)
-            m_MeetsRequirements = true;
-    }
+	virtual void CleanInitialize(ECS::Entity* pE) override
+	{
+		m_pOwner = pE;
+		pTexture = nullptr;
+		m_MeetsRequirements = false;
+		m_bShouldCustomRender = false;
+		m_pTransform = pE->GetComponent<TransformComponent>();
+
+		if (m_pTransform != nullptr)
+			m_MeetsRequirements = true;
+	}
+
+	RenderComponent() {}
 
 	// TODO(tomas): THIS IS VERY TEMPORARY, NO GAMEOBJECT, ENTITY, COMPONENENT ANYTHING SHOULD OWN ANY SORT OF RESOURCE
 	~RenderComponent();
@@ -112,19 +117,22 @@ class TextComponent
 	: public ECS::EntityComponent
 {
 public:
-	TextComponent(ECS::Entity* pE)
-		: ECS::EntityComponent(pE)
-		, m_pRenderComponent(nullptr)
-		, m_MeetsRequirements(false)
-		, m_NeedsUpdate(true)
+	virtual void CleanInitialize(ECS::Entity* pE) override
 	{
+		m_pOwner = pE;
+		m_pRenderComponent = nullptr;
+		m_MeetsRequirements = false;
+		m_NeedsUpdate = false;
+
 		m_pRenderComponent = pE->GetComponent<RenderComponent>();
 
 		if (m_pRenderComponent != nullptr)
 			m_MeetsRequirements = true;
 	}
 
-	void Initialize(const std::string& text, Font* pFont, const SDL_Color& color = { 255,255,255 })
+	TextComponent() {}
+
+	void Initialize(const std::string& text, Font* pFont, const SDL_Color& color = { 255, 255, 255 })
 	{
 		m_Text = text;
 		m_pFont = pFont;
@@ -133,7 +141,8 @@ public:
 
 	~TextComponent()
 	{
-		delete m_pFont;
+		if (m_pFont != nullptr && !m_IsDirty)
+			delete m_pFont;
 	}
 
 	void Update(float dt) override
@@ -180,15 +189,18 @@ class MovementComponent
     : public ECS::EntityComponent
 {
 public:
-    MovementComponent(ECS::Entity* pE)
-        : ECS::EntityComponent(pE)
-        , m_MeetsRequirements(false)
-    {
-        m_pTransform = pE->GetComponent<TransformComponent>();
-        
-        if (m_pTransform != nullptr)
-            m_MeetsRequirements = true;
-    }
+	virtual void CleanInitialize(ECS::Entity* pE) override
+	{
+		m_pOwner = pE;
+		m_MeetsRequirements = false;
+
+		m_pTransform = pE->GetComponent<TransformComponent>();
+
+		if (m_pTransform != nullptr)
+			m_MeetsRequirements = true;
+	}
+
+	MovementComponent() {}
     
     void Update(float dt)
     {

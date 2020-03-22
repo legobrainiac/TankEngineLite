@@ -8,6 +8,9 @@
 #include <vector>
 
 #include "Pool.h"
+
+#define INTE
+#define ECS_LOG
 #include "ecs.h"
 
 #define WIN32_LEAN_AND_MEAN

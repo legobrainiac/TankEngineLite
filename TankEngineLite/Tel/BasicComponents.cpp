@@ -28,5 +28,6 @@ inline void RenderComponent::SetCustomRenderFunction(const CustomRenderFunction&
 
 RenderComponent::~RenderComponent()
 {
-	delete pTexture;
+	if (pTexture != nullptr && !m_IsDirty)
+		delete pTexture;
 }
