@@ -112,7 +112,6 @@ void InputManager::ValidateActionMapping(ActionMapping& am)
         switch(am.actionType)
         {
             case ActionType::PRESSED:
-            LOGINFO(m_PadKeys[(uint32_t)am.controllerId][m_ActiveBuffer][am.action] <<m_PadKeys[(uint32_t)am.controllerId][inactiveBuffer][am.action] << std::endl);
             if(
                    m_PadKeys[(uint32_t)am.controllerId][m_ActiveBuffer][am.action] &&
                    !m_PadKeys[(uint32_t)am.controllerId][inactiveBuffer][am.action]
