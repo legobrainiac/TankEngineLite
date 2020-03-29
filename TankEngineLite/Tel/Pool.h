@@ -138,12 +138,14 @@ public:
 		{
 			// Get box in look up table
 			char* pBox = &m_pLookUp[(i / 8) % S];
-            
+
+#if 0 // This is broken, fix in ecs repo           
             // If the box is 0, then no item is active
             // TODO(tomas): unittest this
             if(*pBox == 0)
                 continue;
-            
+#endif
+
 			int boxOffset = i % 8;
 
 			// If item active

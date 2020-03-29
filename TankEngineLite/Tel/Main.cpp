@@ -9,6 +9,10 @@
 
 int main(int, char*[]) 
 {
+	AllocConsole();
+	AttachConsole(GetCurrentProcessId());
+	freopen("CON", "w", stdout);
+    
 	TEngine engine;
 	engine.Run();
     return 0;

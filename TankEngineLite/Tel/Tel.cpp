@@ -36,17 +36,18 @@ void TEngine::LoadGame()
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		ECS::WorldSystem<TransformComponent, 128, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<RenderComponent, 128, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<TextComponent, 128, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<MovementComponent, 128, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>
+		ECS::WorldSystem<TransformComponent, 2048, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+        ECS::WorldSystem<RenderComponent, 2048, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+        ECS::WorldSystem<LifeSpan, 2048, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+        ECS::WorldSystem<TextComponent, 128, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+        ECS::WorldSystem<MovementComponent, 128, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
 	>();
 	
 	// Background
 	{
 		auto pEntity = m_pWorld->CreateEntity();
 		auto [pRenderer, pTransform] = pEntity->PushComponents<RenderComponent, TransformComponent>();
-		pRenderer->SetTexture(ResourceManager::GetInstance()->LoadTexture("background.jpg"));
+		pRenderer->SetTexture(ResourceManager::GetInstance()->LoadTexture("Background2.png"));
 	}
 
 	// Dae logo
@@ -71,7 +72,7 @@ void TEngine::LoadGame()
 		auto [pTextComponent, pRenderer, pTransform] = pEntity->PushComponents<TextComponent, RenderComponent, TransformComponent>();
 		pTransform->position = { 10.f, 10.f, 0.f };
 		m_pFpsTextComponent = pTextComponent;
-		pTextComponent->Initialize(" big lmao ", ResourceManager::GetInstance()->LoadFont("Lingua.otf", 20), { 255, 255, 0 });
+		pTextComponent->Initialize(" big lmao ", ResourceManager::GetInstance()->LoadFont("Lingua.otf", 20), { 255, 255, 255 });
 	}
 	
 	// Ross boi
@@ -82,7 +83,6 @@ void TEngine::LoadGame()
 		pTransform->position = { 100.f, 100.f, 0.f };
 	}
 
-#if 0    
     auto pInputMananager = InputManager::GetInstance();
     pInputMananager->RegisterActionMappin(
                                               ActionMapping(SDL_SCANCODE_K, ActionType::PRESSED, 
@@ -92,12 +92,12 @@ void TEngine::LoadGame()
                                                             }));
     
     pInputMananager->RegisterActionMappin(
-                                              ActionMapping(ControllerButton::A, ActionType::PRESSED, 
-                                                        []()
-                                                        {
-                                                                LOGINFO("PRESSED A Player 0" << std::endl);
-                                                            }, (uint32_t)Player::PLAYER0));
-#endif
+                                              ActionMapping(SDL_SCANCODE_K, ActionType::RELEASED, 
+                                                            []()
+                                                            {
+                                                                LOGINFO("RELEASED K" << std::endl);
+                                                            }));
+    
 }
 
 void TEngine::Cleanup()

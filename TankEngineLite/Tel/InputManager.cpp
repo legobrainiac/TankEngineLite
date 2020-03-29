@@ -6,19 +6,8 @@
 
 bool InputManager::ProcessInput()
 {
-    // Swap active buffers
-    m_ActiveBuffer = (m_ActiveBuffer == 0) ? 1 : 0;
-    
-    // Clear key buffer
-    for (int i = 0; i < 512; ++i)
-        m_Keys[m_ActiveBuffer][i] = false;
-    
-    // Clear pad buffer
-    for(int j = 0; j < 4; ++j)
-    {
-        for (int i = 0; i < 18; ++i)
-            m_PadKeys[m_ActiveBuffer][j][i] = false;
-    }
+    // Reset the signal buffer
+    m_SBIndex = 0;
     
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) 
@@ -60,83 +49,52 @@ bool InputManager::ProcessInput()
             continue;
         
         // Input management
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::DPAD_UP] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::DPAD_DOWN] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::DPAD_LEFT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::DPAD_RIGHT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
+        m_PadKeys[cId][ControllerButton::DPAD_UP] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
+        m_PadKeys[cId][ControllerButton::DPAD_DOWN] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
+        m_PadKeys[cId][ControllerButton::DPAD_LEFT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+        m_PadKeys[cId][ControllerButton::DPAD_RIGHT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
         
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::START] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_START;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::BACK] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
+        m_PadKeys[cId][ControllerButton::START] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_START;
+        m_PadKeys[cId][ControllerButton::BACK] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
         
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::LEFT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::RIGHT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
+        m_PadKeys[cId][ControllerButton::LEFT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
+        m_PadKeys[cId][ControllerButton::RIGHT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
         
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::LEFT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::RIGHT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+        m_PadKeys[cId][ControllerButton::LEFT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+        m_PadKeys[cId][ControllerButton::RIGHT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
         
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::A] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::B] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::X] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
-        m_PadKeys[m_ActiveBuffer][cId][ControllerButton::Y] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;    
+        m_PadKeys[cId][ControllerButton::A] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
+        m_PadKeys[cId][ControllerButton::B] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
+        m_PadKeys[cId][ControllerButton::X] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
+        m_PadKeys[cId][ControllerButton::Y] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;    
     }
     
     // Process Action mappings
-    for(auto am : m_ActionMappings)
-        ValidateActionMapping(am);
+    for(auto amType : m_ActionMappings)
+    {
+        for(auto am : amType.second)
+            ValidateActionMapping(am);
+    }
     
 	return false;
 }
 
 void InputManager::ValidateActionMapping(ActionMapping& am)
 {
-    uint32_t inactiveBuffer = uint32_t(!(bool)m_ActiveBuffer);
-    
-    // TODO(tomas): not fully implemented
-    
-    if(am.controllerId == (uint32_t)Player::PLAYER_INVALID) 
-    { // If this is a keyboard action map
-        switch(am.actionType)
-        {
-            case ActionType::PRESSED:
-            if(m_Keys[m_ActiveBuffer][am.action] && !m_Keys[inactiveBuffer][am.action])
-                am.processor();
-            break;
-            case ActionType::RELEASED:
-            if(m_Keys[inactiveBuffer][am.action] && !m_Keys[m_ActiveBuffer][am.action])
-                am.processor();
-            break;
-        }
-    }
-    else
-    { // If this is a controller action map
-        switch(am.actionType)
-        {
-            case ActionType::PRESSED:
-            if(
-                   m_PadKeys[(uint32_t)am.controllerId][m_ActiveBuffer][am.action] &&
-                   !m_PadKeys[(uint32_t)am.controllerId][inactiveBuffer][am.action]
-                   )
-            {
-                am.processor();
-            }
-            break;
-            case ActionType::RELEASED:
-            if(
-                   m_PadKeys[(uint32_t)am.controllerId][inactiveBuffer][am.action] &&
-                   !m_PadKeys[(uint32_t)am.controllerId][m_ActiveBuffer][am.action]
-                   )
-            {   
-                am.processor();
-            }
-            break;
-        }
+    for(uint32_t i = 0; i < m_SBIndex; ++i)
+    {
+        InputSignal s = m_InputSB[i]; 
+        
+        if(am.actionType == s.signalType &&
+               am.action == s.signal)
+            am.processor();
     }
 }
 
 bool InputManager::IsPressed(ControllerButton button, uint32_t controllerId) const
 {
     if(m_ControllerConnected[controllerId])
-        return m_PadKeys[m_ActiveBuffer][controllerId][button];
+        return m_PadKeys[controllerId][button];
     else
     {
         LOGINFO("Attempt of input on disconnected controller [ cid = " << controllerId << " ]" << std::endl);
@@ -146,17 +104,19 @@ bool InputManager::IsPressed(ControllerButton button, uint32_t controllerId) con
 
 void InputManager::KeyDown(SDL_Scancode key)
 {
-	m_Keys[m_ActiveBuffer][key] = true;
+    m_InputSB[m_SBIndex++] = InputSignal { ActionType::PRESSED, (uint32_t)key };
+	m_Keys[key] = true;
 }
 
 void InputManager::KeyUp(SDL_Scancode key)
 {
-	m_Keys[m_ActiveBuffer][key] = false;
+    m_InputSB[m_SBIndex++] = InputSignal { ActionType::RELEASED, (uint32_t)key };
+	m_Keys[key] = false;
 }
 
 bool InputManager::IsKeyDown(SDL_Scancode key)
 {
-	return m_Keys[m_ActiveBuffer][key];
+	return m_Keys[key];
 }
 
 std::tuple<int, int, Uint32> InputManager::GetMouseState()

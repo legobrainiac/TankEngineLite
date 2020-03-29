@@ -16,6 +16,7 @@
 #include "Renderer.h"
 #include "Texture2D.h"
 #include "InputManager.h"
+#include "ResourceManager.h"
 
 class Texture2D;
 
@@ -39,18 +40,18 @@ public:
     float rotation;
 };
 
-/*
 // Lifespan component
 class LifeSpan
     : public ECS::EntityComponent
 {
 public:
 	LifeSpan() {}
-	LifeSpan(ECS::Entity* pE)
-		: ECS::EntityComponent(pE)
-		, m_LifeSpan{ -1.f }
-        , m_Life{}
+    
+	virtual void CleanInitialize(ECS::Entity* pE) override
 	{
+		m_pOwner = pE;
+        m_LifeSpan = -1.f;
+        m_Life = 0.f;
 	}
     
 	void Update(float dt) override
@@ -58,7 +59,7 @@ public:
 		m_Life += dt;
         
 		if (m_Life > m_LifeSpan)
-			m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetID());
+			m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
 	}
     
 	inline void SetLifeSpan(float span) { m_LifeSpan = span; }
@@ -66,7 +67,7 @@ public:
 private:
 	float m_LifeSpan;
 	float m_Life;
-};*/
+};
 
 // Render Component
 typedef std::function<void(ECS::Entity*)> CustomRenderFunction;
@@ -225,6 +226,16 @@ public:
         
         if(pInputMananager->IsPressed(ControllerButton::START))
             m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
+        
+        if(pInputMananager->IsPressed(ControllerButton::RIGHT_THUMB))
+        {
+            auto pEntity = m_pOwner->GetWorld()->CreateEntity();
+            auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent>();
+            pRenderer->SetTexture(ResourceManager::GetInstance()->LoadTexture("ROSS1.png"));
+            pTransform->position = m_pTransform->position;
+            
+            pLifeSpan->SetLifeSpan(5.f);
+        }
     }
     
 private:

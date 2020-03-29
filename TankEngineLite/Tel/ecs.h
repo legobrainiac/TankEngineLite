@@ -109,7 +109,8 @@ public:
 	virtual void Update(float dt) { (void)dt; }
 	inline Entity* GetOwner() { return m_pOwner; }
 
-	inline void SetDirty(bool val) { m_IsDirty = val; }
+    inline void SetDirty(bool val) { m_IsDirty = val; }
+    inline bool IsDirty() { return m_IsDirty; }
 
 	// System
 	inline void SetSystem(System* pS) { m_pSystem = pS; }
@@ -154,14 +155,14 @@ public:
 		T* pEc = m_pComponentPool->Get();
 		pEc->CleanInitialize(pE);
 		pEc->SetDirty(false);
-		pEc->SetSystem(this); // This is not rly idea xd
+        pEc->SetSystem(this); // This is not rly idea xd
 		return pEc;
 	}
 
 	inline void PopComponent(EntityComponent* pComp) override
 	{
 		m_pComponentPool->Pop((T*)pComp);
-		pComp->SetDirty(true);
+        pComp->SetDirty(true);
 	}
 
 	inline virtual void Update(float dt) override
@@ -179,7 +180,7 @@ public:
 				execFunc(pC);
 			});
 	}
-
+        
 private:
 	uint32_t m_ID;
 	Pool<T, C>* m_pComponentPool;

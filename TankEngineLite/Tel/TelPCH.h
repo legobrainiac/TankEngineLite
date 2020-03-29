@@ -20,6 +20,7 @@
 std::stringstream stream{};\
 stream << MESSAGE;\
 OutputDebugString(stream.str().c_str());\
+std::cout << stream.str();\
 }\
 
 #endif // !PCH_H

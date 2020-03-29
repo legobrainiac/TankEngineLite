@@ -4,17 +4,19 @@
 #include "SDL.h"
 #include "Singleton.h"
 
+#include <map>
 #include <tuple>
-#include <functional>
 #include <vector>
 #include <XInput.h>
+#include <functional>
 
-// Double buffered input system
+// TODO(tomas): currently action mappings are keyboard only
 
 // Input processors
 typedef std::function<void()> ActionMappingProcessor;
 typedef std::function<void(float)> AxisMappingProcessor;
 
+// Helper enums
 enum Player : uint32_t
 {
     PLAYER0,
@@ -30,31 +32,6 @@ enum ActionType
     RELEASED
 };
 
-struct ActionMapping
-{
-    uint32_t action;
-    uint32_t controllerId;
-    ActionType actionType;
-    ActionMappingProcessor processor;
-    
-    ActionMapping(uint32_t a, ActionType at, const ActionMappingProcessor& amp)
-        : action(a)
-        , actionType(at)
-        , processor(amp)
-        , controllerId((uint32_t)Player::PLAYER_INVALID)
-    {
-    }
-    
-    ActionMapping(uint32_t a, ActionType at, const ActionMappingProcessor& amp, uint32_t cId)
-        : action(a)
-        , actionType(at)
-        , processor(amp)
-        , controllerId(cId)
-    {
-    }
-};
-
-// Helper enums
 enum ControllerButton
 {
     DPAD_UP,
@@ -73,16 +50,37 @@ enum ControllerButton
     Y
 };
 
+// Signals get generated when an input event happens
+struct InputSignal
+{
+    ActionType signalType;
+    uint32_t signal;
+};
+
+// Action Mappings get validated against signals
+struct ActionMapping
+{
+    uint32_t action;
+    ActionType actionType;
+    ActionMappingProcessor processor;
+    
+    ActionMapping(uint32_t a, ActionType at, const ActionMappingProcessor& amp)
+        : action(a)
+        , actionType(at)
+        , processor(amp)
+    {
+    }
+};
+
 class InputManager final : public Singleton<InputManager>
 {
 public:
     InputManager()
+        : m_Keys()
+        , m_PadKeys()
+        , m_ControllerConnected()
+        , m_SBIndex()
     {
-        for (int i = 0; i < 512; ++i)
-        {
-            m_Keys[0][i] = false;
-            m_Keys[1][i] = false;
-        }
     }
     
 	void KeyDown(SDL_Scancode key);
@@ -95,17 +93,21 @@ public:
     
     void inline RegisterActionMappin(const ActionMapping& am)
     {
-        m_ActionMappings.push_back(am);
+        m_ActionMappings[am.actionType].push_back(am);
     }
     
 private:
-    uint32_t m_ActiveBuffer = 1;
-	bool m_Keys[2][512];
-    bool m_PadKeys[2][4][18];
-    bool m_ControllerConnected[4];
-     
-    void ValidateActionMapping(ActionMapping& am);
-    std::vector<ActionMapping> m_ActionMappings;
+	bool m_Keys[512]; // Keyboard keys
+    bool m_PadKeys[4][18]; // Gamepad keys
+    bool m_ControllerConnected[4]; // Gamepad status
+    
+    // Signal buffer
+    InputSignal m_InputSB[1024];
+    uint32_t m_SBIndex;
+    
+    // Container for action mappings
+    std::map<ActionType, std::vector<ActionMapping>> m_ActionMappings;
+    void ValidateActionMapping(ActionMapping& am);    
 };
 
 #endif // !INPUT_MANAGER_H
