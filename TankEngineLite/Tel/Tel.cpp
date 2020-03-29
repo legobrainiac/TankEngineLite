@@ -21,19 +21,16 @@ void TEngine::Initialize()
 		"Tank Engine Mini",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		640,
+		720,
 		480,
 		SDL_WINDOW_OPENGL);
 
 	if (!m_pWindow)
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
-
+    
 	Renderer::GetInstance()->Init(m_pWindow);
 }
 
-/**
- * Code constructing the scene world starts here
- */
 void TEngine::LoadGame()
 {
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
@@ -84,6 +81,23 @@ void TEngine::LoadGame()
 		pRenderer->SetTexture(ResourceManager::GetInstance()->LoadTexture("ROSS1.png"));
 		pTransform->position = { 100.f, 100.f, 0.f };
 	}
+
+#if 0    
+    auto pInputMananager = InputManager::GetInstance();
+    pInputMananager->RegisterActionMappin(
+                                              ActionMapping(SDL_SCANCODE_K, ActionType::PRESSED, 
+                                                            []()
+                                                            {
+                                                                LOGINFO("PRESSED K" << std::endl);
+                                                            }));
+    
+    pInputMananager->RegisterActionMappin(
+                                              ActionMapping(ControllerButton::A, ActionType::PRESSED, 
+                                                        []()
+                                                        {
+                                                                LOGINFO("PRESSED A Player 0" << std::endl);
+                                                            }, (uint32_t)Player::PLAYER0));
+#endif
 }
 
 void TEngine::Cleanup()
