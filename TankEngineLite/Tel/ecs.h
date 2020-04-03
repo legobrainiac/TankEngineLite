@@ -107,7 +107,6 @@ public:
 
 	virtual void Update(float dt) { (void)dt; }
 	inline Entity* GetOwner() { return m_pOwner; }
-    inline void SetOwner(Entity* pE) { m_pOwner = pE; }    
         
 	// System
 	inline void SetSystem(System* pS) { m_pSystem = pS; }
@@ -149,7 +148,6 @@ public:
 	inline EntityComponent* PushComponent(Entity* pE) override
 	{
         T* pEc = m_pComponentPool->GetAndInit<Entity>(pE);
-        pEc->SetOwner(pE);    
         pEc->SetSystem(this); // This is not rly idea xd
 		return pEc;
 	}

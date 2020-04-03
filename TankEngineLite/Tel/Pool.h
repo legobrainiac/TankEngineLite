@@ -14,7 +14,6 @@
 
 // #define POOL_NO_THROW
 // Thank you DragonSlayer0531#3017 for the help with SFINAE
-//  currently only works with simple types
 
 template <uint32_t L, uint32_t R>
 struct constexpr_mod 
