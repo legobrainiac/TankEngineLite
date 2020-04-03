@@ -199,7 +199,7 @@ public:
 			m_MeetsRequirements = true;
     }
     
-    void Update(float dt)
+    void Update(float dt) override
     {
         if(!m_MeetsRequirements) 
             return;

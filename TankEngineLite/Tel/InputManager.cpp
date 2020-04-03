@@ -70,7 +70,7 @@ bool InputManager::ProcessInput()
     }
     
     // Process Action mappings
-    for(auto amType : m_ActionMappings)
+    for(const auto& amType : m_ActionMappings)
     {
         for(auto am : amType.second)
             ValidateActionMapping(am);

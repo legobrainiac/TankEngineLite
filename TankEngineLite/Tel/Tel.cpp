@@ -27,7 +27,7 @@ void TEngine::Initialize()
 
 	if (!m_pWindow)
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
-    
+
 	Renderer::GetInstance()->Init(m_pWindow);
 }
 
@@ -37,12 +37,12 @@ void TEngine::LoadGame()
 
 	m_pWorld->PushSystems<
 		ECS::WorldSystem<TransformComponent, 2048, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-        ECS::WorldSystem<RenderComponent, 2048, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-        ECS::WorldSystem<LifeSpan, 2048, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-        ECS::WorldSystem<TextComponent, 128, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-        ECS::WorldSystem<MovementComponent, 128, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
+		ECS::WorldSystem<RenderComponent, 2048, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<LifeSpan, 2048, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<TextComponent, 128, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<MovementComponent, 128, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
 	>();
-	
+
 	// Background
 	{
 		auto pEntity = m_pWorld->CreateEntity();
@@ -65,7 +65,7 @@ void TEngine::LoadGame()
 		pTransform->position = { 80.f, 20.f, 0.f };
 		pTextComponent->Initialize("Programming 4 assignment", ResourceManager::GetInstance()->LoadFont("Lingua.otf", 36));
 	}
-	
+
 	// Fps
 	{
 		auto pEntity = m_pWorld->CreateEntity();
@@ -74,7 +74,7 @@ void TEngine::LoadGame()
 		m_pFpsTextComponent = pTextComponent;
 		pTextComponent->Initialize(" big lmao ", ResourceManager::GetInstance()->LoadFont("Lingua.otf", 20), { 255, 255, 255 });
 	}
-	
+
 	// Ross boi
 	{
 		auto pEntity = m_pWorld->CreateEntity();
@@ -83,20 +83,20 @@ void TEngine::LoadGame()
 		pTransform->position = { 100.f, 100.f, 0.f };
 	}
 
-    auto pInputMananager = InputManager::GetInstance();
-    pInputMananager->RegisterActionMappin(
-                                              ActionMapping(SDL_SCANCODE_K, ActionType::PRESSED, 
-                                                            []()
-                                                            {
-                                                                LOGINFO("PRESSED K" << std::endl);
-                                                            }));
-    
-    pInputMananager->RegisterActionMappin(
-                                              ActionMapping(SDL_SCANCODE_K, ActionType::RELEASED, 
-                                                            []()
-                                                            {
-                                                                LOGINFO("RELEASED K" << std::endl);
-                                                            }));
+	auto pInputMananager = InputManager::GetInstance();
+	pInputMananager->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_K, ActionType::PRESSED,
+			[]()
+			{
+				LOGINFO("PRESSED K" << std::endl);
+			}));
+
+	pInputMananager->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_K, ActionType::RELEASED,
+			[]()
+			{
+				LOGINFO("RELEASED K" << std::endl);
+			}));
 }
 
 void TEngine::Cleanup()
@@ -112,6 +112,8 @@ void TEngine::Run()
 {
 	Initialize();
 
+	// TODO(tomas): really, please do rewrite the way this assetloader works,
+	//  maybe already even thing about doing this so that it supports scripting
 	// Tell the resource manager where he can find the game data
 	ResourceManager::GetInstance()->Init("../Data/");
 
@@ -135,8 +137,8 @@ void TEngine::Run()
 			renderer->Render(m_pWorld->GetSystemByComponent<RenderComponent>());
 
 			// Fps update
- 			std::string text = std::to_string((int)(1 / dt.count())) + " FPS";
- 			m_pFpsTextComponent->SetText(text, { 255, 255, 0 });
+			std::string text = std::to_string((int)(1 / dt.count())) + " FPS";
+			m_pFpsTextComponent->SetText(text, { 255, 255, 0 });
 
 			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 			dt = t2 - t1;

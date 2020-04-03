@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////
-// Author: Tomas Antonio Sanches Pinto, 2019
-// ecs.h: Entity Component System, version 2.0 as a separate module of 
+// Author: Tomas Antonio Sanches Pinto, 2020
+// ecs.h: Entity Component System, version 2.1 as a separate module of 
 //		TheTankEngine3D and TankEngineMini
 //////////////////////////////////////////////////////////////////////////
 
@@ -101,17 +101,16 @@ struct SystemIdentifier
 class EntityComponent
 {
 public:
-	EntityComponent() {}
-	EntityComponent(Entity* pE) : m_pOwner(pE) {}
+	EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
+	EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
 	virtual ~EntityComponent() {}
-
 	virtual void Update(float dt) { (void)dt; }
 	inline Entity* GetOwner() { return m_pOwner; }
-        
+
 	// System
 	inline void SetSystem(System* pS) { m_pSystem = pS; }
 	inline System* GetSystem() { return m_pSystem; }
-        
+
 protected:
 	Entity* m_pOwner;
 	System* m_pSystem;
@@ -119,7 +118,8 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 template<typename T, uint32_t C, uint32_t I, SystemExecutionStyle E>
-class WorldSystem : public System
+class WorldSystem
+	: public System
 {
 public:
 	inline WorldSystem()
@@ -147,8 +147,8 @@ public:
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
 	{
-        T* pEc = m_pComponentPool->GetAndInit<Entity>(pE);
-        pEc->SetSystem(this); // This is not rly idea xd
+		T* pEc = m_pComponentPool->GetAndInit<Entity>(pE);
+		pEc->SetSystem(this); // This is not rly idea xd
 		return pEc;
 	}
 
@@ -157,7 +157,7 @@ public:
 		m_pComponentPool->Pop((T*)pComp);
 	}
 
-	inline virtual void Update(float dt) override
+	inline void Update(float dt) override
 	{
 		m_pComponentPool->ForAllActive([&](T* pC)
 			{
@@ -165,14 +165,14 @@ public:
 			});
 	}
 
-	inline virtual void ForAll(std::function<void(EntityComponent*)> execFunc) override
+	inline void ForAll(std::function<void(EntityComponent*)> execFunc) override
 	{
 		m_pComponentPool->ForAllActive([&](T* pC)
 			{
 				execFunc(pC);
 			});
 	}
-        
+
 private:
 	uint32_t m_ID;
 	Pool<T, C>* m_pComponentPool;
