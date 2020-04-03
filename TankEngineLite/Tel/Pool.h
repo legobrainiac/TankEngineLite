@@ -32,17 +32,68 @@ class Pool
 public:
 	Pool()
 	{
-		m_pPool = new T[S]();
-		m_pLookUp = new char[S / 8]();
+        m_pPool = (T*)calloc(S, sizeof(T));
+		m_pLookUp = &m_LookUpInternal[0];
 		m_ActiveCount = 0;
 	}
 
 	~Pool()
 	{
-		delete[] m_pPool;
-		delete[] m_pLookUp;
+        // Call destructor on the still active pool elements, 
+        //  We don't want to deallocate just yet
+        ForAllActive([](T* pObj) { pObj->~T(); });
+        
+        // Free the memory block 
+        free(m_pPool);
 	}
-
+    
+    // Using this in the specific use case of ecs to initialized the object with it's parent entity
+    template <typename INIT_TYPE>
+    T* GetAndInit(INIT_TYPE* pParentObj)
+	{
+		// Test if pool is full
+		if (m_ActiveCount + 1 > S)
+		{
+#ifndef POOL_NO_THROW
+			throw std::exception("Pool is full!");
+#else
+			return nullptr;
+#endif
+		}
+        
+		char* pPoolLookUp = m_pLookUp;
+		for (int i = 0; i < S / 8; ++i)
+		{
+			// Check pool map for inactive entities
+			for (int j = 0; j < 8; ++j)
+			{
+				char flag = (1 << j);
+                
+				// Check inverse byte against flag
+				if (~(*pPoolLookUp) & flag)
+				{
+					*pPoolLookUp |= flag;
+					m_ActiveCount++;
+                    
+                    // Placement if to get an initialized object
+                    T* pFreeObject = &m_pPool[i * 8 + j];
+                    new (pFreeObject)T (pParentObj);
+                    
+					return pFreeObject;
+				}
+			}
+            
+			pPoolLookUp++;
+		}
+        
+		// If allocation failed at this point, maybe some other thread added to the pool
+#ifndef POOL_NO_THROW
+		throw std::exception("Pool is full!");
+#else
+		return nullptr;
+#endif
+	}
+    
 	T* Get()
 	{
 		// Test if pool is full
@@ -56,7 +107,6 @@ public:
 		}
 
 		char* pPoolLookUp = m_pLookUp;
-
 		for (int i = 0; i < S / 8; ++i)
 		{
 			// Check pool map for inactive entities
@@ -69,7 +119,12 @@ public:
 				{
 					*pPoolLookUp |= flag;
 					m_ActiveCount++;
-					return &m_pPool[i * 8 + j];
+
+                    // Placement if to get an initialized object
+                    T* pFreeObject = &m_pPool[i * 8 + j];
+                    new (pFreeObject)T ();
+                    
+					return pFreeObject;
 				}
 			}
 
@@ -106,6 +161,9 @@ public:
 		char flag = (1 << boxOffset);
 		if (*pBox & flag)
 		{
+            // We manually call the destructor, we don't want to actually deallocate
+            m_pPool[index].~T();
+            
 			*pBox ^= flag;
 			m_ActiveCount--;
 		}
@@ -159,6 +217,7 @@ public:
 
 private:
 	T* m_pPool;
+    char m_LookUpInternal[S / 8];
 	char* m_pLookUp;
 	uint32_t m_ActiveCount;
 

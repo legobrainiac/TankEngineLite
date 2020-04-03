@@ -32,7 +32,7 @@ void TEngine::Initialize()
 }
 
 void TEngine::LoadGame()
-{	
+{
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
