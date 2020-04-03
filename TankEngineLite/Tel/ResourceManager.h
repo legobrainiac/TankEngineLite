@@ -18,5 +18,4 @@ private:
 	ResourceManager() = default;
 	std::string m_DataPath;
 };
-
 #endif // !RESOURCE_MANAGER_H

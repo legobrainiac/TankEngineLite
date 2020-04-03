@@ -32,7 +32,7 @@ void TEngine::Initialize()
 }
 
 void TEngine::LoadGame()
-{
+{	
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
@@ -97,7 +97,6 @@ void TEngine::LoadGame()
                                                             {
                                                                 LOGINFO("RELEASED K" << std::endl);
                                                             }));
-    
 }
 
 void TEngine::Cleanup()
@@ -136,8 +135,8 @@ void TEngine::Run()
 			renderer->Render(m_pWorld->GetSystemByComponent<RenderComponent>());
 
 			// Fps update
-			std::string text = std::to_string((int)(1 / dt.count())) + " FPS";
-			m_pFpsTextComponent->SetText(text, { 255, 255, 0 });
+ 			std::string text = std::to_string((int)(1 / dt.count())) + " FPS";
+ 			m_pFpsTextComponent->SetText(text, { 255, 255, 0 });
 
 			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 			dt = t2 - t1;
