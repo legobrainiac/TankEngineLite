@@ -1,4 +1,4 @@
-#include "TelPCH.h"
+#include "pch.h"
 #include "MainGame.h"
 
 void MainGame::Initialize()
@@ -11,7 +11,7 @@ void MainGame::Initialize()
 		ECS::WorldSystem<RenderComponent, 2048, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<LifeSpan, 2048, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<TextComponent, 128, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<MovementComponent, 128, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
+		ECS::WorldSystem<MovementComponent, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
 	>();
 }
 

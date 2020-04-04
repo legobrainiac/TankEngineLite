@@ -1,10 +1,8 @@
-#include "TelPCH.h"
+#include "pch.h"
 
-// #if _DEBUG
-// #include <vld.h>
-// #endif
-
-#define ALLOC_CONSOLE
+#if _DEBUG
+#include <vld.h>
+#endif
 
 #include "SDL.h"
 #include "Tel.h"
@@ -13,12 +11,6 @@
 
 int main(int, char* [])
 {
-#ifdef ALLOC_CONSOLE
-	AllocConsole();
-	AttachConsole(GetCurrentProcessId());
-	freopen("CON", "w", stdout);
-#endif
-
 	TEngineRunner engine;
 	engine.Run<MainGame>();
 	return 0;

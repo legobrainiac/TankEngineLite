@@ -33,10 +33,10 @@
     <ClCompile Include="Tel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TelPCH.cpp">
+    <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
+    <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,13 +71,10 @@
     <ClInclude Include="Tel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TelPCH.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TestConcepts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

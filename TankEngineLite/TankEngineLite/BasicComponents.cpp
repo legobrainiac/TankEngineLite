@@ -1,4 +1,4 @@
-#include "TelPCH.h"
+#include "pch.h"
 #include "BasicComponents.h"
 #include "Texture2D.h"
 
