@@ -16,7 +16,6 @@ class Renderer : public Singleton<Renderer>
 {
 public:
 	void Init(SDL_Window* window);
-	void Render() const;
 	void Render(ECS::System* pWorldRenderSystem) const;
 	void Destroy();
 

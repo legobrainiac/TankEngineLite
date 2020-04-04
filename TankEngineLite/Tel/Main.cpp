@@ -9,6 +9,8 @@
 #include "SDL.h"
 #include "Tel.h"
 
+#include "MainGame.h"
+
 int main(int, char*[]) 
 {
 #ifdef ALLOC_CONSOLE
@@ -17,7 +19,7 @@ int main(int, char*[])
 	freopen("CON", "w", stdout);
 #endif
     
-	TEngine engine;
-	engine.Run();
+	TEngineRunner engine;
+	engine.Run<MainGame>();
     return 0;
 }

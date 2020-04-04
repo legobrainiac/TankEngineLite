@@ -51,6 +51,9 @@
     <ClInclude Include="BasicComponents.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="MainGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceManager.cpp">
@@ -79,6 +82,9 @@
     </ClCompile>
     <ClCompile Include="BasicComponents.cpp">
       <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="MainGame.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
