@@ -10,9 +10,9 @@ void MainGame::Initialize()
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		ECS::WorldSystem<TransformComponent, 2048, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<RenderComponent, 2048, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<LifeSpan, 2048, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<TransformComponent, 512, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<RenderComponent, 512, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<LifeSpan, 512, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<TextComponent, 128, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<MovementComponent, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
 	>();
@@ -21,16 +21,16 @@ void MainGame::Initialize()
 void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 {
 	// Load Bubble Bobble texture atlases
- 	m_pSpriteBatch = new SpriteBatch();	
- 	m_pSpriteBatch->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0"));
+	m_pSpriteBatch = new SpriteBatch();
+	m_pSpriteBatch->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0"));
 
 	// Ross boi
 	{
 		auto pEntity = m_pWorld->CreateEntity();
 		auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, RenderComponent, TransformComponent>();
 		pRenderer->SetSpriteBatch(m_pSpriteBatch);
-		pRenderer->SetAtlasTransform({0, 0, 16, 16});
-		pTransform->position = { 0.f, 0.f, 0.f };
+		pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
+		pTransform->position = { 1600.f / 2.f, 900.f / 2.f, 0.f };
 	}
 
 	auto pInputMananager = InputManager::GetInstance();
@@ -43,9 +43,14 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 
 	pInputMananager->RegisterActionMappin(
 		ActionMapping(SDL_SCANCODE_K, ActionType::RELEASED,
-			[]()
+			[&]()
 			{
 				LOGINFO("RELEASED K" << std::endl);
+				auto pEntity = m_pWorld->CreateEntity();
+				auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, RenderComponent, TransformComponent>();
+				pRenderer->SetSpriteBatch(m_pSpriteBatch);
+				pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
+				pTransform->position = { 1600.f / 2.f, 900.f / 2.f, 0.f };
 			}));
 }
 
@@ -53,7 +58,13 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 {
 	ECS::Universe::GetInstance()->Update(dt);
 
+	ImGui::Begin("Render stats");
 
+	std::stringstream stream;
+	stream << "DT: " << dt;
+	ImGui::Text(stream.str().c_str());
+
+	ImGui::End();
 }
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)

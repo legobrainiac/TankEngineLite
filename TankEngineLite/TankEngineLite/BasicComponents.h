@@ -215,7 +215,34 @@ public:
 		auto pInputMananager = InputManager::GetInstance();
 
 		m_pTransform->rotation += dt;
+		m_Timer += dt;
+		m_SpriteTimer += dt;
 
+		// Sprite animation
+		constexpr XMFLOAT4 atlastTransforms[8]
+		{
+			{ 0, 0, 16, 16 },
+			{ 16, 0, 32, 16 },
+			{ 32, 0, 48, 16 },
+			{ 48, 0, 64, 16 },
+			{ 64, 0, 80, 16 },
+			{ 80, 0, 96, 16 },
+			{ 96, 0, 112, 16 },
+			{ 112, 0, 128, 16 }
+		};
+
+		if (m_SpriteTimer > 0.05f)
+		{
+			m_SpriteTimer -= m_SpriteTimer;
+			m_SpriteIndex++;
+
+			if (m_SpriteIndex == 8)
+				m_SpriteIndex = 0;
+
+			m_pRenderComponent->SetAtlasTransform(atlastTransforms[m_SpriteIndex]);
+		}
+		
+		// Input
 		if (pInputMananager->IsKeyDown(SDL_SCANCODE_W) || pInputMananager->IsPressed(ControllerButton::DPAD_UP))
 			m_pTransform->position.y -= dt * movementSpeed;
 
@@ -233,14 +260,19 @@ public:
 
 		if (pInputMananager->IsPressed(ControllerButton::RIGHT_THUMB))
 		{
-			auto pEntity = m_pOwner->GetWorld()->CreateEntity();
-			auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent>();
-			
-			pTransform->position = m_pTransform->position;
-			pTransform->rotation = m_pTransform->rotation;
-			pRenderer->SetSpriteBatch(m_pRenderComponent->GetSpriteBatch());
-			pRenderer->SetAtlasTransform({0.f, 0.f, 16.f, 16.f});
-			pLifeSpan->SetLifeSpan(5.f);
+			if (m_Timer > 0.01f)
+			{
+				auto pEntity = m_pOwner->GetWorld()->CreateEntity();
+				auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent>();
+
+				pTransform->position = m_pTransform->position;
+				pTransform->rotation = m_pTransform->rotation;
+				pRenderer->SetSpriteBatch(m_pRenderComponent->GetSpriteBatch());
+				pRenderer->SetAtlasTransform(atlastTransforms[m_SpriteIndex]);
+				pLifeSpan->SetLifeSpan(5.f);
+
+				m_Timer -= m_Timer;
+			}
 		}
 	}
 
@@ -248,6 +280,10 @@ private:
 	TransformComponent* m_pTransform;
 	RenderComponent* m_pRenderComponent;
 	bool m_MeetsRequirements;
+	float m_Timer;
+
+	float m_SpriteTimer;
+	int m_SpriteIndex;
 };
 
 #endif // !BASIC_COMPONENTS

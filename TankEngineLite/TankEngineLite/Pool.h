@@ -246,7 +246,6 @@ public:
 
 	void ImGuiDebugUi()
 	{
-		ImGui::Begin("Memory pool");
 		std::stringstream stream;
 		char* pPoolLookUp = m_pLookUp;
 		for (int i = 0; i < S / 8; ++i)
@@ -255,7 +254,7 @@ public:
 			pPoolLookUp++;
 		}
 		ImGui::Text(stream.str().c_str());
-		ImGui::End();
+		ImGui::SameLine();
 	}
 };
 

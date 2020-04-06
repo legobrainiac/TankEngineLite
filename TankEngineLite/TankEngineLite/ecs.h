@@ -29,7 +29,7 @@ CLASS_NAME& operator=(CLASS_NAME&&) = delete;
 
 #define _(T) (void)T // Unused annoyances
 
-//#define DEBUG_POOL
+#define DEBUG_POOL
 
 // If inside tank engine, we can take the singleton dependencies
 #ifdef INTE
