@@ -5,6 +5,7 @@
 #include <iostream> // std::cout
 #include <sstream> // stringstream
 #include <memory> // smart pointers
+#include <string>
 #include <vector>
 
 #include "Pool.h"
@@ -21,6 +22,13 @@ std::stringstream stream{};\
 stream << MESSAGE;\
 OutputDebugString(stream.str().c_str());\
 std::cout << stream.str();\
+}\
+
+#define LOGINFOW(MESSAGE){ \
+std::wstringstream stream{};\
+stream << MESSAGE;\
+OutputDebugStringW(stream.str().c_str());\
+std::wcout << stream.str();\
 }\
 
 #endif // !PCH_H

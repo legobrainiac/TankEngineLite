@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include "InputManager.h"
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
 
 #include <SDL.h>
 
@@ -12,6 +14,11 @@ bool InputManager::ProcessInput()
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) 
     {
+		ImGui_ImplSDL2_ProcessEvent(&e);
+
+		if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard)
+			continue;
+
 		if (e.type == SDL_QUIT) 
 			return true;
 		if (e.type == SDL_KEYDOWN) {}

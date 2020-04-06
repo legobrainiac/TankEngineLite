@@ -5,6 +5,8 @@
 #include "Tel.h"
 #include "ecs.h"
 
+class SpriteBatch;
+
 class MainGame
 	: public Game
 {
@@ -13,10 +15,11 @@ public:
 	void Load(ResourceManager* pResourceManager) override;
 	void Update(float dt, InputManager* pInputManager) override;
 	void Render(Renderer* pRenderer) override;
+	void Shutdown() override;
 
 private:
-	TextComponent* m_pFpsTextComponent;
 	ECS::World* m_pWorld;
+	SpriteBatch* m_pSpriteBatch;
 };
 
 #endif // !MAIN_GAME_H

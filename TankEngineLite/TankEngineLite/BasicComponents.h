@@ -14,55 +14,57 @@
 #include "ecs.h"
 #include "Font.h"
 #include "Renderer.h"
-#include "Texture2D.h"
+#include "Texture.h"
 #include "InputManager.h"
 #include "ResourceManager.h"
 
-class Texture2D;
+#include "SpriteBatch.h"
+
+class Texture;
 
 // Transform component
 class TransformComponent
-    : public ECS::EntityComponent
+	: public ECS::EntityComponent
 {
 public:
-    TransformComponent() {}
-	TransformComponent(ECS::Entity* pE) 
-        : ECS::EntityComponent(pE)
-    {
+	TransformComponent() {}
+	TransformComponent(ECS::Entity* pE)
+		: ECS::EntityComponent(pE)
+	{
 		position = { 0.f, 0.f, 0.f };
 		rotation = 0.f;
-    }
-    
-    ~TransformComponent() { }
-    
-    // These are made public for ease of access and manipulation
-    glm::vec3 position;
-    float rotation;
+	}
+
+	~TransformComponent() { }
+
+	// These are made public for ease of access and manipulation
+	glm::vec3 position;
+	float rotation;
 };
 
 // Lifespan component
 class LifeSpan
-    : public ECS::EntityComponent
+	: public ECS::EntityComponent
 {
 public:
-    LifeSpan() {}
+	LifeSpan() {}
 	LifeSpan(ECS::Entity* pE)
-        : ECS::EntityComponent(pE)
-    {
-        m_LifeSpan = -1.f;
-        m_Life = 0.f;
-    }
-    
+		: ECS::EntityComponent(pE)
+	{
+		m_LifeSpan = -1.f;
+		m_Life = 0.f;
+	}
+
 	void Update(float dt) override
 	{
 		m_Life += dt;
-        
+
 		if (m_Life > m_LifeSpan)
 			m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
 	}
-    
+
 	inline void SetLifeSpan(float span) { m_LifeSpan = span; }
-    
+
 private:
 	float m_LifeSpan;
 	float m_Life;
@@ -72,43 +74,44 @@ private:
 typedef std::function<void(ECS::Entity*)> CustomRenderFunction;
 
 class RenderComponent
-    : public ECS::EntityComponent
+	: public ECS::EntityComponent
 {
 public:
 	RenderComponent() {}
-    RenderComponent(ECS::Entity* pE) 
-        : ECS::EntityComponent(pE)
-    {
-		pTexture = nullptr;
+	RenderComponent(ECS::Entity* pE)
+		: ECS::EntityComponent(pE)
+	{
+		m_pSpriteBatch = nullptr;
 		m_MeetsRequirements = false;
 		m_bShouldCustomRender = false;
 		m_pTransform = pE->GetComponent<TransformComponent>();
-        
+
 		if (m_pTransform != nullptr)
 			m_MeetsRequirements = true;
-    }
+	}
 
-	// TODO(tomas): THIS IS VERY TEMPORARY, NO GAMEOBJECT, ENTITY, COMPONENENT ANYTHING SHOULD OWN ANY SORT OF RESOURCE
 	~RenderComponent();
-    
-    inline void SetTexture(Texture2D* pTex) { pTexture = pTex; }
-    void Render() const;
-    
-	// These are made public for ease of access and manipulation
-    Texture2D* pTexture;
-    
-    // Custom rendering function
-    // Can also be used if you need to inject something in to the rendering loop
-    inline void SetCustomRenderFunction(const CustomRenderFunction& crf);
-    inline void ResetToDefault() { m_bShouldCustomRender = false; } // Not sure why you'd need this but i'll leave it here anyways
-    
+
+	inline void SetSpriteBatch(SpriteBatch* pBatch) { m_pSpriteBatch = pBatch; }
+	inline SpriteBatch* GetSpriteBatch() const { return m_pSpriteBatch; }
+
+	inline void SetAtlasTransform(const XMFLOAT4& transform) { m_AtlasTransform = transform; }
+	void Render() const;
+
+	// Custom rendering function
+	// Can also be used if you need to inject something in to the rendering loop
+	inline void SetCustomRenderFunction(const CustomRenderFunction& crf);
+	inline void ResetToDefault() { m_bShouldCustomRender = false; } // Not sure why you'd need this but i'll leave it here anyways
+
 private:
-    TransformComponent* m_pTransform;
-    bool m_MeetsRequirements;    
-    
-    // Custom rendering
-    CustomRenderFunction m_CustomRenderFunction;
-    bool m_bShouldCustomRender;
+	TransformComponent* m_pTransform;
+	SpriteBatch* m_pSpriteBatch;
+	XMFLOAT4 m_AtlasTransform;
+	bool m_MeetsRequirements;
+
+	// Custom rendering
+	CustomRenderFunction m_CustomRenderFunction;
+	bool m_bShouldCustomRender;
 };
 
 // Text Component
@@ -116,19 +119,19 @@ class TextComponent
 	: public ECS::EntityComponent
 {
 public:
-    TextComponent() {}
-	TextComponent(ECS::Entity* pE) 
-        : ECS::EntityComponent(pE)
-    {
+	TextComponent() {}
+	TextComponent(ECS::Entity* pE)
+		: ECS::EntityComponent(pE)
+	{
 		m_pRenderComponent = nullptr;
 		m_MeetsRequirements = false;
 		m_NeedsUpdate = false;
-        
+
 		m_pRenderComponent = pE->GetComponent<RenderComponent>();
-        
+
 		if (m_pRenderComponent != nullptr)
 			m_MeetsRequirements = true;
-    }
+	}
 
 	void Initialize(const std::string& text, Font* pFont, const SDL_Color& color = { 255, 255, 255 })
 	{
@@ -147,6 +150,7 @@ public:
 	{
 		(void)dt;
 
+#if 0
 		if (!m_NeedsUpdate)
 			return;
 
@@ -160,8 +164,9 @@ public:
 
 		SDL_FreeSurface(surf);
 		delete m_pRenderComponent->pTexture;
-		m_pRenderComponent->pTexture = new Texture2D(texture);
+		m_pRenderComponent->pTexture = new Texture(texture);
 		m_NeedsUpdate = false;
+#endif
 	}
 
 	inline void SetText(const std::string& text, const SDL_Color& color = { 255,255,255 })
@@ -184,59 +189,65 @@ private:
 };
 
 class MovementComponent
-    : public ECS::EntityComponent
+	: public ECS::EntityComponent
 {
 public:
 	MovementComponent() {}
-    MovementComponent(ECS::Entity* pE)
-        : ECS::EntityComponent(pE)
-    {
+	MovementComponent(ECS::Entity* pE)
+		: ECS::EntityComponent(pE)
+	{
 		m_MeetsRequirements = false;
-        
+
 		m_pTransform = pE->GetComponent<TransformComponent>();
-        
-		if (m_pTransform != nullptr)
+		m_pRenderComponent = pE->GetComponent<RenderComponent>();
+
+		if (m_pTransform != nullptr && m_pRenderComponent != nullptr)
 			m_MeetsRequirements = true;
-    }
-    
-    void Update(float dt) override
-    {
-        if(!m_MeetsRequirements) 
-            return;
-        
-        // Simple movement code
-        const float movementSpeed = 500.f;
-        auto pInputMananager = InputManager::GetInstance();
-        
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_W) || pInputMananager->IsPressed(ControllerButton::DPAD_UP))
-            m_pTransform->position.y -= dt * movementSpeed;
-        
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_S) || pInputMananager->IsPressed(ControllerButton::DPAD_DOWN))
-            m_pTransform->position.y += dt * movementSpeed;
-        
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_A) || pInputMananager->IsPressed(ControllerButton::DPAD_LEFT))
-            m_pTransform->position.x -= dt * movementSpeed;
-        
-        if(pInputMananager->IsKeyDown(SDL_SCANCODE_D) || pInputMananager->IsPressed(ControllerButton::DPAD_RIGHT))
-            m_pTransform->position.x += dt * movementSpeed;
-        
-        if(pInputMananager->IsPressed(ControllerButton::START))
-            m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
-        
-        if(pInputMananager->IsPressed(ControllerButton::RIGHT_THUMB))
-        {
-            auto pEntity = m_pOwner->GetWorld()->CreateEntity();
-            auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent>();
-            pRenderer->SetTexture(ResourceManager::GetInstance()->LoadTexture("ROSS1.png"));
-            pTransform->position = m_pTransform->position;
-            
-            pLifeSpan->SetLifeSpan(5.f);
-        }
-    }
-    
+	}
+
+	void Update(float dt) override
+	{
+		if (!m_MeetsRequirements)
+			return;
+
+		// Simple movement code
+		const float movementSpeed = 500.f;
+		auto pInputMananager = InputManager::GetInstance();
+
+		m_pTransform->rotation += dt;
+
+		if (pInputMananager->IsKeyDown(SDL_SCANCODE_W) || pInputMananager->IsPressed(ControllerButton::DPAD_UP))
+			m_pTransform->position.y -= dt * movementSpeed;
+
+		if (pInputMananager->IsKeyDown(SDL_SCANCODE_S) || pInputMananager->IsPressed(ControllerButton::DPAD_DOWN))
+			m_pTransform->position.y += dt * movementSpeed;
+
+		if (pInputMananager->IsKeyDown(SDL_SCANCODE_A) || pInputMananager->IsPressed(ControllerButton::DPAD_LEFT))
+			m_pTransform->position.x -= dt * movementSpeed;
+
+		if (pInputMananager->IsKeyDown(SDL_SCANCODE_D) || pInputMananager->IsPressed(ControllerButton::DPAD_RIGHT))
+			m_pTransform->position.x += dt * movementSpeed;
+
+		if (pInputMananager->IsPressed(ControllerButton::START))
+			m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
+
+		if (pInputMananager->IsPressed(ControllerButton::RIGHT_THUMB))
+		{
+			auto pEntity = m_pOwner->GetWorld()->CreateEntity();
+			auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent>();
+			
+			pTransform->position = m_pTransform->position;
+			pTransform->rotation = m_pTransform->rotation;
+			pRenderer->SetSpriteBatch(m_pRenderComponent->GetSpriteBatch());
+			pRenderer->SetAtlasTransform({0.f, 0.f, 16.f, 16.f});
+			pLifeSpan->SetLifeSpan(5.f);
+		}
+	}
+
 private:
-    TransformComponent* m_pTransform;
-    bool m_MeetsRequirements;        
+	TransformComponent* m_pTransform;
+	RenderComponent* m_pRenderComponent;
+	bool m_MeetsRequirements;
 };
 
 #endif // !BASIC_COMPONENTS

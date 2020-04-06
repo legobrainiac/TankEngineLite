@@ -6,7 +6,7 @@
 void RenderComponent::Render() const
 {
 	// Only render if all dependencies are available
-	if (!m_MeetsRequirements || !pTexture)
+	if (!m_MeetsRequirements)
 		return;
     
     // If using a custom render callback, use that one instead of the normal one
@@ -16,8 +16,16 @@ void RenderComponent::Render() const
         return;
     }
     
-    // If we're here, default render behaviour is being called
-	Renderer::GetInstance()->RenderTexture(pTexture, m_pTransform->position.x, m_pTransform->position.y);
+	// TODO(tomas): change transform to dxmath
+	// TODO(tomas): dont hard core scale, also add that to transform
+	m_pSpriteBatch->PushSprite(
+		m_AtlasTransform, 
+		XMFLOAT3{ m_pTransform->position.x, m_pTransform->position.y, m_pTransform->position.z }, 
+		m_pTransform->rotation, 
+		{ 4.f, 4.f }, 
+		{ 0.5f, 0.5f }, 
+		{ 1.f, 1.f, 1.f, 1.f }
+	);
 }
 
 inline void RenderComponent::SetCustomRenderFunction(const CustomRenderFunction& crf)
@@ -28,6 +36,4 @@ inline void RenderComponent::SetCustomRenderFunction(const CustomRenderFunction&
 
 RenderComponent::~RenderComponent()
 {
-	if (pTexture != nullptr)
-		delete pTexture;
 }

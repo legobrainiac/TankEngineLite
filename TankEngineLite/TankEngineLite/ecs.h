@@ -29,6 +29,8 @@ CLASS_NAME& operator=(CLASS_NAME&&) = delete;
 
 #define _(T) (void)T // Unused annoyances
 
+//#define DEBUG_POOL
+
 // If inside tank engine, we can take the singleton dependencies
 #ifdef INTE
 #include "Singleton.h"
@@ -159,6 +161,10 @@ public:
 
 	inline void Update(float dt) override
 	{
+#ifdef DEBUG_POOL
+		m_pComponentPool->ImGuiDebugUi();
+#endif // DEBUG_POOL
+
 		m_pComponentPool->ForAllActive([&](T* pC)
 			{
 				pC->Update(dt);

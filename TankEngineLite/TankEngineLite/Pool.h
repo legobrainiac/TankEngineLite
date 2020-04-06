@@ -15,6 +15,10 @@
 // #define POOL_NO_THROW
 // Thank you DragonSlayer0531#3017 for the help with SFINAE
 
+#ifdef DEBUG_POOL
+#include "imgui.h"
+#endif // DEBUG_POOL
+
 template <uint32_t L, uint32_t R>
 struct constexpr_mod 
 { 
@@ -238,6 +242,20 @@ public:
 		}
 
 		std::cout << std::endl;
+	}
+
+	void ImGuiDebugUi()
+	{
+		ImGui::Begin("Memory pool");
+		std::stringstream stream;
+		char* pPoolLookUp = m_pLookUp;
+		for (int i = 0; i < S / 8; ++i)
+		{
+			stream << std::bitset<8>(*pPoolLookUp) << std::endl;
+			pPoolLookUp++;
+		}
+		ImGui::Text(stream.str().c_str());
+		ImGui::End();
 	}
 };
 

@@ -10,24 +10,37 @@
 #include "ResourceManager.h"
 #include "BasicComponents.h"
 
-void TEngineRunner::Initialize()
+void TEngineRunner::InitializeWindow()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
+
+	const auto width = 1600;
+	const auto height = 900;
 
 	m_pWindow = SDL_CreateWindow(
 		"Tank Engine Mini",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
-		720,
-		480,
-		SDL_WINDOW_OPENGL);
+		width,
+		height,
+		0);
 
 	if (!m_pWindow)
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
 
-	Renderer::GetInstance()->Init(m_pWindow);
+	Renderer::GetInstance()->Init(m_pWindow, width, height);
+}
+
+void TEngineRunner::Initialize()
+{
+	// Setup SDL with DirectX and ImGuiç
+	InitializeWindow();
+
+	// Initialize universe
 	ECS::Universe::GetInstance();
+
+	// Start game
 	m_pGame->Initialize();
 }
 
@@ -39,6 +52,7 @@ void TEngineRunner::LoadGame()
 void TEngineRunner::Cleanup()
 {
 	delete m_pGame;
+	ResourceManager::GetInstance()->Destroy();
 	Renderer::GetInstance()->Destroy();
 
 	SDL_DestroyWindow(m_pWindow);
