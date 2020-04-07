@@ -1,14 +1,12 @@
-#ifndef PCH_H
+ #ifndef PCH_H
 #define PCH_H
 
 #include <stdio.h>
-#include <iostream> // std::cout
-#include <sstream> // stringstream
-#include <memory> // smart pointers
+#include <iostream>
+#include <sstream>
+#include <memory>
 #include <string>
 #include <vector>
-
-#include "Pool.h"
 
 #define INTE
 #define ECS_LOG

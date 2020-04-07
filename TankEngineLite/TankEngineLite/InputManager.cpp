@@ -1,10 +1,10 @@
 #include "pch.h"
-
 #include "InputManager.h"
-#include "imgui.h"
+
 #include "imgui_impl_sdl.h"
 
-#include <SDL.h>
+#include <vector>
+#include <XInput.h>
 
 bool InputManager::ProcessInput()
 {

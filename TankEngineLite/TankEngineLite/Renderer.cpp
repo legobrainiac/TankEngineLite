@@ -1,16 +1,14 @@
 #include "pch.h"
 #include "Renderer.h"
 
-#include "Texture.h"
-#include "BasicComponents.h"
+#include <SDL.h>
+
+#include "D3D.h"
+#include "CoreComponents.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_sdl.h"
-
-#include "D3D.h"
-
-#include <SDL.h>
 
 bool Renderer::Init(SDL_Window* pWin, int xw, int yh, bool vSync)
 {

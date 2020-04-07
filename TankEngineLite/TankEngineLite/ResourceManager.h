@@ -3,8 +3,8 @@
 
 #include "Singleton.h"
 #include "d3dx11effect.h"
-#include <unordered_map>
 
+#include <unordered_map>
 
 class Texture;
 class Font;

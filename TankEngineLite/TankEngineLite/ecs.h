@@ -149,7 +149,7 @@ public:
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
 	{
-		T* pEc = m_pComponentPool->GetAndInit<Entity>(pE);
+		T* pEc = m_pComponentPool->GetAndInit(pE);
 		pEc->SetSystem(this); // This is not rly idea xd
 		return pEc;
 	}
@@ -452,7 +452,6 @@ public:
 private:
 	uint32_t m_NextWorldIndex;
 	std::map<uint32_t, World*> m_Worlds;
-	friend class Singleton<Universe>;
 };
 
 };

@@ -4,9 +4,7 @@
 #include <vld.h>
 #endif
 
-#include "SDL.h"
 #include "Tel.h"
-
 #include "MainGame.h"
 
 int main(int, char* [])

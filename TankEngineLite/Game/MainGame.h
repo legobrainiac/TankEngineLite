@@ -1,11 +1,10 @@
 #ifndef MAIN_GAME_H
 #define MAIN_GAME_H
 
-#include "BasicComponents.h"
 #include "Tel.h"
-#include "ecs.h"
 
 class SpriteBatch;
+class World;
 
 class MainGame
 	: public Game

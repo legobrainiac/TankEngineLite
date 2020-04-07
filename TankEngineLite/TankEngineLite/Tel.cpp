@@ -1,14 +1,8 @@
 #include "pch.h"
+#include "Tel.h"
 
 #include <chrono>
-#include <thread>
 #include <SDL.h>
-
-#include "Tel.h"
-#include "Renderer.h"
-#include "InputManager.h"
-#include "ResourceManager.h"
-#include "BasicComponents.h"
 
 void TEngineRunner::InitializeWindow()
 {

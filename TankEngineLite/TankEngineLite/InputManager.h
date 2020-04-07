@@ -6,15 +6,13 @@
 
 #include <map>
 #include <tuple>
-#include <vector>
-#include <XInput.h>
 #include <functional>
 
 // TODO(tomas): currently action mappings are keyboard only
 
 // Input processors
-typedef std::function<void()> ActionMappingProcessor;
-typedef std::function<void(float)> AxisMappingProcessor;
+using ActionMappingProcessor = std::function<void()>;
+using AxisMappingProcessor = std::function<void(float)>;
 
 // Helper enums
 enum Player : uint32_t
@@ -72,7 +70,8 @@ struct ActionMapping
     }
 };
 
-class InputManager final : public Singleton<InputManager>
+class InputManager final 
+	: public Singleton<InputManager>
 {
 public:
     InputManager()

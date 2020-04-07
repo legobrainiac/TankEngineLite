@@ -44,7 +44,7 @@ struct BatchItem
 //	Some render function:
 //		m_pRenderComponentSystem([pSpriteBatch](RenderComponent* pComp)
 //		{
-//			pSpriteBatch->PushSprite(ATLAS_ID, ...);
+//			pSpriteBatch->PushSprite(...);
 //		});
 class SpriteBatch
 {

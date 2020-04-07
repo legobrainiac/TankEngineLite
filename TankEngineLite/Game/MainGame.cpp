@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "MainGame.h"
 
-#include "imgui.h"
+#include "BasicComponents.h"
 #include "SpriteBatch.h"
+#include "imgui.h"
 
 void MainGame::Initialize()
 {

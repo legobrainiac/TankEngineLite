@@ -1,15 +1,13 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "Singleton.h"
-#include "ecs.h"
-
 #include <tuple>
 
-struct SDL_Window;
 struct SDL_Renderer;
+struct SDL_Window;
 
 class Texture;
+class System;
 class D3D;
 
 class Renderer

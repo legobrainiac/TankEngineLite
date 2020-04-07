@@ -2,26 +2,18 @@
 #define TEL_H
 
 #include <chrono>
-#include "imgui.h"
+
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_dx11.h"
 
+#include "ResourceManager.h"
+#include "InputManager.h"
+#include "Renderer.h"
+
 using namespace std::chrono;
-
-struct SDL_Window;
-class TextComponent;
-class ECS::World;
-
-class ResourceManager;
-class InputManager;
-class Renderer;
 
 // TODO(tomas): allow multiple games on one engine runner, <Game...>, implement switching
 // TODO(tomas): fixed update adder, create lambdas that run on a fixed update of x timestep
-// TODO(tomas): something like this:
-//     pRenderer->PushSprite(SpriteAtlas::ATLAS_0[SPRITE_BUBBLE]/*contains all the information on uv for the selected sprite*/, /*pos*/{ 0.f, 0.f, 0.f /*depth*/ }, /*scale*/{ 1.f, 1.f }, /*pivot*/{ 0.5f, 0.5f }, 45.f);
-//     one call to the GPU performs the drawing on a vertex buffer with a geometry shader to generate vertices
-
 class Game
 {
 public:
