@@ -1,11 +1,7 @@
 #ifndef BASIC_COMPONENTS
 #define BASIC_COMPONENTS
 
-#pragma warning(push)
-#pragma warning (disable:4201)
-#include <glm/vec3.hpp>
-#pragma warning(pop)
-
+#include <D3D.h>
 #include <functional>
 
 #include <SDL.h>
@@ -23,22 +19,23 @@
 class Texture;
 
 // Transform component
-class TransformComponent
+class TransformComponent2D
 	: public ECS::EntityComponent
 {
 public:
-	TransformComponent() {}
-	TransformComponent(ECS::Entity* pE)
+	TransformComponent2D() {}
+	TransformComponent2D(ECS::Entity* pE)
 		: ECS::EntityComponent(pE)
 	{
 		position = { 0.f, 0.f, 0.f };
 		rotation = 0.f;
 	}
 
-	~TransformComponent() { }
+	~TransformComponent2D() { }
 
 	// These are made public for ease of access and manipulation
-	glm::vec3 position;
+	XMFLOAT3 position;
+	XMFLOAT2 scale;
 	float rotation;
 };
 
@@ -71,7 +68,7 @@ private:
 };
 
 // Render Component
-typedef std::function<void(ECS::Entity*)> CustomRenderFunction;
+using CustomRenderFunction = std::function<void(ECS::Entity*)>;
 
 class RenderComponent
 	: public ECS::EntityComponent
@@ -84,7 +81,7 @@ public:
 		m_pSpriteBatch = nullptr;
 		m_MeetsRequirements = false;
 		m_bShouldCustomRender = false;
-		m_pTransform = pE->GetComponent<TransformComponent>();
+		m_pTransform = pE->GetComponent<TransformComponent2D>();
 
 		if (m_pTransform != nullptr)
 			m_MeetsRequirements = true;
@@ -104,7 +101,7 @@ public:
 	inline void ResetToDefault() { m_bShouldCustomRender = false; } // Not sure why you'd need this but i'll leave it here anyways
 
 private:
-	TransformComponent* m_pTransform;
+	TransformComponent2D* m_pTransform;
 	SpriteBatch* m_pSpriteBatch;
 	XMFLOAT4 m_AtlasTransform;
 	bool m_MeetsRequirements;
@@ -198,7 +195,7 @@ public:
 	{
 		m_MeetsRequirements = false;
 
-		m_pTransform = pE->GetComponent<TransformComponent>();
+		m_pTransform = pE->GetComponent<TransformComponent2D>();
 		m_pRenderComponent = pE->GetComponent<RenderComponent>();
 
 		if (m_pTransform != nullptr && m_pRenderComponent != nullptr)
@@ -263,13 +260,15 @@ public:
 			if (m_Timer > 0.01f)
 			{
 				auto pEntity = m_pOwner->GetWorld()->CreateEntity();
-				auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent>();
+				auto [pLifeSpan, pRenderer, pTransform] = pEntity->PushComponents<LifeSpan, RenderComponent, TransformComponent2D>();
 
 				pTransform->position = m_pTransform->position;
+				pTransform->position.z = 0.1f;
 				pTransform->rotation = m_pTransform->rotation;
+				pTransform->scale = { 4.f, 4.f };
 				pRenderer->SetSpriteBatch(m_pRenderComponent->GetSpriteBatch());
 				pRenderer->SetAtlasTransform(atlastTransforms[m_SpriteIndex]);
-				pLifeSpan->SetLifeSpan(5.f);
+				pLifeSpan->SetLifeSpan(float(rand() % 10));
 
 				m_Timer -= m_Timer;
 			}
@@ -277,7 +276,7 @@ public:
 	}
 
 private:
-	TransformComponent* m_pTransform;
+	TransformComponent2D* m_pTransform;
 	RenderComponent* m_pRenderComponent;
 	bool m_MeetsRequirements;
 	float m_Timer;

@@ -19,7 +19,8 @@ public:
 
 private:
 	ECS::World* m_pWorld;
-	SpriteBatch* m_pSpriteBatch;
+	SpriteBatch* m_pCharacter_SB;
+	SpriteBatch* m_pBackgroundStatic_SB;
 };
 
 #endif // !MAIN_GAME_H

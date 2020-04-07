@@ -9,6 +9,12 @@ class Texture;
 //////////////////////////////////////////////////////////////////////////
 // Sprite batch renderer based on the one we did in Graphics Programming 2
 
+enum BatchMode
+{
+	BATCHMODE_DYNAMIC,
+	BATCHMODE_STATIC,
+};
+
 inline bool XMFloat4Equals(const DirectX::XMFLOAT4& a, const DirectX::XMFLOAT4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
 
 struct BatchItem
@@ -46,7 +52,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// If a sprite batch is static, the buffer will not be refreshed every frame
 	//  you'll need to restart the batch to create a new buffer (IE: static world)
-	void InitializeBatch(Texture* atlas, bool isStatic = false);
+	void InitializeBatch(Texture* atlas, BatchMode mode = BatchMode::BATCHMODE_DYNAMIC);
 	void Destroy();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -76,6 +82,8 @@ private:
 	std::vector<BatchItem> m_Batch;
 	int m_BatchSize;
 	bool m_Dirty;
+
+	BatchMode m_Mode;
 };
 
 #endif // !SPRITE_BATCH_H

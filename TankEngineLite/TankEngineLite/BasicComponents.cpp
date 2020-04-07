@@ -16,13 +16,11 @@ void RenderComponent::Render() const
         return;
     }
     
-	// TODO(tomas): change transform to dxmath
-	// TODO(tomas): dont hard core scale, also add that to transform
 	m_pSpriteBatch->PushSprite(
 		m_AtlasTransform, 
-		XMFLOAT3{ m_pTransform->position.x, m_pTransform->position.y, m_pTransform->position.z }, 
+		m_pTransform->position,
 		m_pTransform->rotation, 
-		{ 4.f, 4.f }, 
+		m_pTransform->scale,
 		{ 0.5f, 0.5f }, 
 		{ 1.f, 1.f, 1.f, 1.f }
 	);

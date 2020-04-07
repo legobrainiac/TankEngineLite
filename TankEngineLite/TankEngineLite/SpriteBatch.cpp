@@ -5,8 +5,10 @@
 #include "Renderer.h"
 #include "Texture.h"
 
-void SpriteBatch::InitializeBatch([[maybe_unused]] Texture* atlas, [[maybe_unused]] bool isStatic)
+void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 {
+	m_Mode = mode;
+
 	// Device
 	const auto pRenderer = Renderer::GetInstance();
 	const auto pDevice = pRenderer->GetDirectX()->GetDevice();
@@ -109,6 +111,8 @@ void SpriteBatch::PushSprite(
 	item.color = colour;
 
 	m_Batch.push_back(item);
+
+	m_Dirty = true;
 }
 
 void SpriteBatch::Render()
@@ -120,7 +124,8 @@ void SpriteBatch::Render()
 	const auto pRenderer = Renderer::GetInstance();
 	const auto pDeviceContext = pRenderer->GetDirectX()->GetDeviceContext();
 
-	UpdateBuffer();
+	if (m_Mode == BatchMode::BATCHMODE_DYNAMIC || m_Dirty)
+		UpdateBuffer();
 
 	// Setup render pipeline
 	pDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -151,7 +156,8 @@ void SpriteBatch::Render()
 	}
 
 	// Clear it as setup for next frame
-	m_Batch.clear();
+	if (m_Mode == BatchMode::BATCHMODE_DYNAMIC)
+		m_Batch.clear();
 }
 
 void SpriteBatch::UpdateBuffer()
@@ -183,4 +189,6 @@ void SpriteBatch::UpdateBuffer()
 	pDeviceContext->Map(m_pVertexBuffer, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &mappedResource);
 	memcpy(mappedResource.pData, &m_Batch[0], sizeof(BatchItem) * m_BatchSize);
 	pDeviceContext->Unmap(m_pVertexBuffer, 0);
+
+	m_Dirty = false;
 }

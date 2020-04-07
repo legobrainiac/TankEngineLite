@@ -12,7 +12,7 @@
 
 #include <SDL.h>
 
-bool Renderer::Init(SDL_Window* pWin, int xw, int yh)
+bool Renderer::Init(SDL_Window* pWin, int xw, int yh, bool vSync)
 {
 	m_pDirectX = new D3D();
 
@@ -27,7 +27,7 @@ bool Renderer::Init(SDL_Window* pWin, int xw, int yh)
 
 	if (m_pDirectX)
 	{
-		bool result = m_pDirectX->Initialize(xw, yh, true, hwnd);
+		bool result = m_pDirectX->Initialize(xw, yh, vSync, hwnd);
 
 		if (!result)
 		{
@@ -72,7 +72,7 @@ void Renderer::Render(ECS::System* pWorldRenderSystem) const
 void Renderer::RootRenderBegin() const
 {
 	ImGui::Render();
-	m_pDirectX->Begin({ 0.392f, 0.584f, 0.929f, 1.f });
+	m_pDirectX->Begin({ 0.f, 0.f, 0.f, 1.f });
 }
 
 void Renderer::RootRenderEnd() const
@@ -90,25 +90,4 @@ void Renderer::Destroy()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
-}
-
-void Renderer::RenderTexture(Texture* pTexture, const float x, const float y) const
-{
-	_(pTexture);
-	SDL_Rect dst;
-	dst.x = static_cast<int>(x);
-	dst.y = static_cast<int>(y);
-	//SDL_QueryTexture(pTexture->GetSDLTexture(), nullptr, nullptr, &dst.w, &dst.h);
-	//SDL_RenderCopy(GetSDLRenderer(), pTexture->GetSDLTexture(), nullptr, &dst);
-}
-
-void Renderer::RenderTexture(Texture* pTexture, const float x, const float y, const float width, const float height) const
-{
-	_(pTexture);
-	SDL_Rect dst;
-	dst.x = static_cast<int>(x);
-	dst.y = static_cast<int>(y);
-	dst.w = static_cast<int>(width);
-	dst.h = static_cast<int>(height);
-	//SDL_RenderCopy(GetSDLRenderer(), pTexture->GetSDLTexture(), nullptr, &dst);
 }

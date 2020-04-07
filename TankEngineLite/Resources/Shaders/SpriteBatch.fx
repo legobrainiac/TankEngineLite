@@ -23,7 +23,7 @@ DepthStencilState NoDepth
 
 RasterizerState BackCulling 
 { 
-	CullMode = BACK; 
+	CullMode = NONE; 
 };
 
 //SHADER STRUCTS
@@ -74,7 +74,7 @@ void CreateVertex(inout TriangleStream<GS_DATA> triStream, float3 pos, float4 co
 		//Step 2.
 		//No rotation calculations (no need to do the rotation calculations if there is no rotation applied > redundant operations)
 		//Just apply the pivot offset
-		pos -= float3(pivotOffset, 0.f);
+		pos -= float3(pivotOffset, pos.z);
 	}
 
 	//Geometry Vertex Output
@@ -97,12 +97,13 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 	float2 texCoord = float2(0, 0); //Initial Texture Coordinate
 	float4 color = vertex[0].Color;
 
-	float2 uv0 = vertex[0].AtlasData.xy / float2(gTextureSize.x, gTextureSize.y);
-	float2 uv1 = vertex[0].AtlasData.zw / float2(gTextureSize.x, gTextureSize.y);
-	
-	float2 texSize = { gTextureSize.x * uv1.x - uv0.x, gTextureSize.y * uv1.y - uv0.y };
 
-	//...
+	float2 uv0 = vertex[0].AtlasData.xy;
+	float2 uv1 = vertex[0].AtlasData.zw;
+	float2 texSize = { gTextureSize.x / (uv1.x - uv0.x), gTextureSize.y / (uv1.y - uv0.y) };
+
+	uv0 /= float2(gTextureSize.x, gTextureSize.y);
+	uv1 /= float2(gTextureSize.x, gTextureSize.y);
 
 	// LT----------RT //TringleStrip (LT > RT > LB, LB > RB > RT)
 	// |          / |
@@ -142,9 +143,14 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 
 //PIXEL SHADER
 //************
-float4 MainPS(GS_DATA input) : SV_TARGET 
+float4 MainPS(GS_DATA input) : SV_TARGET
 {
-	return gSpriteTexture.Sample(samPoint, input.TexCoord) * input.Color;
+	float4 color = gSpriteTexture.Sample(samPoint, input.TexCoord);
+	
+	// This isn't really great but it gets the job done
+	clip(color.a < 0.1f ? -1 : 1); 
+	
+	return color * input.Color;
 }
 
 // Default Technique
@@ -152,10 +158,9 @@ technique11 Default {
 
 	pass p0 {
 		SetRasterizerState(BackCulling);
-		SetBlendState(EnableBlending,float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-		SetDepthStencilState(NoDepth,0);
-		SetVertexShader(CompileShader(vs_4_0, MainVS()));
-		SetGeometryShader(CompileShader(gs_4_0, MainGS()));
-		SetPixelShader(CompileShader(ps_4_0, MainPS()));
+		SetBlendState(EnableBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetVertexShader(CompileShader(vs_5_0, MainVS()));
+		SetGeometryShader(CompileShader(gs_5_0, MainGS()));
+		SetPixelShader(CompileShader(ps_5_0, MainPS()));
 	}
 }

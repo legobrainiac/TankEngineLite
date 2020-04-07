@@ -34,7 +34,7 @@ void TEngineRunner::InitializeWindow()
 
 void TEngineRunner::Initialize()
 {
-	// Setup SDL with DirectX and ImGuiç
+	// Setup SDL with DirectX and ImGui
 	InitializeWindow();
 
 	// Initialize universe
