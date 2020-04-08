@@ -3,6 +3,8 @@
 
 #include <tuple>
 
+#include "Singleton.h"
+
 struct SDL_Renderer;
 struct SDL_Window;
 
@@ -24,6 +26,7 @@ public:
 	inline std::tuple<int, int> GetScreenSize() { return std::make_tuple(m_Xw, m_Yh); }
 
 private:
+
 	SDL_Window* m_pWindow;
 	D3D* m_pDirectX;
 

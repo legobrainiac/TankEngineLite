@@ -3,6 +3,7 @@
 
 #include <dxgi.h>
 #include <d3d11.h>
+#include <dxgidebug.h>
 #include <d3dcompiler.h>
 #include <d3dx11effect.h>
 
@@ -53,6 +54,8 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext;
 	IDXGISwapChain* m_pSwapChain;
 	IDXGIFactory* m_pDXGIFactory;
+
+	IDXGIDebug* m_pDebug;
 
 	ID3D11Texture2D* m_pDepthStencilBuffer;
 	ID3D11DepthStencilView* m_pDepthStencilView;

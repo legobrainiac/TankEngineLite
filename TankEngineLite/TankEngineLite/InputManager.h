@@ -70,7 +70,7 @@ struct ActionMapping
     }
 };
 
-class InputManager final 
+class InputManager final
 	: public Singleton<InputManager>
 {
 public:
@@ -94,7 +94,7 @@ public:
     {
         m_ActionMappings[am.actionType].push_back(am);
     }
-    
+
 private:
 	bool m_Keys[512]; // Keyboard keys
     bool m_PadKeys[4][18]; // Gamepad keys

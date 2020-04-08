@@ -16,6 +16,7 @@
 // Thank you DragonSlayer0531#3017 for the help with SFINAE
 
 #ifdef DEBUG_POOL
+#include <sstream>
 #include "imgui.h"
 #endif // DEBUG_POOL
 
@@ -248,10 +249,17 @@ public:
 	{
 		std::stringstream stream;
 		char* pPoolLookUp = m_pLookUp;
-		for (int i = 0; i < S / 8; ++i)
+		int inc = 1;
+		for (int i = 0; i < S / 8; ++i, inc++)
 		{
-			stream << std::bitset<8>(*pPoolLookUp) << std::endl;
+			stream << std::bitset<8>(*pPoolLookUp) << " ";
 			pPoolLookUp++;
+
+			if (inc > 7)
+			{
+				stream << std::endl;
+				inc = 0;
+			}
 		}
 		ImGui::Text(stream.str().c_str());
 		ImGui::SameLine();

@@ -7,6 +7,8 @@
 #include "Tel.h"
 #include "MainGame.h"
 
+#include <D3D.h>
+
 int main(int, char* [])
 {
 	TEngineRunner engine;

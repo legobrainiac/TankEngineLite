@@ -11,9 +11,10 @@ void MainGame::Initialize()
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		ECS::WorldSystem<TransformComponent2D, 512, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<RenderComponent, 512, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<LifeSpan, 512, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<TransformComponent2D, 256, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<SpriteRenderComponent, 256, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<LifeSpan, 256, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<MovementComponent, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
 	>();
 }
@@ -34,7 +35,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 	// Ross boi
 	{
 		auto pEntity = m_pWorld->CreateEntity();
-		auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, RenderComponent, TransformComponent2D>();
+		auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, SpriteRenderComponent, TransformComponent2D>();
 		pRenderer->SetSpriteBatch(m_pCharacter_SB);
 		pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
 		pTransform->position = { 1600.f / 2.f, 900.f / 2.f, 0.f };
@@ -55,7 +56,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 			{
 				LOGINFO("RELEASED K" << std::endl);
 				auto pEntity = m_pWorld->CreateEntity();
-				auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, RenderComponent, TransformComponent2D>();
+				auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, SpriteRenderComponent, TransformComponent2D>();
 				pRenderer->SetSpriteBatch(m_pCharacter_SB);
 				pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
 				pTransform->position = { 1600.f / 2.f, 900.f / 2.f, 0.f };
@@ -77,7 +78,7 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 {
-	pRenderer->Render(m_pWorld->GetSystemByComponent<RenderComponent>());
+	pRenderer->Render(m_pWorld->GetSystemByComponent<SpriteRenderComponent>());
 	m_pCharacter_SB->Render();
 	m_pBackgroundStatic_SB->Render();
 }

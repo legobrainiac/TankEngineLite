@@ -17,7 +17,7 @@ bool D3D::Initialize(int screenW, int screenH, bool vsync, HWND hwnd)
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	// Create device and device context
+   // Create device and device context
 	DXCALL(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, nullptr, 0, D3D11_SDK_VERSION, &m_pDevice, &featureLevel, &m_pDeviceContext));
 
 	// Create DXGIFactory
@@ -43,6 +43,9 @@ bool D3D::Initialize(int screenW, int screenH, bool vsync, HWND hwnd)
 
 	// Create the swap chain and hook it into the handle of the SDL window
 	DXCALL(m_pDXGIFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain));
+
+	// Debug layer
+	m_pDevice->QueryInterface(__uuidof(ID3D11Debug), (void**)& m_pDebug);
 
 	// Depth/Stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc{};
@@ -105,13 +108,27 @@ bool D3D::Initialize(int screenW, int screenH, bool vsync, HWND hwnd)
 void D3D::Shutdown()
 {
 	DXRELEASE(m_pRenderTargetView);
+	DXRELEASE(m_pDXGIFactory);
+	DXRELEASE(m_pSwapChain);
+
 	DXRELEASE(m_pRenderTargetBuffer);
 	DXRELEASE(m_pDepthStencilView);
 	DXRELEASE(m_pDepthStencilBuffer);
-	DXRELEASE(m_pSwapChain);
-	DXRELEASE(m_pDeviceContext);
+
+	if (m_pDeviceContext)
+	{
+		m_pDeviceContext->ClearState();
+		m_pDeviceContext->Flush();
+		DXRELEASE(m_pDeviceContext);
+	}
+
 	DXRELEASE(m_pDevice);
-	DXRELEASE(m_pDXGIFactory);
+
+	if (m_pDebug)
+	{
+		m_pDebug->ReportLiveObjects(DXGI_DEBUG_D3D11, DXGI_DEBUG_RLO_DETAIL);
+		DXRELEASE(m_pDebug);
+	}
 }
 
 void D3D::Begin(const DirectX::XMFLOAT4& colour)

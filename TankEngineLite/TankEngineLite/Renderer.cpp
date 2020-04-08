@@ -61,7 +61,7 @@ void Renderer::Render(ECS::System* pWorldRenderSystem) const
 		// Render world
 		pWorldRenderSystem->ForAll([](ECS::EntityComponent* pC)
 			{
-				static_cast<RenderComponent*>(pC)->Render();
+				static_cast<SpriteRenderComponent*>(pC)->Render();
 			});
 	}
 }
@@ -84,8 +84,9 @@ void Renderer::RootRenderEnd() const
 
 void Renderer::Destroy()
 {
-	DXSHUTDOWN(m_pDirectX);
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
+
+	DXSHUTDOWN(m_pDirectX);
 }

@@ -29,38 +29,21 @@ CLASS_NAME& operator=(CLASS_NAME&&) = delete;
 
 #define _(T) (void)T // Unused annoyances
 
+#define INTE
+#define ECS_LOG
 #define DEBUG_POOL
 
 // If inside tank engine, we can take the singleton dependencies
 #ifdef INTE
 #include "Singleton.h"
 #include "Pool.h"
-#else // otherwise we create our own
-template <typename T>
-class Singleton
-{
-public:
-	static T* GetInstance()
-	{
-		static T pInstance{};
-		return &pInstance;
-	}
-
-	virtual ~Singleton() = default;
-	RO5(Singleton);
-
-protected:
-	Singleton() = default;
-};
-
-// TODO(tomas): self contain the pool
 #endif 
 
 namespace ECS
 {
 
 ///////////////////////////////////////////
-// Hiearchy of this ecs way of working
+// Hierarchy of this ECS way of working
 
 // Universe contains all the worlds
 class Universe;
@@ -83,7 +66,7 @@ class EntityComponent;
 class System
 {
 public:
-	virtual ~System() {}
+	virtual ~System() = default;
 	inline virtual std::type_index GetSystemTypeAsComponent() = 0;
 
 	inline virtual EntityComponent* PushComponent(Entity* pE) = 0;
@@ -105,7 +88,7 @@ class EntityComponent
 public:
 	EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
 	EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
-	virtual ~EntityComponent() {}
+	virtual ~EntityComponent() = default;
 	virtual void Update(float dt) { (void)dt; }
 	inline Entity* GetOwner() { return m_pOwner; }
 
@@ -162,7 +145,15 @@ public:
 	inline void Update(float dt) override
 	{
 #ifdef DEBUG_POOL
-		m_pComponentPool->ImGuiDebugUi();
+		std::string str = GetSystemTypeAsComponent().name();
+		str = str.substr(6);
+
+		if (ImGui::BeginTabItem(str.c_str()))
+		{
+			ImGui::Separator();
+			m_pComponentPool->ImGuiDebugUi();
+			ImGui::EndTabItem();
+		}
 #endif // DEBUG_POOL
 
 		m_pComponentPool->ForAllActive([&](T* pC)
@@ -256,8 +247,28 @@ public:
 public:
 	void Update(float dt/*CommandChain/SignalChain?*/)
 	{
-		for (auto system : m_Systems)
-			system.second.pSystem->Update(dt);
+#ifdef DEBUG_POOL
+		std::string str = "World: " + std::to_string(m_ID) + " system debugger";
+		ImGui::Begin(str.c_str());
+		if (ImGui::BeginTabBar("World Systems", ImGuiTabBarFlags_None))
+		{
+			if (ImGui::BeginTabItem("World stats"))
+			{
+				ImGui::Separator();
+				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Entity count: ");
+				ImGui::SameLine();
+				ImGui::Text(std::to_string(m_pEntities.size()).c_str());
+
+				ImGui::EndTabItem();
+			}
+#endif
+			for (auto system : m_Systems)
+				system.second.pSystem->Update(dt);
+#ifdef DEBUG_POOL
+			ImGui::EndTabBar();
+		}
+		ImGui::End();
+#endif
 	}
 
 private:
@@ -400,6 +411,7 @@ inline void World::DestroyEntity(uint32_t id)
 	{
 		auto pEntity = *entityIt;
 		pEntity.second->CleanComponents();
+		m_pEntities.erase(entityIt);
 	}
 }
 
@@ -456,4 +468,4 @@ private:
 
 };
 
-#endif
+#endif // !ECS_H

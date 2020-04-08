@@ -53,7 +53,7 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 	// Pass description
 	D3DX11_PASS_DESC passDesc{};
 	m_pTechnique->GetPassByIndex(0)->GetDesc(&passDesc);
-
+	
 	const auto result = pDevice->CreateInputLayout(vertexDesc, 4, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
 	if (FAILED(result))
 		LOGINFO("Failed to create input layout for sprite batch, halp");
@@ -84,15 +84,14 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 
 void SpriteBatch::Destroy()
 {
-	DXRELEASE(m_pTechnique);
 	DXRELEASE(m_pInputLayout);
-
-	DXRELEASE(m_pTransfromMatrixV);
-	DXRELEASE(m_pTextureSizeV);
+	
 	DXRELEASE(m_pTextureSRV);
-
+	DXRELEASE(m_pTextureSizeV);
+	DXRELEASE(m_pTransfromMatrixV);
+	
+	DXRELEASE(m_pTechnique);
 	DXRELEASE(m_pVertexBuffer);
-
 	m_Batch.clear();
 }
 
@@ -167,9 +166,8 @@ void SpriteBatch::UpdateBuffer()
 	const auto pDevice = pRenderer->GetDirectX()->GetDevice();
 	const auto pDeviceContext = pRenderer->GetDirectX()->GetDeviceContext();
 
-	// Reallocate, maybe dont do this every fucking frame
-	if (m_pVertexBuffer)
-		m_pVertexBuffer->Release();
+	// Reallocate, maybe don't do this every fucking frame
+	DXRELEASE(m_pVertexBuffer);
 
 	m_BatchSize = (int)m_Batch.size();
 
@@ -189,6 +187,6 @@ void SpriteBatch::UpdateBuffer()
 	pDeviceContext->Map(m_pVertexBuffer, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &mappedResource);
 	memcpy(mappedResource.pData, &m_Batch[0], sizeof(BatchItem) * m_BatchSize);
 	pDeviceContext->Unmap(m_pVertexBuffer, 0);
-
+	
 	m_Dirty = false;
 }

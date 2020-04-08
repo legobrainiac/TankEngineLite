@@ -15,23 +15,12 @@ enum BatchMode
 	BATCHMODE_STATIC,
 };
 
-inline bool XMFloat4Equals(const DirectX::XMFLOAT4& a, const DirectX::XMFLOAT4& b) { return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w; }
-
 struct BatchItem
 {
 	XMFLOAT4 atlasTrasform;
 	XMFLOAT4 transformData0;
 	XMFLOAT4 transformData1;
 	XMFLOAT4 color;
-
-	bool operator==(const BatchItem& rhs)
-	{
-		if (!XMFloat4Equals(rhs.transformData0, transformData0)) return false;
-		if (!XMFloat4Equals(rhs.transformData1, transformData1)) return false;
-		if (!XMFloat4Equals(rhs.color, color)) return false;
-
-		return true;
-	}
 };
 
 //////////////////////////////////////////////////////////////////////////
