@@ -3,6 +3,8 @@
 #include "CoreComponents.h"
 #include "InputManager.h"
 
+#include "Prefabs.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Life span component
 LifeSpan::LifeSpan(ECS::Entity* pE)
@@ -91,18 +93,15 @@ void MovementComponent::Update(float dt)
 	{
 		if (m_Timer > 0.1f)
 		{
-			auto pEntity = m_pOwner->GetWorld()->CreateEntity();
-			auto [pLifeSpan, pRenderer, pProjectile, pTransform] = pEntity->PushComponents<LifeSpan, SpriteRenderComponent, ProjectileComponent, TransformComponent2D>();
-
-			pTransform->position = m_pTransform->position;
-			pTransform->position.z = 0.1f;
-			pTransform->scale = { 4.f, 4.f };
-			pRenderer->SetSpriteBatch(m_pRenderComponent->GetSpriteBatch());
-			pRenderer->SetAtlasTransform({ 0, 224,  16, 240 });
-			pLifeSpan->SetLifeSpan(2.f);
-
-			pProjectile->SetDirection({ cosf(m_pTransform->rotation), sinf(m_pTransform->rotation) });
-			pProjectile->SetSpeed(1000.f);
+			const auto pWorld = m_pOwner->GetWorld();
+			const auto pos = m_pTransform->position;
+			
+			Prefabs::CreateBubbleProjectile(
+				pWorld,
+				{ pos.x, pos.y },
+				{ cosf(m_pTransform->rotation), sinf(m_pTransform->rotation) },
+				m_pRenderComponent->GetSpriteBatch()
+			);
 
 			m_Timer -= m_Timer;
 		}

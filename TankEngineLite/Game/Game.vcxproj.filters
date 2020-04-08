@@ -24,12 +24,18 @@
     <ClCompile Include="BasicComponents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Prefabs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BasicComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Prefabs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

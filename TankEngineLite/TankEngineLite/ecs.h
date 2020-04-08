@@ -255,9 +255,26 @@ public:
 			if (ImGui::BeginTabItem("World stats"))
 			{
 				ImGui::Separator();
+				
+				// World Id
+				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "World id: ");
+				ImGui::SameLine();
+				ImGui::Text(std::to_string(m_ID).c_str());
+
+				// System count
 				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Entity count: ");
 				ImGui::SameLine();
 				ImGui::Text(std::to_string(m_pEntities.size()).c_str());
+
+				// Id counter
+				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "UID counter: ");
+				ImGui::SameLine();
+				ImGui::Text(std::to_string(m_IdCounter).c_str());
+				
+				// Entity count
+				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Component system count: ");
+				ImGui::SameLine();
+				ImGui::Text(std::to_string(m_Systems.size()).c_str());
 
 				ImGui::EndTabItem();
 			}
