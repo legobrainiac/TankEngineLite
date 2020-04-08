@@ -19,3 +19,20 @@ ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2&
 
 	return pEntity;
 }
+
+ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch, XMFLOAT2 pos, Player player)
+{
+	auto pEntity = pWorld->CreateEntity();
+	auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<PlayerController, SpriteRenderComponent, TransformComponent2D>();
+
+	// Component setup
+	pRenderer->SetSpriteBatch(pSpriteBatch);
+	pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
+
+	pTransform->position = { pos.x, pos.y, 0.f };
+	pTransform->scale = { 4.f, 4.f };
+
+	pMovement->SetInputController(player);
+
+	return pEntity;
+}

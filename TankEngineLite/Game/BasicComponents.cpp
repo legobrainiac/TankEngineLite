@@ -1,7 +1,5 @@
+#include "pch.h"
 #include "BasicComponents.h"
-
-#include "CoreComponents.h"
-#include "InputManager.h"
 
 #include "Prefabs.h"
 
@@ -24,7 +22,7 @@ void LifeSpan::Update(float dt)
 
 //////////////////////////////////////////////////////////////////////////
 // Movement Component
-MovementComponent::MovementComponent(ECS::Entity* pE)
+PlayerController::PlayerController(ECS::Entity* pE)
 	: ECS::EntityComponent(pE)
 {
 	m_MeetsRequirements = false;
@@ -34,9 +32,17 @@ MovementComponent::MovementComponent(ECS::Entity* pE)
 
 	if (m_pTransform != nullptr && m_pRenderComponent != nullptr)
 		m_MeetsRequirements = true;
+
+	// Action mapping test
+	InputManager::GetInstance()->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_Q, ActionType::PRESSED,
+			[this]()
+			{
+				m_pTransform->position = { 1600 / 2.f, 900.f / 2.f, 0.f };
+			}));
 }
 
-void MovementComponent::Update(float dt)
+void PlayerController::Update(float dt)
 {
 	if (!m_MeetsRequirements)
 		return;
@@ -45,61 +51,103 @@ void MovementComponent::Update(float dt)
 	const float movementSpeed = 500.f;
 	auto pInputMananager = InputManager::GetInstance();
 
-	m_pTransform->rotation += dt;
 	m_Timer += dt;
 	m_SpriteTimer += dt;
 
-	// Sprite animation
-	constexpr XMFLOAT4 atlastTransforms[8]
-	{
-		{ 0, 0, 16, 16 },
-		{ 16, 0, 32, 16 },
-		{ 32, 0, 48, 16 },
-		{ 48, 0, 64, 16 },
-		{ 64, 0, 80, 16 },
-		{ 80, 0, 96, 16 },
-		{ 96, 0, 112, 16 },
-		{ 112, 0, 128, 16 }
-	};
-
-	if (m_SpriteTimer > 0.05f)
-	{
-		m_SpriteTimer -= m_SpriteTimer;
-		m_SpriteIndex++;
-
-		if (m_SpriteIndex == 8)
-			m_SpriteIndex = 0;
-
-		m_pRenderComponent->SetAtlasTransform(atlastTransforms[m_SpriteIndex]);
-	}
+	// Movement vector
+	XMFLOAT2 movement{};
 
 	// Input
-	if (pInputMananager->IsKeyDown(SDL_SCANCODE_W) || pInputMananager->IsPressed(ControllerButton::DPAD_UP))
-		m_pTransform->position.y -= dt * movementSpeed;
+	if (pInputMananager->IsPressed(ControllerButton::DPAD_LEFT, m_PlayerController))
+		movement.x -= dt * movementSpeed;
 
-	if (pInputMananager->IsKeyDown(SDL_SCANCODE_S) || pInputMananager->IsPressed(ControllerButton::DPAD_DOWN))
-		m_pTransform->position.y += dt * movementSpeed;
+	if (pInputMananager->IsPressed(ControllerButton::DPAD_RIGHT, m_PlayerController))
+		movement.x += dt * movementSpeed;
 
-	if (pInputMananager->IsKeyDown(SDL_SCANCODE_A) || pInputMananager->IsPressed(ControllerButton::DPAD_LEFT))
-		m_pTransform->position.x -= dt * movementSpeed;
+	//////////////////////////////////////////////////////////////////////////
+	// hardcoded physics
 
-	if (pInputMananager->IsKeyDown(SDL_SCANCODE_D) || pInputMananager->IsPressed(ControllerButton::DPAD_RIGHT))
-		m_pTransform->position.x += dt * movementSpeed;
+	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * ( 0 - m_VerticalAcceleration));
 
-	if (pInputMananager->IsPressed(ControllerButton::START))
-		m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
-
-	if (pInputMananager->IsPressed(ControllerButton::A))
+	if (m_pTransform->position.y < 600.f - 32.f)
+		movement.y += 1000.f * dt;
+	else
 	{
-		if (m_Timer > 0.1f)
+		if (pInputMananager->IsPressed(ControllerButton::A, m_PlayerController))
+			m_VerticalAcceleration = -2000.f;
+	}
+
+	// hardcoded physics end
+	//////////////////////////////////////////////////////////////////////////
+
+	// Apply movement
+	m_pTransform->position.x += movement.x;
+	m_pTransform->position.y += movement.y + m_VerticalAcceleration * dt;
+
+	// Direction
+	m_FacingRight = (movement.x > 0.f);
+
+	// Animations
+	if (m_SpriteTimer > 0.05f)
+	{
+		// Sprite animation right
+		constexpr XMFLOAT4 atlastTransformsRight[8]
+		{
+			{ 0, 0, 16, 16 },
+			{ 16, 0, 32, 16 },
+			{ 32, 0, 48, 16 },
+			{ 48, 0, 64, 16 },
+			{ 64, 0, 80, 16 },
+			{ 80, 0, 96, 16 },
+			{ 96, 0, 112, 16 },
+			{ 112, 0, 128, 16 }
+		};
+
+		if (movement.x < -0.1f || movement.x > 0.1f)
+		{
+			auto atlasTransform = atlastTransformsRight[m_SpriteIndex];
+			atlasTransform.y += m_PlayerController * 16;
+			atlasTransform.w += m_PlayerController * 16;
+
+			m_SpriteTimer -= m_SpriteTimer;
+			m_SpriteIndex++;
+
+			if (m_SpriteIndex == 8)
+				m_SpriteIndex = 0;
+
+			// Which of the sprite should you use
+			if(!m_FacingRight)
+			{
+				atlasTransform.x += 128;
+				atlasTransform.z += 128;
+			}
+
+			m_pRenderComponent->SetAtlasTransform(atlasTransform);
+		}
+		else
+		{
+			auto atlasTransform = atlastTransformsRight[0];
+			atlasTransform.y += m_PlayerController * 16;
+			atlasTransform.w += m_PlayerController * 16;
+
+			m_pRenderComponent->SetAtlasTransform(atlasTransform);
+			m_FacingRight = true; // Hacky
+		}
+	}
+
+	if (pInputMananager->IsPressed(ControllerButton::B, m_PlayerController))
+	{
+		if (m_Timer > 0.2f)
 		{
 			const auto pWorld = m_pOwner->GetWorld();
 			const auto pos = m_pTransform->position;
-			
+
+			const XMFLOAT2 direction = (m_FacingRight) ? XMFLOAT2{ 1.f, 0.f } : XMFLOAT2{ -1.f, 0.f };
+
 			Prefabs::CreateBubbleProjectile(
 				pWorld,
 				{ pos.x, pos.y },
-				{ cosf(m_pTransform->rotation), sinf(m_pTransform->rotation) },
+				direction,
 				m_pRenderComponent->GetSpriteBatch()
 			);
 

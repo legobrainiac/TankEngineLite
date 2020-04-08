@@ -49,6 +49,7 @@ bool InputManager::ProcessInput()
         else if(!m_ControllerConnected[cId] && dwResult == ERROR_SUCCESS)
         {
             m_ControllerConnected[cId] = true;
+			m_ControllerComplained[cId] = true;
             LOGINFO("Controller connected [ cid = " << cId << " ]" << std::endl);
         }
         
@@ -98,15 +99,17 @@ void InputManager::ValidateActionMapping(ActionMapping& am)
     }
 }
 
-bool InputManager::IsPressed(ControllerButton button, uint32_t controllerId) const
+bool InputManager::IsPressed(ControllerButton button, uint32_t controllerId)
 {
     if(m_ControllerConnected[controllerId])
         return m_PadKeys[controllerId][button];
-    else
+    else if(!m_ControllerComplained[controllerId])
     {
         LOGINFO("Attempt of input on disconnected controller [ cid = " << controllerId << " ]" << std::endl);
-        return false;
+		m_ControllerComplained[controllerId] = true;
     }
+
+	return false;
 }
 
 void InputManager::KeyDown(SDL_Scancode key)

@@ -54,11 +54,12 @@ bool Renderer::Init(SDL_Window* pWin, int xw, int yh, bool vSync)
 	return true;
 }
 
-void Renderer::Render(ECS::System* pWorldRenderSystem) const
+void Renderer::SpriteBatchRender(ECS::System* pWorldRenderSystem) const
 {
+	// If the world system is valid
 	if (pWorldRenderSystem)
 	{
-		// Render world
+		// Populate sprite batching using the sprite batch render components
 		pWorldRenderSystem->ForAll([](ECS::EntityComponent* pC)
 			{
 				static_cast<SpriteRenderComponent*>(pC)->Render();

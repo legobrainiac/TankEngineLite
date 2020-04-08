@@ -17,7 +17,7 @@ class Renderer
 {
 public:
 	bool Init(SDL_Window* window, int xw, int yh, bool vSync = false);
-	void Render(ECS::System* pWorldRenderSystem) const;
+	void SpriteBatchRender(ECS::System* pWorldRenderSystem) const;
 	void RootRenderBegin() const;
 	void RootRenderEnd() const;
 	void Destroy();

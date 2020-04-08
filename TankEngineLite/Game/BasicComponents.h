@@ -3,6 +3,7 @@
 
 #include <D3D.h>
 #include "CoreComponents.h"
+#include "InputManager.h"
 
 class SpriteBatch;
 
@@ -45,23 +46,29 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 // Player movement component
-class MovementComponent
+class PlayerController
 	: public ECS::EntityComponent
 {
 public:
-	MovementComponent() {}
-	MovementComponent(ECS::Entity* pE);
+	PlayerController() {}
+	PlayerController(ECS::Entity* pE);
 
 	void Update(float dt) override;
+	inline void SetInputController(Player player) { m_PlayerController = player; }
 
 private:
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
 	bool m_MeetsRequirements;
 	float m_Timer;
+	float m_VerticalAcceleration;
 
 	float m_SpriteTimer;
 	int m_SpriteIndex;
+
+	bool m_FacingRight;
+
+	Player m_PlayerController;
 };
 
 #endif // !BASIC_COMPONENTS

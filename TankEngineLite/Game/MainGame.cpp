@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "MainGame.h"
 
-#include "BasicComponents.h"
 #include "SpriteBatch.h"
+#include "Prefabs.h"
 #include "imgui.h"
 
 void MainGame::Initialize()
@@ -15,7 +15,7 @@ void MainGame::Initialize()
 		ECS::WorldSystem<SpriteRenderComponent, 256, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<LifeSpan, 256, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<MovementComponent, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
+		ECS::WorldSystem<PlayerController, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
 	>();
 }
 
@@ -29,38 +29,18 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 	m_pBackgroundStatic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5"), BatchMode::BATCHMODE_STATIC);
 
 	// Setup a smol platform
-	for (int i = 0; i < 25; ++i)
-		m_pBackgroundStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
-	
-	// Ross boi
+	for (int j = 0; j < 5; ++j)
 	{
-		auto pEntity = m_pWorld->CreateEntity();
-		auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, SpriteRenderComponent, TransformComponent2D>();
-		pRenderer->SetSpriteBatch(m_pCharacter_SB);
-		pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
-		pTransform->position = { 1600.f / 2.f, 900.f / 2.f, 0.f };
-		pTransform->scale = { 4.f, 4.f };
+		for (int i = 0; i < 25; ++i)
+			m_pBackgroundStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
 	}
 
-	auto pInputMananager = InputManager::GetInstance();
-	pInputMananager->RegisterActionMappin(
-		ActionMapping(SDL_SCANCODE_K, ActionType::PRESSED,
-			[]()
-			{
-				LOGINFO("PRESSED K" << std::endl);
-			}));
-
-	pInputMananager->RegisterActionMappin(
-		ActionMapping(SDL_SCANCODE_K, ActionType::RELEASED,
-			[&]()
-			{
-				LOGINFO("RELEASED K" << std::endl);
-				auto pEntity = m_pWorld->CreateEntity();
-				auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<MovementComponent, SpriteRenderComponent, TransformComponent2D>();
-				pRenderer->SetSpriteBatch(m_pCharacter_SB);
-				pRenderer->SetAtlasTransform({ 0, 0, 16, 16 });
-				pTransform->position = { 1600.f / 2.f, 900.f / 2.f, 0.f };
-			}));
+	// TODO(tomas): player connected callback instead of this
+	// Spawn player one
+	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 - 32, 0 }, Player::PLAYER0);
+	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 + 32, 0 }, Player::PLAYER1);
+	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 - 96, 0 }, Player::PLAYER2);
+	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 + 96, 0 }, Player::PLAYER3);
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
@@ -78,7 +58,10 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 {
-	pRenderer->Render(m_pWorld->GetSystemByComponent<SpriteRenderComponent>());
+	// Populate sprite batches
+	pRenderer->SpriteBatchRender(m_pWorld->GetSystemByComponent<SpriteRenderComponent>());
+
+	// Render your sprite batches
 	m_pCharacter_SB->Render();
 	m_pBackgroundStatic_SB->Render();
 }
