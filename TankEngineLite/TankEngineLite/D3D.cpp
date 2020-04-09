@@ -45,7 +45,9 @@ bool D3D::Initialize(int screenW, int screenH, bool vsync, HWND hwnd)
 	DXCALL(m_pDXGIFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain));
 
 	// Debug layer
-	m_pDevice->QueryInterface(__uuidof(ID3D11Debug), (void**)& m_pDebug);
+#if defined(DEBUG) || defined(_DEBUG)
+	DXCALL(m_pDevice->QueryInterface(&m_pDebug));
+#endif
 
 	// Depth/Stencil buffer and view
 	D3D11_TEXTURE2D_DESC depthStencilDesc{};
@@ -69,11 +71,11 @@ bool D3D::Initialize(int screenW, int screenH, bool vsync, HWND hwnd)
 	// Create depth stencil texture and view
 	DXCALL(m_pDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer));
 	DXCALL(m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, &depthStencilViewDesc, &m_pDepthStencilView));
-
+	
 	// Create render target view
 	DXCALL(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pRenderTargetBuffer)));
 	DXCALL(m_pDevice->CreateRenderTargetView(m_pRenderTargetBuffer, nullptr, &m_pRenderTargetView));
-
+	
 	// Bind the views to the output merger stage
 	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
@@ -102,19 +104,24 @@ bool D3D::Initialize(int screenW, int screenH, bool vsync, HWND hwnd)
 	// Create orthographic matrix
 	XMStoreFloat4x4(&m_OrthoMatrix, XMMatrixOrthographicLH((float)m_ScreenW, (float)m_ScreenH, 0.1f, 1000.f));
 
+	DXRELEASE(m_pDXGIFactory);
+
 	return true;
 }
 
 void D3D::Shutdown()
 {
-	DXRELEASE(m_pRenderTargetView);
-	DXRELEASE(m_pDXGIFactory);
-	DXRELEASE(m_pSwapChain);
-
-	DXRELEASE(m_pRenderTargetBuffer);
+	// Depth stencil view and render target view
 	DXRELEASE(m_pDepthStencilView);
 	DXRELEASE(m_pDepthStencilBuffer);
 
+	DXRELEASE(m_pRenderTargetView);
+	DXRELEASE(m_pRenderTargetBuffer);
+
+	// Swap chain
+	DXRELEASE(m_pSwapChain);
+	
+	// Device
 	if (m_pDeviceContext)
 	{
 		m_pDeviceContext->ClearState();
@@ -124,11 +131,14 @@ void D3D::Shutdown()
 
 	DXRELEASE(m_pDevice);
 
+	// Look for live objects
+#if defined(DEBUG) || defined(_DEBUG)
 	if (m_pDebug)
 	{
-		m_pDebug->ReportLiveObjects(DXGI_DEBUG_D3D11, DXGI_DEBUG_RLO_DETAIL);
+		m_pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 		DXRELEASE(m_pDebug);
 	}
+#endif
 }
 
 void D3D::Begin(const DirectX::XMFLOAT4& colour)

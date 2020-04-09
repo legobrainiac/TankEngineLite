@@ -54,6 +54,6 @@ bool Texture::Initialize(ID3D11Device* pDevice, LPCSTR fileName)
 
 void Texture::Shutdown()
 {
-	DXRELEASE(m_pTexture);
 	DXRELEASE(m_pTextureView);
+	DXRELEASE(m_pTexture);
 }

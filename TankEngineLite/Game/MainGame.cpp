@@ -29,18 +29,27 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 	m_pBackgroundStatic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5"), BatchMode::BATCHMODE_STATIC);
 
 	// Setup a smol platform
-	for (int j = 0; j < 5; ++j)
+	for (int i = 0; i < 25; ++i)
+		m_pBackgroundStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
+
+	for (int j = 1; j < 5; ++j)
 	{
 		for (int i = 0; i < 25; ++i)
-			m_pBackgroundStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
+			m_pBackgroundStatic_SB->PushSprite({ 16, 0, 32, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
 	}
 
-	// TODO(tomas): player connected callback instead of this
-	// Spawn player one
-	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 - 32, 0 }, Player::PLAYER0);
-	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 + 32, 0 }, Player::PLAYER1);
-	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 - 96, 0 }, Player::PLAYER2);
-	Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { 1600 / 2 + 96, 0 }, Player::PLAYER3);
+	// If a controller is connected, 
+	//  spawn a player for it
+	// If a controller is disconnected
+	//  destroy the corresponding player
+	InputManager::GetInstance()->RegisterControllerConnectedCallback(
+		[this](uint32_t controller, ConnectionType connection) 
+		{
+			if (connection == ConnectionType::CONNECTED)
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { float(rand() % 1000 + 300), 0 }, (Player)controller);
+			else
+				m_pWorld->DestroyEntity(m_pPlayers[controller]->GetId());
+		});
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
@@ -72,5 +81,5 @@ void MainGame::Shutdown()
 	delete m_pCharacter_SB;
 
 	m_pBackgroundStatic_SB->Destroy();
-	delete m_pCharacter_SB;
+	delete m_pBackgroundStatic_SB;
 }

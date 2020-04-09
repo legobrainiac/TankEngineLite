@@ -71,9 +71,6 @@ void CreateVertex(inout TriangleStream<GS_DATA> triStream, float3 pos, float4 co
 	}
 	else
 	{
-		//Step 2.
-		//No rotation calculations (no need to do the rotation calculations if there is no rotation applied > redundant operations)
-		//Just apply the pivot offset
 		pos -= float3(pivotOffset, pos.z);
 	}
 

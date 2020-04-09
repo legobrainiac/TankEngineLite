@@ -88,6 +88,5 @@ void Renderer::Destroy()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
-
 	DXSHUTDOWN(m_pDirectX);
 }

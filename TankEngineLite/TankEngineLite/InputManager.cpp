@@ -44,6 +44,11 @@ bool InputManager::ProcessInput()
         {
             m_ControllerConnected[cId] = false;
             LOGINFO("Controller disconnected [ cid = " << cId << " ]" << std::endl);
+
+			// Call to all event listeners
+			for (const auto& callback : m_ControllerConnectedCallbacks)
+				callback(cId, ConnectionType::DISCONNECTED);
+
             continue;
         }
         else if(!m_ControllerConnected[cId] && dwResult == ERROR_SUCCESS)
@@ -51,6 +56,10 @@ bool InputManager::ProcessInput()
             m_ControllerConnected[cId] = true;
 			m_ControllerComplained[cId] = true;
             LOGINFO("Controller connected [ cid = " << cId << " ]" << std::endl);
+
+			// Call to all event listeners
+			for (const auto& callback : m_ControllerConnectedCallbacks)
+				callback(cId, ConnectionType::CONNECTED);
         }
         
         if(dwResult != ERROR_SUCCESS)

@@ -4,6 +4,7 @@
 #include "Tel.h"
 
 class SpriteBatch;
+class Entity;
 class World;
 
 class MainGame
@@ -20,6 +21,9 @@ private:
 	ECS::World* m_pWorld;
 	SpriteBatch* m_pCharacter_SB;
 	SpriteBatch* m_pBackgroundStatic_SB;
+
+	// Keep track of players for connect/disconnect
+	ECS::Entity* m_pPlayers[4];
 };
 
 #endif // !MAIN_GAME_H

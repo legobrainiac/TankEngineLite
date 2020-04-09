@@ -45,12 +45,13 @@ void TEngineRunner::LoadGame()
 
 void TEngineRunner::Cleanup()
 {
+	m_pGame->Shutdown();
 	delete m_pGame;
+
 	ResourceManager::GetInstance()->Destroy();
 	Renderer::GetInstance()->Destroy();
 
 	SDL_DestroyWindow(m_pWindow);
-	m_pWindow = nullptr;
 	SDL_Quit();
 }
 

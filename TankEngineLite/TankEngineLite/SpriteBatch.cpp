@@ -84,14 +84,14 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 
 void SpriteBatch::Destroy()
 {
-	DXRELEASE(m_pInputLayout);
-	
-	DXRELEASE(m_pTextureSRV);
-	DXRELEASE(m_pTextureSizeV);
-	DXRELEASE(m_pTransfromMatrixV);
-	
 	DXRELEASE(m_pTechnique);
 	DXRELEASE(m_pVertexBuffer);
+
+	DXRELEASE(m_pTransfromMatrixV);
+	DXRELEASE(m_pTextureSizeV);
+	DXRELEASE(m_pTextureSRV);
+
+	DXRELEASE(m_pInputLayout);
 	m_Batch.clear();
 }
 
@@ -116,7 +116,7 @@ void SpriteBatch::PushSprite(
 
 void SpriteBatch::Render()
 {
-	if (!m_Atlas || m_Batch.empty())
+	if (!m_Atlas)
 		return;
 
 	// Device stuff
@@ -155,8 +155,7 @@ void SpriteBatch::Render()
 	}
 
 	// Clear it as setup for next frame
-	if (m_Mode == BatchMode::BATCHMODE_DYNAMIC)
-		m_Batch.clear();
+	m_Batch.clear();
 }
 
 void SpriteBatch::UpdateBuffer()

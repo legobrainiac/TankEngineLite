@@ -18,6 +18,10 @@
 #include "SDL_syswm.h"
 #include "SDL_surface.h"
 
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_sdl.h"
+
 #define DXASSERT() if (FAILED(result)) return false;
 #define DXCALL(CALL) result = CALL; DXASSERT();
 #define DXSHUTDOWN(RES) if(RES) { RES->Shutdown(); delete RES; RES = nullptr; }
@@ -55,7 +59,7 @@ private:
 	IDXGISwapChain* m_pSwapChain;
 	IDXGIFactory* m_pDXGIFactory;
 
-	IDXGIDebug* m_pDebug;
+	ID3D11Debug* m_pDebug;
 
 	ID3D11Texture2D* m_pDepthStencilBuffer;
 	ID3D11DepthStencilView* m_pDepthStencilView;
