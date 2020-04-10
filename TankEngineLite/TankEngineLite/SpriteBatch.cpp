@@ -158,6 +158,27 @@ void SpriteBatch::Render()
 	m_Batch.clear();
 }
 
+void SpriteBatch::ImGuiDebug()
+{
+	ImGui::Image((void*)m_Atlas->GetTexture(), ImVec2(256, 256));
+
+	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "BatchMode::m_Atlas::size::x = ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string((int)m_Atlas->GetTextureSize().x).c_str());
+
+	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "BatchMode::m_Atlas::size::y = ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string((int)m_Atlas->GetTextureSize().y).c_str());
+
+	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "BatchMode::m_Mode = ");
+	ImGui::SameLine();
+	ImGui::Text((m_Mode == BatchMode::BATCHMODE_DYNAMIC) ? "Dynamic" : "Static");
+
+	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "BatchMode::m_BatchSize = ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(m_BatchSize).c_str());
+}
+
 void SpriteBatch::UpdateBuffer()
 {
 	// Device stuff

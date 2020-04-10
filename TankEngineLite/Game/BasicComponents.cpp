@@ -67,6 +67,17 @@ void PlayerController::Update(float dt)
 	//////////////////////////////////////////////////////////////////////////
 	// hardcoded physics
 
+	// all of this is horrible code ik
+	if(m_Jumped)
+		m_RumbleTimer += dt;
+
+	if (m_RumbleTimer > 0.25f)
+	{
+		pInputMananager->SetControlerRumble(0, 0, m_PlayerController);
+		m_RumbleTimer -= m_RumbleTimer;
+		m_Jumped = false;
+	}
+
 	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * ( 0 - m_VerticalAcceleration));
 
 	if (m_pTransform->position.y < 600.f - 32.f)
@@ -74,7 +85,11 @@ void PlayerController::Update(float dt)
 	else
 	{
 		if (pInputMananager->IsPressed(ControllerButton::A, m_PlayerController))
+		{
+			pInputMananager->SetControlerRumble(25000, 25000, m_PlayerController);
 			m_VerticalAcceleration = -2000.f;
+			m_Jumped = true;
+		}
 	}
 
 	// hardcoded physics end

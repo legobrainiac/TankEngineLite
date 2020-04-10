@@ -22,6 +22,11 @@ private:
 	SpriteBatch* m_pCharacter_SB;
 	SpriteBatch* m_pBackgroundStatic_SB;
 
+	// TODO(tomas): move all of this to the engine
+	// Tools
+	bool m_DebugSystems = true;
+	bool m_DebugRenderer = true;
+
 	// Keep track of players for connect/disconnect
 	ECS::Entity* m_pPlayers[4];
 };

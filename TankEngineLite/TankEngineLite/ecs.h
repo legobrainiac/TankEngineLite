@@ -74,6 +74,7 @@ public:
 
 	inline virtual void Update(float dt) = 0;
 	inline virtual void ForAll(std::function<void(EntityComponent*)> execFunc) = 0;
+	inline virtual void ImGuiDebug() = 0;
 };
 
 struct SystemIdentifier
@@ -144,6 +145,14 @@ public:
 
 	inline void Update(float dt) override
 	{
+		m_pComponentPool->ForAllActive([&](T* pC)
+			{
+				pC->Update(dt);
+			});
+	}
+
+	inline void ImGuiDebug() override
+	{
 #ifdef DEBUG_POOL
 		std::string str = GetSystemTypeAsComponent().name();
 		str = str.substr(6);
@@ -155,11 +164,6 @@ public:
 			ImGui::EndTabItem();
 		}
 #endif // DEBUG_POOL
-
-		m_pComponentPool->ForAllActive([&](T* pC)
-			{
-				pC->Update(dt);
-			});
 	}
 
 	inline void ForAll(std::function<void(EntityComponent*)> execFunc) override
@@ -247,6 +251,12 @@ public:
 public:
 	void Update(float dt/*CommandChain/SignalChain?*/)
 	{
+		for (auto system : m_Systems)
+			system.second.pSystem->Update(dt);
+	}
+
+	void ImGuiDebug()
+	{
 #ifdef DEBUG_POOL
 		std::string str = "World: " + std::to_string(m_ID) + " system debugger";
 		ImGui::Begin(str.c_str());
@@ -255,7 +265,7 @@ public:
 			if (ImGui::BeginTabItem("World stats"))
 			{
 				ImGui::Separator();
-				
+
 				// World Id
 				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "World id: ");
 				ImGui::SameLine();
@@ -270,7 +280,7 @@ public:
 				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "UID counter: ");
 				ImGui::SameLine();
 				ImGui::Text(std::to_string(m_IdCounter).c_str());
-				
+
 				// Entity count
 				ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Component system count: ");
 				ImGui::SameLine();
@@ -280,7 +290,7 @@ public:
 			}
 #endif
 			for (auto system : m_Systems)
-				system.second.pSystem->Update(dt);
+				system.second.pSystem->ImGuiDebug();
 #ifdef DEBUG_POOL
 			ImGui::EndTabBar();
 		}
@@ -474,6 +484,12 @@ public:
 	{
 		for (auto world : m_Worlds)
 			world.second->Update(dt);
+	}
+
+	void ImGuiDebug()
+	{
+		for (auto world : m_Worlds)
+			world.second->ImGuiDebug();
 	}
 
 	RO5(Universe);

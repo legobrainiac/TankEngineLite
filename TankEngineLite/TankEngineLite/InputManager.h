@@ -108,6 +108,8 @@ public:
 		m_ControllerConnectedCallbacks.push_back(callback);
 	}
 
+	void SetControlerRumble(unsigned short leftMotor, unsigned short rightMotor, uint32_t controllerId = 0U);
+
 private:
 	bool m_Keys[512]; // Keyboard keys
 	bool m_PadKeys[4][18]; // Gamepad keys

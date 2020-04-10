@@ -59,16 +59,20 @@ public:
 private:
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
-	bool m_MeetsRequirements;
+
+	// Timers
 	float m_Timer;
-	float m_VerticalAcceleration;
-
 	float m_SpriteTimer;
-	int m_SpriteIndex;
+	float m_RumbleTimer;
 
+	float m_VerticalAcceleration;
+	int m_SpriteIndex;
 	bool m_FacingRight;
+	bool m_Jumped;
 
 	Player m_PlayerController;
+
+	bool m_MeetsRequirements;
 };
 
 #endif // !BASIC_COMPONENTS

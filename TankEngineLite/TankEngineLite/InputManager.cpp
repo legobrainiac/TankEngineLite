@@ -145,3 +145,20 @@ std::tuple<int, int, Uint32> InputManager::GetMouseState()
 	return std::tuple<int, int, Uint32>(x, y, mouseState);
 }
 
+void InputManager::SetControlerRumble(unsigned short leftMotor, unsigned short rightMotor, uint32_t controllerId)
+{
+	if (m_ControllerConnected[controllerId])
+	{
+		XINPUT_VIBRATION rumbler;
+		rumbler.wLeftMotorSpeed = leftMotor;
+		rumbler.wRightMotorSpeed = rightMotor;
+
+		XInputSetState(controllerId, &rumbler);
+	}
+	else if (!m_ControllerComplained[controllerId])
+	{
+		LOGINFO("Attempt of rumble on disconnected controller [ cid = " << controllerId << " ]" << std::endl);
+		m_ControllerComplained[controllerId] = true;
+	}
+}
+

@@ -56,13 +56,62 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 {
 	ECS::Universe::GetInstance()->Update(dt);
 
-	ImGui::Begin("Render stats");
+	//////////////////////////////////////////////////////////////////////////
+	// ImGui debug rendering
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("Files"))
+		{
+			if (ImGui::MenuItem("Load script", "CTRL+O"))
+				LOGINFO("Script loading not implemented");
 
-	std::stringstream stream;
-	stream << "DT: " << dt;
-	ImGui::Text(stream.str().c_str());
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Tools"))
+		{
+			if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
+			if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
 
-	ImGui::End();
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	
+	if (m_DebugSystems)
+		ECS::Universe::GetInstance()->ImGuiDebug();
+
+	if (m_DebugRenderer)
+	{
+		ImGui::Begin("Renderer settings");
+
+		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "DT: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(dt).c_str());
+		ImGui::SameLine();
+		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "FPS: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string((int)(1 / dt)).c_str());
+
+		ImGui::Separator();
+		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Sprite batches");
+		if (ImGui::BeginTabBar("Sprite batches", ImGuiTabBarFlags_None))
+		{
+			if (ImGui::BeginTabItem("Dynamic"))
+			{
+				m_pCharacter_SB->ImGuiDebug();
+				ImGui::EndTabItem();
+			}
+
+			if (ImGui::BeginTabItem("Static"))
+			{
+				m_pBackgroundStatic_SB->ImGuiDebug();
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+
+		ImGui::End();
+	}
 }
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
