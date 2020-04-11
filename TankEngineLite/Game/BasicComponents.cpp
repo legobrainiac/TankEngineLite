@@ -72,7 +72,10 @@ void PlayerController::Update(float dt)
 	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * (0 - m_VerticalAcceleration));
 
 	if (m_pTransform->position.y < 600.f - 32.f)
-		movement.y += 1000.f * dt;
+	{
+		float totalMovement = 981.f * dt;
+		movement.y += totalMovement;
+	}
 	else
 	{
 		if (pInputMananager->IsPressed(ControllerButton::A, m_PlayerController))
@@ -84,7 +87,7 @@ void PlayerController::Update(float dt)
 				float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
 
 				XMFLOAT2 accel{ cosf(angle) * 100.f, sin(angle) * 50.f };
-				Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, accel, { 1.f, 1.f, 1.f, 1.f }, 0.5f, 50.f);
+				Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, accel, { 0.0f, 0.6f, 1.0f, 1.f }, 0.5f, 50.f);
 			}
 
 			// Actually jump
@@ -229,7 +232,8 @@ void ParticleEmitter::SpawnParticles([[maybe_unused]] float dt)
 		float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
 
 		XMFLOAT2 accel{ cosf(angle) * 50.f, sinf(angle) * 50.f };
-		Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pSpriteBatch, pos, accel, { 1.f, 1.f, 1.f, 1.f }, m_ParticleLifeTime, m_Gravity);
+
+		Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pSpriteBatch, pos, accel, { 1.f, .3f, 0.3f, 1.f }, m_ParticleLifeTime, m_Gravity);
 	}
 }
 
@@ -255,7 +259,7 @@ void Particle::Update(float dt)
 	m_Acceleration.x = Utils::Lerp(m_Acceleration.x, 0.f, dt);
 	m_Acceleration.y = Utils::Lerp(m_Acceleration.y, m_Gravity, dt);
 
-	m_pSpriteBatch->PushSprite({ 68, 68, 72, 72 }, { m_Pos.x, m_Pos.y, 0 }, 0, { m_Scale , m_Scale }, { 0.5f, 0.5f }, m_Colour);
+	m_pSpriteBatch->PushSprite({ 8, 128, 12, 132 }, { m_Pos.x, m_Pos.y, 0 }, 0, { m_Scale , m_Scale }, { 0.5f, 0.5f }, m_Colour);
 }
 
 void Particle::Initialize(SpriteBatch* pSpriteBatch, XMFLOAT2 pos, XMFLOAT2 startAcceleration, float scale, XMFLOAT4 colour, float life, float gravity)

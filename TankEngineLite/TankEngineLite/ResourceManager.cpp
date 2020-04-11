@@ -71,6 +71,7 @@ Texture* ResourceManager::LoadTexture(const std::string& file, const std::string
 		return nullptr;
 	}
 
+	LOGGER->Log<LOG_SUCCESS>("Loaded " + name);
 	return pTexture;
 }
 
@@ -81,7 +82,7 @@ Texture* ResourceManager::GetTexture(const std::string& name) const
 	if (it != m_pTextures.cend())
 		return it->second;
 
-	Logger::GetInstance()->Log<LOG_ERROR>("Failed to locate texture -> " + name);
+	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate texture -> " + name);
 
 	return nullptr;
 }
@@ -135,6 +136,8 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::wstring& file, const std::
 		}
 	}
 	
+	LOGGER->Log<LOG_SUCCESS>("Loaded " + name);
+
 	DXRELEASE(pErrorBlob);
 	m_pEffects[name] = pEffect;
 	
@@ -148,7 +151,7 @@ ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
 	if (it != m_pEffects.cend())
 		return it->second;
 
-	Logger::GetInstance()->Log<LOG_ERROR>("Failed to locate effect -> " + name);
+	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate effect -> " + name);
 	return nullptr;
 }
 

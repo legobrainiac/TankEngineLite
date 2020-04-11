@@ -26,11 +26,17 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 {
 	// Create the sprite batches
 	m_pDynamic_SB = new SpriteBatch("Dynamic");
-	m_pDynamic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0"));
+	auto pTexDyn = ResourceManager::GetInstance()->GetTexture("atlas_0");
+	if (!pTexDyn)
+		pTexDyn = ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0");
+	m_pDynamic_SB->InitializeBatch(pTexDyn);
 	pEngine->RegisterBatchForDebug(m_pDynamic_SB);
 
 	m_pStatic_SB = new SpriteBatch("Static");
-	m_pStatic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5"), BatchMode::BATCHMODE_STATIC);
+	auto pTexStat = ResourceManager::GetInstance()->GetTexture("atlas_5");
+	if(!pTexStat)
+		pTexStat = ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5");
+	m_pStatic_SB->InitializeBatch(pTexStat, BatchMode::BATCHMODE_STATIC);
 	pEngine->RegisterBatchForDebug(m_pStatic_SB);
 
 	// Create particle system
@@ -38,7 +44,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		auto pParticleSystemEntity = m_pWorld->CreateEntity();
 		auto[pParticleEmitter, pTransform] = pParticleSystemEntity->PushComponents<ParticleEmitter, TransformComponent2D>();
 		pParticleEmitter->m_ParticleSpawnInterval = 0.01f;
-		pParticleEmitter->m_ParticleLifeTime = 2.0f;
+		pParticleEmitter->m_ParticleLifeTime = .5f;
 		pParticleEmitter->m_ParticlesPerSpawn = 5U;
 		pParticleEmitter->m_pSpriteBatch = m_pDynamic_SB;
 		pParticleEmitter->m_Gravity = 981.f;

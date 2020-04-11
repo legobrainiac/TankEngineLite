@@ -112,11 +112,13 @@ public:
 
 	void inline RegisterActionMappin(const ActionMapping& am)
 	{
+		LOGGER->Log<LOG_INFO>("Registered action mapping >> " + std::to_string(am.action));
 		m_ActionMappings[am.actionType].push_back(am);
 	}
 
 	void inline RegisterControllerConnectedCallback(const ControllerConnectedCallback& callback)
 	{
+		LOGGER->Log<LOG_INFO>("Registered controller connected callback");
 		m_ControllerConnectedCallbacks.push_back(callback);
 	}
 
