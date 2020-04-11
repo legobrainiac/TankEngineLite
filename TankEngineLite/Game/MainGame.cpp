@@ -39,7 +39,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		auto[pParticleEmitter, pTransform] = pParticleSystemEntity->PushComponents<ParticleEmitter, TransformComponent2D>();
 		pParticleEmitter->m_ParticleSpawnInterval = 0.01f;
 		pParticleEmitter->m_ParticleLifeTime = 2.0f;
-		pParticleEmitter->m_ParticlesPerSpawn = 2U;
+		pParticleEmitter->m_ParticlesPerSpawn = 5U;
 		pParticleEmitter->m_pSpriteBatch = m_pDynamic_SB;
 		pParticleEmitter->m_Gravity = 981.f;
 

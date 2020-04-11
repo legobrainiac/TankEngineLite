@@ -47,14 +47,14 @@ void TEngineRunner::LoadGame()
 
 void TEngineRunner::Cleanup()
 {
+	SDL_DestroyWindow(m_pWindow);
+	SDL_Quit();
+	
 	m_pGame->Shutdown();
-	delete m_pGame;
-
 	ResourceManager::GetInstance()->Destroy();
 	Renderer::GetInstance()->Destroy();
 
-	SDL_DestroyWindow(m_pWindow);
-	SDL_Quit();
+	delete m_pGame;
 }
 
 void TEngineRunner::ImGuiDebug(float dt)

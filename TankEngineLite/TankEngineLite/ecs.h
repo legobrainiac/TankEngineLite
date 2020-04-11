@@ -445,6 +445,7 @@ inline void World::DestroyEntity(uint32_t id)
 	{
 		auto pEntity = *entityIt;
 		pEntity.second->CleanComponents();
+		delete pEntity.second;
 		m_pEntities.erase(entityIt);
 	}
 }

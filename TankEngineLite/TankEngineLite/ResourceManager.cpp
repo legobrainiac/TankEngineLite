@@ -100,7 +100,7 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 #endif
 
 	// Convert to wchar_t*
-	const auto fullPath = m_DataPath + file;
+	auto fullPath = m_DataPath + file;
 	std::wstring path(fullPath.begin(), fullPath.end());
 	
 	hr = D3DX11CompileEffectFromFile(path.c_str(),
@@ -111,6 +111,8 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 		Renderer::GetInstance()->GetDirectX()->GetDevice(),
 		&pEffect,
 		&pErrorBlob);
+
+	path.clear();
 
 	if (FAILED(hr))
 	{
@@ -135,7 +137,7 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 		}
 	}
 	
-	DXRELEASE(pErrorBlob)
+	DXRELEASE(pErrorBlob);
 	m_pEffects[name] = pEffect;
 	
 	return pEffect;
