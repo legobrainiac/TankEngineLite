@@ -61,7 +61,7 @@ Texture* ResourceManager::LoadTexture(const std::string& file, const std::string
 	}
 	catch (const std::exception& e)
 	{
-		LOGINFO(e.what());
+		Logger::GetInstance()->Log<LOG_ERROR>(e.what());
 
 		// Fall back exception, 
 		//  we don't want memory leaks on failed texture creation
@@ -80,7 +80,7 @@ inline Texture* ResourceManager::GetTexture(const std::string& name) const
 	if (it != m_pTextures.cend())
 		return it->second;
 
-	LOGINFO("Failed to locate texture -> " << name);
+	Logger::GetInstance()->Log<LOG_ERROR>("Failed to locate texture -> " + name);
 
 	return nullptr;
 }
@@ -116,7 +116,7 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 	{
 		if (pErrorBlob != nullptr)
 		{
-			char* errors = (char*)pErrorBlob->GetBufferPointer();
+			auto* errors = (char*)pErrorBlob->GetBufferPointer();
 
 			std::wstringstream ss;
 			for (unsigned int i = 0; i < pErrorBlob->GetBufferSize(); i++)
@@ -126,11 +126,11 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 			pErrorBlob->Release();
 			pErrorBlob = nullptr;
 
-			LOGINFOW(ss.str());
+			std::wcout << ss.str() << std::endl;
 		}
 		else
 		{
-			LOGINFOW("EffectLoader: Failed to CreateEffectFromFile!\nPath: " << path << std::endl);
+			std::wcout << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << path << std::endl;
 			return nullptr;
 		}
 	}
@@ -148,8 +148,7 @@ inline ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
 	if (it != m_pEffects.cend())
 		return it->second;
 
-	LOGINFO("Failed to locate effect -> " << name);
-
+	Logger::GetInstance()->Log<LOG_ERROR>("Failed to locate effect -> " + name);
 	return nullptr;
 }
 

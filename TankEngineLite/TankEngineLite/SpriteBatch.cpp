@@ -56,7 +56,7 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 	
 	const auto result = pDevice->CreateInputLayout(vertexDesc, 4, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
 	if (FAILED(result))
-		LOGINFO("Failed to create input layout for sprite batch, halp");
+		Logger::GetInstance()->Log<LOG_ERROR>("Failed to create input layout for sprite batch, halp");
 
 	// TODO(tomas): remove this, replace with proper matrix for a 2D camera
 	const auto [screenW, screenH] = pRenderer->GetScreenSize();
@@ -80,6 +80,8 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 	m_Transform._42 = 1;
 	m_Transform._43 = 0;
 	m_Transform._44 = 1;
+
+	Logger::GetInstance()->Log<LOG_SUCCESS>(((m_Mode == BatchMode::BATCHMODE_DYNAMIC) ? std::string("Dynamic") : "Static") + " sprite batch created");
 }
 
 void SpriteBatch::Destroy()

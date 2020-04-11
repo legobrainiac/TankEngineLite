@@ -68,6 +68,7 @@ public:
 				ImGui::NewFrame();
 
 				// Update the game
+				pInput->Update(dt.count());
 				m_pGame->Update(dt.count(), pInput);
 				
 				//////////////////////////////////////////////////////////////////////////

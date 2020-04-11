@@ -26,6 +26,7 @@ private:
 	// Tools
 	bool m_DebugSystems = true;
 	bool m_DebugRenderer = true;
+	bool m_ShowLogger = true;
 
 	// Keep track of players for connect/disconnect
 	ECS::Entity* m_pPlayers[4];

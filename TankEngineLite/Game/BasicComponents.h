@@ -63,12 +63,10 @@ private:
 	// Timers
 	float m_Timer;
 	float m_SpriteTimer;
-	float m_RumbleTimer;
 
 	float m_VerticalAcceleration;
 	int m_SpriteIndex;
 	bool m_FacingRight;
-	bool m_Jumped;
 
 	Player m_PlayerController;
 

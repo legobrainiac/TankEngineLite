@@ -37,6 +37,7 @@ CLASS_NAME& operator=(CLASS_NAME&&) = delete;
 #ifdef INTE
 #include "Singleton.h"
 #include "Pool.h"
+#include "Logger.h"
 #endif 
 
 namespace ECS
@@ -188,7 +189,9 @@ public:
 		, m_IdCounter(0)
 	{
 #ifdef ECS_LOG
-		std::cout << "World create" << std::endl;
+#ifdef INTE
+		Logger::GetInstance()->Log<LOG_SUCCESS>("World created");
+#endif
 #endif
 	}
 
@@ -217,8 +220,12 @@ private:
 		m_Systems[pWorldSystem->GetSystemTypeAsComponent()] = system;
 
 #ifdef ECS_LOG
-		std::cout << "Registered world system : " + std::string(typeIndex.name()) << std::endl;
-#endif  
+#ifdef INTE
+		std::stringstream stream;
+		stream << "Registered world system : " + std::string(typeIndex.name());
+		Logger::GetInstance()->Log<LOG_INFO>(stream.str());
+#endif
+#endif
 		return pWorldSystem;
 	}
 

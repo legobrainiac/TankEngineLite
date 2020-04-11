@@ -78,6 +78,16 @@ struct ActionMapping
 	}
 };
 
+struct RumblePack
+{
+	unsigned short speedLeft;
+	unsigned short speedRight;
+	float life;
+	float lifeTime;
+
+	uint32_t controller;
+};
+
 class InputManager final
 	: public Singleton<InputManager>
 {
@@ -98,6 +108,8 @@ public:
 	bool IsPressed(ControllerButton button, uint32_t controllerId = 0U);
 	std::tuple<int, int, Uint32> GetMouseState();
 
+	void Update(float dt);
+
 	void inline RegisterActionMappin(const ActionMapping& am)
 	{
 		m_ActionMappings[am.actionType].push_back(am);
@@ -108,9 +120,11 @@ public:
 		m_ControllerConnectedCallbacks.push_back(callback);
 	}
 
-	void SetControlerRumble(unsigned short leftMotor, unsigned short rightMotor, uint32_t controllerId = 0U);
+	void RumbleController(unsigned short leftMotor, unsigned short rightMotor, float time, uint32_t controllerId = 0U);
 
 private:
+	void SetControlerRumble(unsigned short leftMotor, unsigned short rightMotor, uint32_t controllerId = 0U);
+
 	bool m_Keys[512]; // Keyboard keys
 	bool m_PadKeys[4][18]; // Gamepad keys
 	bool m_ControllerConnected[4]; // Gamepad status
@@ -126,6 +140,9 @@ private:
 
 	// Callbacks
 	std::vector<ControllerConnectedCallback> m_ControllerConnectedCallbacks;
+
+	// Rumble commands
+	std::vector<RumblePack> m_RumblePacks;
 };
 
 #endif // !INPUT_MANAGER_H

@@ -3,6 +3,7 @@
 
 #include "SpriteBatch.h"
 #include "Prefabs.h"
+#include "Logger.h"
 #include "imgui.h"
 
 void MainGame::Initialize()
@@ -58,12 +59,16 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ImGui debug rendering
+	
+	if(m_ShowLogger)
+		Logger::GetInstance()->UpdateAndDraw();
+
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("Files"))
 		{
 			if (ImGui::MenuItem("Load script", "CTRL+O"))
-				LOGINFO("Script loading not implemented");
+				Logger::GetInstance()->Log<LOG_WARNING>("Script loading not implemented");
 
 			ImGui::EndMenu();
 		}
@@ -71,6 +76,7 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 		{
 			if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
 			if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
+			if (ImGui::MenuItem("Logger", "")) { m_ShowLogger = !m_ShowLogger; }  // Disabled item
 
 			ImGui::EndMenu();
 		}
