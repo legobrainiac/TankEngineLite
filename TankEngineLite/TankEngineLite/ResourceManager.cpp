@@ -9,9 +9,10 @@
 #include "Texture.h"
 #include "Font.h"
 
-void ResourceManager::Init(const std::string& dataPath)
+void ResourceManager::Init(const std::string& dataPath, const std::wstring& dataW)
 {
 	m_DataPath = dataPath;
+	m_DataPathW = dataW;
 
 	// Load support for png and jpg, this takes a while!
 	if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG) 
@@ -73,7 +74,7 @@ Texture* ResourceManager::LoadTexture(const std::string& file, const std::string
 	return pTexture;
 }
 
-inline Texture* ResourceManager::GetTexture(const std::string& name) const
+Texture* ResourceManager::GetTexture(const std::string& name) const
 {
 	const auto it = m_pTextures.find(name);
 
@@ -87,9 +88,9 @@ inline Texture* ResourceManager::GetTexture(const std::string& name) const
 
 //////////////////////////////////////////////////////////////////////////
 // Effect Loading
-ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::string& name)
+ID3DX11Effect* ResourceManager::LoadEffect(const std::wstring& file, const std::string& name)
 {
-	HRESULT hr;
+	HRESULT hr = S_OK;
 	ID3D10Blob* pErrorBlob = nullptr;
 	ID3DX11Effect* pEffect;
 
@@ -100,10 +101,10 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 #endif
 
 	// Convert to wchar_t*
-	auto fullPath = m_DataPath + file;
-	std::wstring path(fullPath.begin(), fullPath.end());
+	std::wstring fullPath = m_DataPathW + file;
 	
-	hr = D3DX11CompileEffectFromFile(path.c_str(),
+	hr = D3DX11CompileEffectFromFile(
+		fullPath.c_str(),
 		nullptr,
 		nullptr,
 		shaderFlags,
@@ -111,8 +112,6 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 		Renderer::GetInstance()->GetDirectX()->GetDevice(),
 		&pEffect,
 		&pErrorBlob);
-
-	path.clear();
 
 	if (FAILED(hr))
 	{
@@ -125,14 +124,13 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 				ss << errors[i];
 
 			OutputDebugStringW(ss.str().c_str());
-			pErrorBlob->Release();
-			pErrorBlob = nullptr;
+			DXRELEASE(pErrorBlob);
 
 			std::wcout << ss.str() << std::endl;
 		}
 		else
 		{
-			std::wcout << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << path << std::endl;
+			std::wcout << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << fullPath << std::endl;
 			return nullptr;
 		}
 	}
@@ -143,7 +141,7 @@ ID3DX11Effect* ResourceManager::LoadEffect(const std::string& file, const std::s
 	return pEffect;
 }
 
-inline ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
+ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
 {
 	const auto it = m_pEffects.find(name);
 

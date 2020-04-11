@@ -14,7 +14,7 @@ class ResourceManager final
 	: public Singleton<ResourceManager>
 {
 public:
-	void Init(const std::string& data);
+	void Init(const std::string& data, const std::wstring& dataW);
 	void Destroy();
 	Font* LoadFont(const std::string& file, unsigned int size) const;
 
@@ -23,18 +23,19 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// Textures
 	Texture* LoadTexture(const std::string& file, const std::string& name);
-	inline Texture* GetTexture(const std::string& name) const;
+	Texture* GetTexture(const std::string& name) const;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Effects
-	ID3DX11Effect* LoadEffect(const std::string& file, const std::string& name);
-	inline ID3DX11Effect* GetEffect(const std::string& name) const;
+	ID3DX11Effect* LoadEffect(const std::wstring& file, const std::string& name);
+	ID3DX11Effect* GetEffect(const std::string& name) const;
 
 private:
 	friend class Singleton<ResourceManager>;
 	ResourceManager() = default;
 
 	std::string m_DataPath;
+	std::wstring m_DataPathW;
 
 	// Resources
 	std::unordered_map<std::string, Texture*> m_pTextures;

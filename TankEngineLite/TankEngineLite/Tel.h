@@ -44,7 +44,7 @@ public:
 		m_pGame = new T();
 
 		// Initialized the resource manager with the root directory
-		ResourceManager::GetInstance()->Init("../Resources/");
+		ResourceManager::GetInstance()->Init("../Resources/", L"../Resources/");
 
 		// Root initialized and game initialize
 		Initialize();
