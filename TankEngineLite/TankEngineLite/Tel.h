@@ -3,22 +3,28 @@
 
 #include <chrono>
 
+#include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_dx11.h"
 
 #include "ResourceManager.h"
 #include "InputManager.h"
+#include "SpriteBatch.h"
 #include "Renderer.h"
+
 
 using namespace std::chrono;
 
 // TODO(tomas): allow multiple games on one engine runner, <Game...>, implement switching
 // TODO(tomas): fixed update adder, create lambdas that run on a fixed update of x timestep
+
+class TEngineRunner;
+
 class Game
 {
 public:
 	virtual void Initialize() {};
-	virtual void Load(ResourceManager*) {};
+	virtual void Load(ResourceManager*, TEngineRunner*) {};
 	virtual void Update(float, InputManager*) {};
 	virtual void Render(Renderer*) {};
 	virtual void Shutdown() {};
@@ -71,6 +77,8 @@ public:
 				pInput->Update(dt.count());
 				m_pGame->Update(dt.count(), pInput);
 				
+				ImGuiDebug(dt.count());
+
 				//////////////////////////////////////////////////////////////////////////
 				// Rendering
 				
@@ -92,10 +100,20 @@ public:
 		Cleanup();
 	}
 
+	// Debug ui
+	void ImGuiDebug(float dt);
+	inline void RegisterBatchForDebug(SpriteBatch* pBatch) { m_BatchRegistry.push_back(pBatch); };
     
 private:
 	SDL_Window* m_pWindow;
 	Game* m_pGame;
+
+	// Debug ui stuff
+	bool m_DebugSystems = true;
+	bool m_DebugRenderer = true;
+	bool m_ShowLogger = true;
+
+	std::vector<SpriteBatch*> m_BatchRegistry;
 };
 
 #endif // !TEL_H

@@ -143,7 +143,7 @@ bool InputManager::IsKeyDown(SDL_Scancode key)
 std::tuple<int, int, Uint32> InputManager::GetMouseState()
 {
 	int x, y;
-	Uint32 mouseState = SDL_GetRelativeMouseState(&x, &y);
+	Uint32 mouseState = SDL_GetMouseState(&x, &y);
 	return std::tuple<int, int, Uint32>(x, y, mouseState);
 }
 

@@ -3,6 +3,8 @@
 
 #include "Prefabs.h"
 
+#include "SpriteBatch.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Life span component
 LifeSpan::LifeSpan(ECS::Entity* pE)
@@ -67,14 +69,27 @@ void PlayerController::Update(float dt)
 	//////////////////////////////////////////////////////////////////////////
 	// hardcoded physics
 
-	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * ( 0 - m_VerticalAcceleration));
+	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * (0 - m_VerticalAcceleration));
 
 	if (m_pTransform->position.y < 600.f - 32.f)
 		movement.y += 1000.f * dt;
 	else
 	{
 		if (pInputMananager->IsPressed(ControllerButton::A, m_PlayerController))
+		{
+			// Spawn particles for jumping
+			const XMFLOAT2 pos = { m_pTransform->position.x, m_pTransform->position.y + 32.f };
+			for (uint32_t i = 0; i < 10; ++i)
+			{
+				float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
+
+				XMFLOAT2 accel{ cosf(angle) * 100.f, sin(angle) * 50.f };
+				Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, accel, { 1.f, 1.f, 1.f, 1.f }, 0.5f, 50.f);
+			}
+
+			// Actually jump
 			m_VerticalAcceleration = -2000.f;
+		}
 	}
 
 	// hardcoded physics end
@@ -116,7 +131,7 @@ void PlayerController::Update(float dt)
 				m_SpriteIndex = 0;
 
 			// Which of the sprite should you use
-			if(!m_FacingRight)
+			if (!m_FacingRight)
 			{
 				atlasTransform.x += 128;
 				atlasTransform.z += 128;
@@ -154,7 +169,7 @@ void PlayerController::Update(float dt)
 			m_Timer -= m_Timer;
 
 			// Rumble in the firing direction
-			if(m_FacingRight)
+			if (m_FacingRight)
 				InputManager::GetInstance()->RumbleController(0, 35000, 0.1f, m_PlayerController);
 			else
 				InputManager::GetInstance()->RumbleController(35000, 0, 0.1f, m_PlayerController);
@@ -178,4 +193,78 @@ void ProjectileComponent::Update(float dt)
 {
 	m_pTransform->position.x += m_Direction.x * dt * m_Speed;
 	m_pTransform->position.y += m_Direction.y * dt * m_Speed;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Particle Emitter component
+ParticleEmitter::ParticleEmitter(ECS::Entity* pE)
+	: ECS::EntityComponent(pE)
+{
+	m_MeetsRequirements = false;
+	m_pTransform = pE->GetComponent<TransformComponent2D>();
+
+	if (m_pTransform != nullptr)
+		m_MeetsRequirements = true;
+}
+
+void ParticleEmitter::Update(float dt)
+{
+	if (!m_MeetsRequirements)
+		return;
+
+	m_Timer += dt;
+
+	if (m_Timer > m_ParticleSpawnInterval)
+	{
+		SpawnParticles(dt);
+		m_Timer -= m_Timer;
+	}
+}
+
+void ParticleEmitter::SpawnParticles([[maybe_unused]] float dt)
+{
+	const XMFLOAT2 pos = { m_pTransform->position.x, m_pTransform->position.y };
+	for (uint32_t i = 0; i < m_ParticlesPerSpawn; ++i)
+	{
+		float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
+
+		XMFLOAT2 accel{ cosf(angle) * 50.f, sinf(angle) * 50.f };
+		Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pSpriteBatch, pos, accel, { 1.f, 1.f, 1.f, 1.f }, m_ParticleLifeTime, m_Gravity);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Particle
+Particle::Particle(ECS::Entity* pE)
+	: ECS::EntityComponent(pE)
+{
+	m_Timer = 0;
+}
+
+void Particle::Update(float dt)
+{
+	m_Timer += dt;
+
+	if (m_Timer > m_Life)
+		m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
+
+	// SIMD, should actually test if theres a performance impact 
+	m_Pos.x += m_Acceleration.x * dt;
+	m_Pos.y += m_Acceleration.y * dt;
+
+	m_Acceleration.x = Utils::Lerp(m_Acceleration.x, 0.f, dt);
+	m_Acceleration.y = Utils::Lerp(m_Acceleration.y, m_Gravity, dt);
+
+	m_pSpriteBatch->PushSprite({ 68, 68, 72, 72 }, { m_Pos.x, m_Pos.y, 0 }, 0, { m_Scale , m_Scale }, { 0.5f, 0.5f }, m_Colour);
+}
+
+void Particle::Initialize(SpriteBatch* pSpriteBatch, XMFLOAT2 pos, XMFLOAT2 startAcceleration, float scale, XMFLOAT4 colour, float life, float gravity)
+{
+	m_pSpriteBatch = pSpriteBatch;
+	m_Pos = pos;
+	m_Acceleration = startAcceleration;
+	m_Scale = scale;
+	m_Colour = colour;
+	m_Life = life;
+	m_Gravity = gravity;
 }

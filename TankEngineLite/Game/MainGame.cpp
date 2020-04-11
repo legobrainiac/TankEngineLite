@@ -16,27 +16,44 @@ void MainGame::Initialize()
 		ECS::WorldSystem<SpriteRenderComponent, 256, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<LifeSpan, 256, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<PlayerController, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>
+		ECS::WorldSystem<PlayerController, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<ParticleEmitter, 16, 5, ECS::SystemExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<Particle, 2048, 6, ECS::SystemExecutionStyle::ASYNCHRONOUS/*TODO(tomas): async execution*/>
 	>();
 }
 
-void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
+void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_unused]] TEngineRunner* pEngine)
 {
 	// Create the sprite batches
-	m_pCharacter_SB = new SpriteBatch();
-	m_pCharacter_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0"));
+	m_pDynamic_SB = new SpriteBatch("Dynamic");
+	m_pDynamic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0"));
+	pEngine->RegisterBatchForDebug(m_pDynamic_SB);
 
-	m_pBackgroundStatic_SB = new SpriteBatch();
-	m_pBackgroundStatic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5"), BatchMode::BATCHMODE_STATIC);
+	m_pStatic_SB = new SpriteBatch("Static");
+	m_pStatic_SB->InitializeBatch(ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5"), BatchMode::BATCHMODE_STATIC);
+	pEngine->RegisterBatchForDebug(m_pStatic_SB);
+
+	// Create particle system
+	{
+		auto pParticleSystemEntity = m_pWorld->CreateEntity();
+		auto[pParticleEmitter, pTransform] = pParticleSystemEntity->PushComponents<ParticleEmitter, TransformComponent2D>();
+		pParticleEmitter->m_ParticleSpawnInterval = 0.01f;
+		pParticleEmitter->m_ParticleLifeTime = 2.0f;
+		pParticleEmitter->m_ParticlesPerSpawn = 2U;
+		pParticleEmitter->m_pSpriteBatch = m_pDynamic_SB;
+		pParticleEmitter->m_Gravity = 981.f;
+
+		m_pParticleEmitterTransform = pTransform;
+	}
 
 	// Setup a smol platform
 	for (int i = 0; i < 25; ++i)
-		m_pBackgroundStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
+		m_pStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
 
 	for (int j = 1; j < 5; ++j)
 	{
 		for (int i = 0; i < 25; ++i)
-			m_pBackgroundStatic_SB->PushSprite({ 16, 0, 32, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
+			m_pStatic_SB->PushSprite({ 16, 0, 32, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
 	}
 
 	// If a controller is connected, 
@@ -47,7 +64,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager)
 		[this](uint32_t controller, ConnectionType connection) 
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pCharacter_SB, { float(rand() % 1000 + 300), 0 }, (Player)controller);
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 0 }, (Player)controller);
 			else
 				m_pWorld->DestroyEntity(m_pPlayers[controller]->GetId());
 		});
@@ -57,67 +74,9 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 {
 	ECS::Universe::GetInstance()->Update(dt);
 
-	//////////////////////////////////////////////////////////////////////////
-	// ImGui debug rendering
-	
-	if(m_ShowLogger)
-		Logger::GetInstance()->UpdateAndDraw();
-
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("Files"))
-		{
-			if (ImGui::MenuItem("Load script", "CTRL+O"))
-				Logger::GetInstance()->Log<LOG_WARNING>("Script loading not implemented");
-
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Tools"))
-		{
-			if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
-			if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
-			if (ImGui::MenuItem("Logger", "")) { m_ShowLogger = !m_ShowLogger; }  // Disabled item
-
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
-	
-	if (m_DebugSystems)
-		ECS::Universe::GetInstance()->ImGuiDebug();
-
-	if (m_DebugRenderer)
-	{
-		ImGui::Begin("Renderer settings");
-
-		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "DT: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(dt).c_str());
-		ImGui::SameLine();
-		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "FPS: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string((int)(1 / dt)).c_str());
-
-		ImGui::Separator();
-		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Sprite batches");
-		if (ImGui::BeginTabBar("Sprite batches", ImGuiTabBarFlags_None))
-		{
-			if (ImGui::BeginTabItem("Dynamic"))
-			{
-				m_pCharacter_SB->ImGuiDebug();
-				ImGui::EndTabItem();
-			}
-
-			if (ImGui::BeginTabItem("Static"))
-			{
-				m_pBackgroundStatic_SB->ImGuiDebug();
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
-		}
-
-		ImGui::End();
-	}
+	auto [x, y, state] = pInputManager->GetMouseState();
+	m_pParticleEmitterTransform->position.x = (float)x;
+	m_pParticleEmitterTransform->position.y = (float)y;
 }
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
@@ -126,15 +85,15 @@ void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 	pRenderer->SpriteBatchRender(m_pWorld->GetSystemByComponent<SpriteRenderComponent>());
 
 	// Render your sprite batches
-	m_pCharacter_SB->Render();
-	m_pBackgroundStatic_SB->Render();
+	m_pDynamic_SB->Render();
+	m_pStatic_SB->Render();
 }
 
 void MainGame::Shutdown()
 {
-	m_pCharacter_SB->Destroy();
-	delete m_pCharacter_SB;
+	m_pDynamic_SB->Destroy();
+	delete m_pDynamic_SB;
 
-	m_pBackgroundStatic_SB->Destroy();
-	delete m_pBackgroundStatic_SB;
+	m_pStatic_SB->Destroy();
+	delete m_pStatic_SB;
 }

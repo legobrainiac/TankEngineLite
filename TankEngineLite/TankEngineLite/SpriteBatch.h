@@ -2,9 +2,9 @@
 #define SPRITE_BATCH_H
 
 #include <vector>
-#include "D3D.h"
 
-class Texture;
+#include "D3D.h"
+#include "Texture.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Sprite batch renderer based on the one we did in Graphics Programming 2
@@ -38,6 +38,11 @@ struct BatchItem
 class SpriteBatch
 {
 public:
+	SpriteBatch(const std::string& name)
+		: m_Name(name)
+	{
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// If a sprite batch is static, the buffer will not be refreshed every frame
 	//  you'll need to restart the batch to create a new buffer (IE: static world)
@@ -55,6 +60,8 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// Debugging and stuff
 	void ImGuiDebug();
+	inline ID3D11ShaderResourceView* GetTextureView() { return m_Atlas->GetTexture(); }
+	inline const std::string& GetName() { return m_Name; }
 
 private:
 	//////////////////////////////////////////////////////////////////////////
@@ -72,6 +79,7 @@ private:
 	XMFLOAT4X4 m_Transform;
 
 	Texture* m_Atlas;
+	std::string m_Name;
 	std::vector<BatchItem> m_Batch;
 	int m_BatchSize;
 	bool m_Dirty;

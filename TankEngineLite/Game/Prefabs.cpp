@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Prefabs.h"
 
 ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2& position, const XMFLOAT2& direction, SpriteBatch* pSpriteBatch)
@@ -34,5 +35,13 @@ ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch
 
 	pMovement->SetInputController(player);
 
+	return pEntity;
+}
+
+ECS::Entity* Prefabs::SpawnParticle(ECS::World* pWorld, SpriteBatch* pSpriteBatch, XMFLOAT2 pos, XMFLOAT2 startingAcceleration, XMFLOAT4 colour, float life, float gravity)
+{
+	auto pEntity = pWorld->CreateEntity();
+	auto [pParticle] = pEntity->PushComponents<Particle>();
+	pParticle->Initialize(pSpriteBatch, pos, startingAcceleration, 0.25f, colour, life, gravity);
 	return pEntity;
 }
