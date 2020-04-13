@@ -67,7 +67,7 @@ void PlayerController::Update(float dt)
 		movement.x += dt * movementSpeed;
 
 	//////////////////////////////////////////////////////////////////////////
-	// hardcoded physics
+	// hard coded physics
 
 	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * (0 - m_VerticalAcceleration));
 
@@ -86,7 +86,7 @@ void PlayerController::Update(float dt)
 			{
 				float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
 
-				XMFLOAT2 accel{ cosf(angle) * 100.f, sin(angle) * 50.f };
+				XMFLOAT2 accel{ cosf(angle) * 100.f, -abs(sin(angle)) * 50.f };
 				Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, accel, { 0.0f, 0.6f, 1.0f, 1.f }, 0.5f, 50.f);
 			}
 
@@ -95,7 +95,7 @@ void PlayerController::Update(float dt)
 		}
 	}
 
-	// hardcoded physics end
+	// hard coded physics end
 	//////////////////////////////////////////////////////////////////////////
 
 	// Apply movement
@@ -258,6 +258,9 @@ void Particle::Update(float dt)
 
 	m_Acceleration.x = Utils::Lerp(m_Acceleration.x, 0.f, dt);
 	m_Acceleration.y = Utils::Lerp(m_Acceleration.y, m_Gravity, dt);
+
+	XMFLOAT4 colour = m_Colour;
+	m_Colour.y = abs(cosf(m_Timer * 3.f));
 
 	m_pSpriteBatch->PushSprite({ 8, 128, 12, 132 }, { m_Pos.x, m_Pos.y, 0 }, 0, { m_Scale , m_Scale }, { 0.5f, 0.5f }, m_Colour);
 }

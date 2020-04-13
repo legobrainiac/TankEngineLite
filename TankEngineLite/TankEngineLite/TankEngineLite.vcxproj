@@ -80,7 +80,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;$(SolutionDir)Libraries\fmod\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -94,7 +94,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;$(SolutionDir)Libraries\fmod\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;$(SolutionDir)Libraries\fmod\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -128,7 +128,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;$(SolutionDir)Libraries\fmod\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -152,6 +152,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />
     <ClCompile Include="Tel.cpp" />
     <ClCompile Include="pch.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="SpriteBatch.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Tel.h" />

@@ -12,6 +12,8 @@
 
 bool Renderer::Init(SDL_Window* pWin, int xw, int yh, bool vSync)
 {
+	LOGGER->Log<LOG_INFO>("Initializing renderer");
+
 	m_pDirectX = new D3D();
 
 	m_Xw = xw;

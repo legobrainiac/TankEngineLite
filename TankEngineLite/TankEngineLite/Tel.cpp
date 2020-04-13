@@ -32,6 +32,7 @@ void TEngineRunner::Initialize()
 {
 	// Setup SDL with DirectX and ImGui
 	InitializeWindow();
+	SoundManager::GetInstance()->Init();
 
 	// Initialize universe
 	ECS::Universe::GetInstance();
@@ -52,6 +53,7 @@ void TEngineRunner::Cleanup()
 	
 	m_pGame->Shutdown();
 	ResourceManager::GetInstance()->Destroy();
+	SoundManager::GetInstance()->Destroy();
 	Renderer::GetInstance()->Destroy();
 
 	delete m_pGame;

@@ -135,7 +135,7 @@ void D3D::Shutdown()
 #if defined(DEBUG) || defined(_DEBUG)
 	if (m_pDebug)
 	{
-		m_pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+		//m_pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 		DXRELEASE(m_pDebug);
 	}
 #endif

@@ -11,6 +11,8 @@
 
 void ResourceManager::Init(const std::string& dataPath, const std::wstring& dataW)
 {
+	LOGGER->Log<LOG_INFO>("Initializing resource manager");
+
 	m_DataPath = dataPath;
 	m_DataPathW = dataW;
 

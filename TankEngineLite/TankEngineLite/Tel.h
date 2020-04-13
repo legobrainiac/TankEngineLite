@@ -9,10 +9,9 @@
 
 #include "ResourceManager.h"
 #include "InputManager.h"
+#include "SoundManager.h"
 #include "SpriteBatch.h"
 #include "Renderer.h"
-
-
 using namespace std::chrono;
 
 // TODO(tomas): allow multiple games on one engine runner, <Game...>, implement switching
