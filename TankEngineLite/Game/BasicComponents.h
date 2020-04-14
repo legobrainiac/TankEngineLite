@@ -4,6 +4,8 @@
 #include <D3D.h>
 #include "CoreComponents.h"
 #include "InputManager.h"
+#include "SoundManager.h"
+#include "ResourceManager.h"
 
 class SpriteBatch;
 
@@ -75,6 +77,8 @@ private:
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
 
+	FMOD::Sound* m_pShootingSound;
+
 	// Timers
 	float m_Timer;
 	float m_SpriteTimer;
@@ -84,7 +88,6 @@ private:
 	bool m_FacingRight;
 
 	Player m_PlayerController;
-
 	bool m_MeetsRequirements;
 };
 

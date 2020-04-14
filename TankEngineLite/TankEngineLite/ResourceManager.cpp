@@ -37,6 +37,9 @@ void ResourceManager::Destroy()
 
 	for (auto& effect : m_pEffects)
 		DXRELEASE(effect.second);
+
+	for (auto& sound : m_pSounds)
+		sound.second->release();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -155,5 +158,46 @@ ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
 		return it->second;
 
 	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate effect -> " + name);
+	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Sound loading
+FMOD::Sound* ResourceManager::LoadSound(const std::string& file, const std::string& name)
+{
+	// If texture already exists, we don't do anything, just return it
+	const auto it = m_pSounds.find(name);
+
+	if (it != m_pSounds.cend())
+		return it->second;
+
+	// Otherwise
+	const auto fullPath = m_DataPath + file;
+	const auto pSoundSystem = SoundManager::GetInstance()->GetSystem();
+
+	FMOD::Sound* pSound = nullptr;
+	auto result = pSoundSystem->createSound(fullPath.c_str(), FMOD_DEFAULT, nullptr, &pSound);
+	
+	// Create sound
+	if (result != FMOD_OK)
+	{
+		LOGGER->Log<LOG_ERROR>("Failed to load sound " + name);
+		return nullptr;
+	}
+	else
+		LOGGER->Log<LOG_SUCCESS>("Loaded sound " + name);
+
+	m_pSounds[name] = pSound;
+	return pSound;
+}
+
+FMOD::Sound* ResourceManager::GetSound([[maybe_unused]]const std::string& name) const
+{
+	const auto it = m_pSounds.find(name);
+
+	if (it != m_pSounds.cend())
+		return it->second;
+
+	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate sound -> " + name);
 	return nullptr;
 }

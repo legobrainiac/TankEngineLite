@@ -18,7 +18,10 @@ public:
 	bool Init();
 	void Destroy();
 
-	void PlaySound() const;
+	void Update(float dt);
+
+	inline FMOD::System* GetSystem() { return m_pFMOD; }
+	FMOD::Channel* PlaySound(FMOD::Sound* pSound) const;
 
 private:
 	FMOD::System* m_pFMOD = nullptr;

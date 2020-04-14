@@ -35,6 +35,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 	m_pStatic_SB = Memory::New<SpriteBatch>();
 	new(m_pStatic_SB) SpriteBatch("Static");
+
 	auto pTexStat = ResourceManager::GetInstance()->GetTexture("atlas_5");
 	if(!pTexStat)
 		pTexStat = ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5");

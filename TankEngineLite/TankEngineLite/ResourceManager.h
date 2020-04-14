@@ -6,6 +6,8 @@
 
 #include <unordered_map>
 
+#include "SoundManager.h"
+
 class Texture;
 class Font;
 
@@ -28,6 +30,11 @@ public:
 	ID3DX11Effect* LoadEffect(const std::wstring& file, const std::string& name);
 	ID3DX11Effect* GetEffect(const std::string& name) const;
 
+	//////////////////////////////////////////////////////////////////////////
+	// Sound
+	FMOD::Sound* LoadSound(const std::string& file, const std::string& name);
+	FMOD::Sound* GetSound(const std::string& name) const;
+
 private:
 	friend class Singleton<ResourceManager>;
 	ResourceManager() = default;
@@ -38,6 +45,6 @@ private:
 	// Resources
 	std::unordered_map<std::string, Texture*> m_pTextures;
 	std::unordered_map<std::string, ID3DX11Effect*> m_pEffects;
-
+	std::unordered_map<std::string, FMOD::Sound*> m_pSounds;
 };
 #endif // !RESOURCE_MANAGER_H

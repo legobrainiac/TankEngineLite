@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <vector>
 
@@ -67,7 +67,7 @@ private:
 	static uint32_t m_TotalMemory;
 
 	// Keep track of a sized pointer
-	static std::map<void*, uint32_t> m_PointerPool;
+	static std::unordered_map<void*, uint32_t> m_PointerPool;
 };
 
 #endif // !MEMORY_TRACKER_H

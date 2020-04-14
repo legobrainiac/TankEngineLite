@@ -13,6 +13,5 @@ int main(int, char* [])
 {
 	TEngineRunner engine;
 	engine.Run<MainGame>();
-	std::cout << Memory::HasLeaks() << std::endl;
 	return 0;
 }

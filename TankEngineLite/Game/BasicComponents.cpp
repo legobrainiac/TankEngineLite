@@ -42,6 +42,11 @@ PlayerController::PlayerController(ECS::Entity* pE)
 			{
 				m_pTransform->position = { 1600 / 2.f, 900.f / 2.f, 0.f };
 			}));
+
+	// Load sound
+	m_pShootingSound = ResourceManager::GetInstance()->GetSound("blep");
+	if (!m_pShootingSound)
+		m_pShootingSound = ResourceManager::GetInstance()->LoadSound("blep.wav", "blep");
 }
 
 void PlayerController::Update(float dt)
@@ -176,6 +181,9 @@ void PlayerController::Update(float dt)
 				InputManager::GetInstance()->RumbleController(0, 35000, 0.1f, m_PlayerController);
 			else
 				InputManager::GetInstance()->RumbleController(35000, 0, 0.1f, m_PlayerController);
+
+			const auto sound = SoundManager::GetInstance()->PlaySound(m_pShootingSound);
+			sound->setVolume(0.5f);
 		}
 	}
 }

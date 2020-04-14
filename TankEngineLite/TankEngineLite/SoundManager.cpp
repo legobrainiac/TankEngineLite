@@ -43,6 +43,21 @@ void SoundManager::Destroy()
 	m_pFMOD->release();
 }
 
-void SoundManager::PlaySound() const
+void SoundManager::Update([[maybe_unused]] float dt)
 {
+	m_pFMOD->update();
+}
+
+FMOD::Channel* SoundManager::PlaySound(FMOD::Sound* pSound) const
+{
+	FMOD::Channel* pChannel = nullptr;
+	auto result = m_pFMOD->playSound(pSound, m_pChannels, false, &pChannel);
+
+	if (result != FMOD_OK)
+	{
+		LOGGER->Log<LOG_ERROR>("play back of sound failed, my dude");
+		return nullptr;
+	}
+	
+	return pChannel;
 }

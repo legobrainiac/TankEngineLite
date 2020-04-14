@@ -15,6 +15,8 @@
 
 #include "MemoryTracker.h"
 
+#include "SoundManager.h"
+
 using namespace std::chrono;
 
 // TODO(tomas): allow multiple games on one engine runner, <Game...>, implement switching
@@ -58,6 +60,7 @@ public:
 		{
 			auto pRenderer = Renderer::GetInstance();
 			auto pInput = InputManager::GetInstance();
+			auto pAudio = SoundManager::GetInstance();
 
 			bool done = false;
 
@@ -79,6 +82,7 @@ public:
 				// Update the game
 				pInput->Update(dt.count());
 				m_pGame->Update(dt.count(), pInput);
+				pAudio->Update(dt.count());
 
 				ImGuiDebug(dt.count());
 
