@@ -25,14 +25,16 @@ void MainGame::Initialize()
 void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_unused]] TEngineRunner* pEngine)
 {
 	// Create the sprite batches
-	m_pDynamic_SB = new SpriteBatch("Dynamic");
+	m_pDynamic_SB = Memory::New<SpriteBatch>();
+	new (m_pDynamic_SB) SpriteBatch("Dynamic");
 	auto pTexDyn = ResourceManager::GetInstance()->GetTexture("atlas_0");
 	if (!pTexDyn)
 		pTexDyn = ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0");
 	m_pDynamic_SB->InitializeBatch(pTexDyn);
 	pEngine->RegisterBatchForDebug(m_pDynamic_SB);
 
-	m_pStatic_SB = new SpriteBatch("Static");
+	m_pStatic_SB = Memory::New<SpriteBatch>();
+	new(m_pStatic_SB) SpriteBatch("Static");
 	auto pTexStat = ResourceManager::GetInstance()->GetTexture("atlas_5");
 	if(!pTexStat)
 		pTexStat = ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5");
@@ -98,8 +100,8 @@ void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 void MainGame::Shutdown()
 {
 	m_pDynamic_SB->Destroy();
-	delete m_pDynamic_SB;
+	Memory::Delete(m_pDynamic_SB);
 
 	m_pStatic_SB->Destroy();
-	delete m_pStatic_SB;
+	Memory::Delete(m_pStatic_SB);
 }

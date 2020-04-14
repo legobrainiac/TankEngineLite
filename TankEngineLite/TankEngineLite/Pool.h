@@ -18,6 +18,7 @@
 #ifdef DEBUG_POOL
 #include <sstream>
 #include "imgui.h"
+#include "MemoryTracker.h"
 #endif // DEBUG_POOL
 
 template <uint32_t L, uint32_t R>
@@ -36,7 +37,7 @@ class Pool
 public:
 	Pool()
 	{
-        m_pPool = (T*)calloc(S, sizeof(T));
+		m_pPool = Memory::New<T>(S);
 		m_pLookUp = &m_LookUpInternal[0];
 		m_ActiveCount = 0;
 	}
@@ -48,7 +49,7 @@ public:
         ForAllActive([](T* pObj) { pObj->~T(); });
         
         // Free the memory block 
-        free(m_pPool);
+		Memory::Delete(m_pPool, false);
 	}
     
     // Using this in the specific use case of ecs to initialized the object with it's parent entity

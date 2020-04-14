@@ -32,7 +32,7 @@ void ResourceManager::Destroy()
 	for (auto& tex : m_pTextures)
 	{
 		tex.second->Shutdown();
-		delete tex.second;
+		Memory::Delete(tex.second);
 	}
 
 	for (auto& effect : m_pEffects)
@@ -51,7 +51,8 @@ Texture* ResourceManager::LoadTexture(const std::string& file, const std::string
 
 	// Otherwise
 	const auto fullPath = m_DataPath + file;
-	auto pTexture = new Texture();
+	auto pTexture = Memory::New<Texture>();
+	new (pTexture) Texture();
     
 	try
 	{

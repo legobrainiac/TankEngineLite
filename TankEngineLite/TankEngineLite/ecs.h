@@ -38,6 +38,7 @@ CLASS_NAME& operator=(CLASS_NAME&&) = delete;
 #include "Singleton.h"
 #include "Pool.h"
 #include "Logger.h"
+#include "MemoryTracker.h"
 #endif 
 
 namespace ECS
@@ -112,12 +113,13 @@ public:
 	inline WorldSystem()
 		: m_ID(I)
 	{
-		m_pComponentPool = new Pool<T, C>();
+		m_pComponentPool = Memory::New<Pool<T, C>>();
+		new (m_pComponentPool) Pool<T, C>();
 	}
 
 	inline ~WorldSystem() override
 	{
-		delete m_pComponentPool;
+		Memory::Delete(m_pComponentPool);
 	}
 
 	// System identification
@@ -209,7 +211,8 @@ private:
 		auto typeIndex = std::type_index(typeid(T));
 
 		// Create world
-		auto pWorldSystem = new T();
+		auto pWorldSystem = Memory::New<T>();
+		new (pWorldSystem) T();
 
 		// Create system identifier
 		SystemIdentifier system;
@@ -432,7 +435,9 @@ private:
 // World create entity and destroy entity declaration
 inline Entity* World::CreateEntity()
 {
-	auto pEntity = new Entity(m_IdCounter, this);
+	auto pEntity = Memory::New<Entity>();
+	new(pEntity) Entity(m_IdCounter, this); // Does this leak
+
 	m_pEntities[m_IdCounter++] = pEntity;
 	return pEntity;
 }
@@ -445,7 +450,7 @@ inline void World::DestroyEntity(uint32_t id)
 	{
 		auto pEntity = *entityIt;
 		pEntity.second->CleanComponents();
-		delete pEntity.second;
+		Memory::Delete(pEntity.second);
 		m_pEntities.erase(entityIt);
 	}
 }
@@ -455,10 +460,10 @@ inline void World::DestroyEntity(uint32_t id)
 inline World::~World()
 {
 	for (auto system : m_Systems)
-		delete system.second.pSystem;
+		Memory::Delete(system.second.pSystem);
 
 	for (auto entity : m_pEntities)
-		delete entity.second;
+		Memory::Delete(entity.second);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -475,14 +480,16 @@ public:
 	inline ~Universe()
 	{
 		for (auto world : m_Worlds)
-			delete world.second;
+			Memory::Delete<World>(world.second);
 	}
 
 	inline World* PushWorld()
 	{
 		uint32_t id = m_NextWorldIndex++;
 
-		auto pWorld = new World(id);
+		auto pWorld = Memory::New<World>();
+		new(pWorld) World(id);
+
 		m_Worlds[id] = pWorld;
 
 		return pWorld;

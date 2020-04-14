@@ -12,6 +12,9 @@
 #include "SoundManager.h"
 #include "SpriteBatch.h"
 #include "Renderer.h"
+
+#include "MemoryTracker.h"
+
 using namespace std::chrono;
 
 // TODO(tomas): allow multiple games on one engine runner, <Game...>, implement switching
@@ -40,7 +43,8 @@ public:
 	template<typename T>
 	void Run()
 	{
-		m_pGame = new T();
+		m_pGame = Memory::New<T>();
+		new(m_pGame) T();
 
 		// Initialized the resource manager with the root directory
 		ResourceManager::GetInstance()->Init("../Resources/", L"../Resources/");
@@ -66,7 +70,7 @@ public:
 
 				//////////////////////////////////////////////////////////////////////////
 				// ImGui update and Game Update 
-				
+
 				// Start the new ImGui frame
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplSDL2_NewFrame(m_pWindow);
@@ -75,15 +79,15 @@ public:
 				// Update the game
 				pInput->Update(dt.count());
 				m_pGame->Update(dt.count(), pInput);
-				
+
 				ImGuiDebug(dt.count());
 
 				//////////////////////////////////////////////////////////////////////////
 				// Rendering
-				
+
 				// Root render for ImGui and engine related rendering
 				pRenderer->RootRenderBegin();
-				
+
 				// Game related rendering
 				m_pGame->Render(pRenderer);
 
@@ -102,7 +106,7 @@ public:
 	// Debug ui
 	void ImGuiDebug(float dt);
 	inline void RegisterBatchForDebug(SpriteBatch* pBatch) { m_BatchRegistry.push_back(pBatch); };
-    
+
 private:
 	SDL_Window* m_pWindow;
 	Game* m_pGame;

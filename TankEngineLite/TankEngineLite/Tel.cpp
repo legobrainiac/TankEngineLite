@@ -56,7 +56,7 @@ void TEngineRunner::Cleanup()
 	SoundManager::GetInstance()->Destroy();
 	Renderer::GetInstance()->Destroy();
 
-	delete m_pGame;
+	Memory::Delete(m_pGame);
 }
 
 void TEngineRunner::ImGuiDebug(float dt)
@@ -89,6 +89,19 @@ void TEngineRunner::ImGuiDebug(float dt)
 
 	if (m_DebugSystems)
 		ECS::Universe::GetInstance()->ImGuiDebug();
+
+	ImGui::Begin("Memory tracker");
+	const auto status = Memory::GetMemoryStatus();
+	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Memory::m_TotalMemoryCount = ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(status.m_TotalMemoryCount * 0.000001f).c_str());
+	ImGui::SameLine();
+	ImGui::Text("MB");
+
+	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Memory::m_LiveMemoryChuncks = ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(status.m_MemoryChunckCount).c_str());
+	ImGui::End();
 
 	if (m_DebugRenderer)
 	{

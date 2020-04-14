@@ -11,6 +11,7 @@
 
 #include "ecs.h"
 #include "Logger.h"
+#include "MemoryTracker.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
