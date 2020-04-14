@@ -77,7 +77,7 @@ Texture* ResourceManager::LoadTexture(const std::string& file, const std::string
 		return nullptr;
 	}
 
-	LOGGER->Log<LOG_SUCCESS>("Loaded " + name);
+	LOGGER->Log<LOG_SUCCESS>("Loaded ", name);
 	return pTexture;
 }
 
@@ -88,7 +88,7 @@ Texture* ResourceManager::GetTexture(const std::string& name) const
 	if (it != m_pTextures.cend())
 		return it->second;
 
-	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate texture -> " + name);
+	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate texture -> ", name);
 
 	return nullptr;
 }
@@ -157,7 +157,7 @@ ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
 	if (it != m_pEffects.cend())
 		return it->second;
 
-	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate effect -> " + name);
+	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate effect -> ", name);
 	return nullptr;
 }
 
@@ -181,11 +181,11 @@ FMOD::Sound* ResourceManager::LoadSound(const std::string& file, const std::stri
 	// Create sound
 	if (result != FMOD_OK)
 	{
-		LOGGER->Log<LOG_ERROR>("Failed to load sound " + name);
+		LOGGER->Log<LOG_ERROR>("Failed to load sound ", name);
 		return nullptr;
 	}
 	else
-		LOGGER->Log<LOG_SUCCESS>("Loaded sound " + name);
+		LOGGER->Log<LOG_SUCCESS>("Loaded sound ", name);
 
 	m_pSounds[name] = pSound;
 	return pSound;
@@ -198,6 +198,6 @@ FMOD::Sound* ResourceManager::GetSound([[maybe_unused]]const std::string& name) 
 	if (it != m_pSounds.cend())
 		return it->second;
 
-	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate sound -> " + name);
+	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate sound -> ", name);
 	return nullptr;
 }

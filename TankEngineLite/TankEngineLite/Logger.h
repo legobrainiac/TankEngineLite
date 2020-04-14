@@ -31,10 +31,14 @@ class Logger
 	: public Singleton<Logger>
 {
 public:
-	template<LogType loggerType>
-	void Log(const std::string& log)
+	template<LogType loggerType, typename... T>
+	void Log(const T& ... logs)
 	{
-		m_Log.push_front(LogItem(log, loggerType));
+		std::string result;
+
+		// Unpack...
+		[[maybe_unused]] int u[]{ 0, (result += logs, 0)... };
+		m_Log.push_front(LogItem(result, loggerType));
 
 		// Remove one of the old items
 		if (m_Log.size() > m_MaxLogSize)
