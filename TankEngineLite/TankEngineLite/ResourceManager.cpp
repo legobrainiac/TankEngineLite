@@ -156,10 +156,3 @@ ID3DX11Effect* ResourceManager::GetEffect(const std::string& name) const
 	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate effect -> " + name);
 	return nullptr;
 }
-
-//////////////////////////////////////////////////////////////////////////
-// Font Loading
-Font* ResourceManager::LoadFont(const std::string& file, unsigned int size) const
-{
-	return new Font(m_DataPath + file, size);
-}

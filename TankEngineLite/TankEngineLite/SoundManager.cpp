@@ -42,3 +42,7 @@ void SoundManager::Destroy()
 	m_pChannels->release();
 	m_pFMOD->release();
 }
+
+void SoundManager::PlaySound() const
+{
+}

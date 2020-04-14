@@ -18,6 +18,8 @@ public:
 	bool Init();
 	void Destroy();
 
+	void PlaySound() const;
+
 private:
 	FMOD::System* m_pFMOD = nullptr;
 	FMOD::ChannelGroup* m_pChannels = nullptr;

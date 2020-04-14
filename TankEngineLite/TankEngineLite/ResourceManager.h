@@ -9,14 +9,12 @@
 class Texture;
 class Font;
 
-// TODO(tomas): Remake this "thing" as fast as possible
 class ResourceManager final 
 	: public Singleton<ResourceManager>
 {
 public:
 	void Init(const std::string& data, const std::wstring& dataW);
 	void Destroy();
-	Font* LoadFont(const std::string& file, unsigned int size) const;
 
 	// TODO(tomas): abstract this whole thing more? Load<Effect>, Load<Texture>
 

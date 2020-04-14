@@ -35,7 +35,18 @@ DIR_OF_THIS_SCRIPT = p.abspath( p.dirname( __file__ ) )
 SOURCE_EXTENSIONS = [ '.cpp', '.cxx', '.cc', '.c', '.m', '.mm' ]
 
 flags = [
-    '-x', 'c++', '-Wall', '-Wextra', '-Werror',
+    'c++', '-Wall', '-Wextra', '-Werror', '-std=c++17', 
+    p.join( DIR_OF_THIS_SCRIPT, 'Game' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'TankEngineLite' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/dxEffects' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/dxTex/include' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/dxEffects' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/fmod/inc' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/lua' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/SDL2/include' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/SDL2_image/include' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/SDL2_ttf/include' ),
+    p.join( DIR_OF_THIS_SCRIPT, 'Libraries/sol2/sol' ),
     'Game',
     'TankEngineLite',
     'Libraries/dxEffects',
@@ -57,7 +68,7 @@ def GetStandardLibraryIndexInSysPath( sys_path ):
 
 def Settings( **kwargs ):
   return {
-    'flags': [  ],
+    'flags': flags,
   }
 
 def PythonSysPath( **kwargs ):
