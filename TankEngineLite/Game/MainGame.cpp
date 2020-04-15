@@ -6,6 +6,8 @@
 #include "Logger.h"
 #include "imgui.h"
 
+#include "Profiler.h"
+
 void MainGame::Initialize()
 {
 	// Initialized world and world systems
@@ -81,7 +83,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
 {
-	ECS::Universe::GetInstance()->Update(dt);
+	PROFILE(SESSION_UPDATE_ECS, ECS::Universe::GetInstance()->Update(dt));
 
 	auto [x, y, state] = pInputManager->GetMouseState();
 	m_pParticleEmitterTransform->position.x = (float)x;
@@ -91,11 +93,14 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 {
 	// Populate sprite batches
-	pRenderer->SpriteBatchRender(m_pWorld->GetSystemByComponent<SpriteRenderComponent>());
+	PROFILE(SESSION_UPDATE_ECS, m_pWorld->GetSystemByComponent<SpriteRenderComponent>()->ForAll(
+		[](ECS::EntityComponent* pSRC) {
+			static_cast<SpriteRenderComponent*>(pSRC)->Render();
+		}));
 
 	// Render your sprite batches
-	m_pDynamic_SB->Render();
-	m_pStatic_SB->Render();
+	PROFILE(SESSION_BATCH_DYNAMIC, m_pDynamic_SB->Render());
+	PROFILE(SESSION_BATCH_STATIC, m_pStatic_SB->Render());
 }
 
 void MainGame::Shutdown()

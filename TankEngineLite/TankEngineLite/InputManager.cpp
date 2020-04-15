@@ -149,6 +149,8 @@ std::tuple<int, int, Uint32> InputManager::GetMouseState()
 
 void InputManager::Update(float dt)
 {
+	Profiler::GetInstance()->BeginSubSession<SessionId::SESSION_UPDATE_INPUT>();
+
 	for (auto& rumble : m_RumblePacks)
 		rumble.lifeTime += dt;
 
@@ -165,6 +167,8 @@ void InputManager::Update(float dt)
 
 	if (it != m_RumblePacks.end())
 		m_RumblePacks.erase(it);
+
+	Profiler::GetInstance()->EndSubSession();
 }
 
 void InputManager::RumbleController(unsigned short leftMotor, unsigned short rightMotor, float time, uint32_t controllerId)

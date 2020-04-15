@@ -61,12 +61,16 @@ public:
 			auto pRenderer = Renderer::GetInstance();
 			auto pInput = InputManager::GetInstance();
 			auto pAudio = SoundManager::GetInstance();
-
+			auto pProfiler = Profiler::GetInstance();
 			bool done = false;
 
 			std::chrono::duration<float> dt{};
+
 			while (!done)
 			{
+				// Begin profiling session
+				pProfiler->BeginSession();
+
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 				const auto currentTime = high_resolution_clock::now();
 				done = pInput->ProcessInput();
@@ -80,16 +84,30 @@ public:
 				ImGui::NewFrame();
 
 				// Update the game
+				pProfiler->BeginSubSession<SessionId::SESSION_UPDATE>();
+				
+				// Input update
 				pInput->Update(dt.count());
-				m_pGame->Update(dt.count(), pInput);
-				pAudio->Update(dt.count());
+				
+				// Game update
+				PROFILE(SESSION_UPDATE_GAME, m_pGame->Update(dt.count(), pInput));
 
+				// Audio update
+				pAudio->Update(dt.count());
+				pProfiler->EndSubSession();
+
+				// Debug ui
+				pProfiler->BeginSubSession<SessionId::SESSION_PROFILER>();
+				pProfiler->Report();
 				ImGuiDebug(dt.count());
+				pProfiler->EndSubSession();
 
 				//////////////////////////////////////////////////////////////////////////
 				// Rendering
 
 				// Root render for ImGui and engine related rendering
+				pProfiler->BeginSubSession<SessionId::SESSION_RENDER>();
+				
 				pRenderer->RootRenderBegin();
 
 				// Game related rendering
@@ -98,9 +116,13 @@ public:
 				// End rendering cycle
 				pRenderer->RootRenderEnd();
 
+				pProfiler->EndSubSession();
+
 				// Time compensation
 				std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
 				dt = t2 - t1;
+
+				pProfiler->EndSession();
 			}
 		}
 

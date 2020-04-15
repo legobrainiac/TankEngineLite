@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "SoundManager.h"
 #include "Logger.h"
+#include "Profiler.h"
+
+#include <thread>
 
 SoundManager::SoundManager()
 {
@@ -45,7 +48,9 @@ void SoundManager::Destroy()
 
 void SoundManager::Update([[maybe_unused]] float dt)
 {
+	Profiler::GetInstance()->BeginSubSession<SessionId::SESSION_UPDATE_SOUND>();
 	m_pFMOD->update();
+	Profiler::GetInstance()->EndSubSession();
 }
 
 FMOD::Channel* SoundManager::PlaySound(FMOD::Sound* pSound) const

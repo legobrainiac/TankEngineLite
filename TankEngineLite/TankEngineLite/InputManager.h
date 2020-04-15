@@ -9,6 +9,8 @@
 #include <vector>
 #include <functional>
 
+#include "Profiler.h"
+
 // TODO(tomas): currently action mappings are keyboard only
 
 // Helper enums
