@@ -107,6 +107,8 @@ public:
 	bool IsKeyDown(SDL_Scancode key);
 
 	bool ProcessInput();
+	void CheckControllerConnection();
+
 	bool IsPressed(ControllerButton button, uint32_t controllerId = 0U);
 	std::tuple<int, int, Uint32> GetMouseState();
 
@@ -133,6 +135,7 @@ private:
 	bool m_PadKeys[4][18]; // Gamepad keys
 	bool m_ControllerConnected[4]; // Gamepad status
 	bool m_ControllerComplained[4]; // Has logged a complaint
+	bool m_Initialized;
 
 	// Signal buffer
 	InputSignal m_InputSB[1024];

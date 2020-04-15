@@ -73,15 +73,20 @@ public:
 
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 				const auto currentTime = high_resolution_clock::now();
+				
+				pProfiler->BeginSubSession<SessionId::SESSION_PROCESS_INPUT>();
 				done = pInput->ProcessInput();
+				pProfiler->EndSubSession();
 
 				//////////////////////////////////////////////////////////////////////////
 				// ImGui update and Game Update 
 
 				// Start the new ImGui frame
+				pProfiler->BeginSubSession<SessionId::SESSION_IMGUI_NEWFRAME>();
 				ImGui_ImplDX11_NewFrame();
 				ImGui_ImplSDL2_NewFrame(m_pWindow);
 				ImGui::NewFrame();
+				pProfiler->EndSubSession();
 
 				// Update the game
 				pProfiler->BeginSubSession<SessionId::SESSION_UPDATE>();

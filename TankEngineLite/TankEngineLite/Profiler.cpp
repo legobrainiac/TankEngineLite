@@ -6,9 +6,7 @@ void Profiler::BeginSession()
 		Reset();
 
 	// Initialize the main session with the ID of 0, time of 0, and now sub sessions
-	m_pMainSession = Memory::New<Session>();
-	new(m_pMainSession) Session(0U);
-
+	m_pMainSession = new(Memory::New<Session>()) Session(0U);
 	m_pCurrentSession = m_pMainSession;
 }
 

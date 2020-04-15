@@ -79,6 +79,8 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 			else
 				m_pWorld->DestroyEntity(m_pPlayers[controller]->GetId());
 		});
+
+	InputManager::GetInstance()->CheckControllerConnection();
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
@@ -93,10 +95,7 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 {
 	// Populate sprite batches
-	PROFILE(SESSION_UPDATE_ECS, m_pWorld->GetSystemByComponent<SpriteRenderComponent>()->ForAll(
-		[](ECS::EntityComponent* pSRC) {
-			static_cast<SpriteRenderComponent*>(pSRC)->Render();
-		}));
+	PROFILE(SESSION_RENDER_ECS, pRenderer->SpriteBatchRender(m_pWorld->GetSystemByComponent<SpriteRenderComponent>()));
 
 	// Render your sprite batches
 	PROFILE(SESSION_BATCH_DYNAMIC, m_pDynamic_SB->Render());

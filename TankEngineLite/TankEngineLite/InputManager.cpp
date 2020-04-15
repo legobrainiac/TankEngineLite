@@ -7,11 +7,14 @@
 #include <XInput.h>
 #include <algorithm>
 
+#include "Profiler.h"
+
 bool InputManager::ProcessInput()
 {
 	// Reset the signal buffer
 	m_SBIndex = 0;
 
+	Profiler::GetInstance()->BeginSubSession<SESSION_SDL_POOL_EVENT>();
 	SDL_Event e;
 	while (SDL_PollEvent(&e))
 	{
@@ -21,7 +24,10 @@ bool InputManager::ProcessInput()
 			continue;
 
 		if (e.type == SDL_QUIT)
+		{
+			Profiler::GetInstance()->EndSubSession();
 			return true;
+		}
 		if (e.type == SDL_KEYDOWN) {}
 		if (e.type == SDL_MOUSEBUTTONDOWN) {}
 
@@ -33,9 +39,58 @@ bool InputManager::ProcessInput()
 			KeyDown(e.key.keysym.scancode);
 	}
 
+	Profiler::GetInstance()->EndSubSession();
+
+	Profiler::GetInstance()->BeginSubSession<SESSION_XINPUT_UPDATE>();
 	for (uint32_t cId = 0; cId < 4; ++cId)
 	{
-		// Read controller state
+		if(!m_ControllerConnected[cId])
+			continue;
+
+		XINPUT_STATE xState{};
+		ZeroMemory(&xState, sizeof(XINPUT_STATE));
+		XInputGetState(cId, &xState);
+
+		// Input management
+		m_PadKeys[cId][ControllerButton::DPAD_UP] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
+		m_PadKeys[cId][ControllerButton::DPAD_DOWN] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
+		m_PadKeys[cId][ControllerButton::DPAD_LEFT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
+		m_PadKeys[cId][ControllerButton::DPAD_RIGHT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
+
+		m_PadKeys[cId][ControllerButton::START] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_START;
+		m_PadKeys[cId][ControllerButton::BACK] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
+
+		m_PadKeys[cId][ControllerButton::LEFT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
+		m_PadKeys[cId][ControllerButton::RIGHT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
+
+		m_PadKeys[cId][ControllerButton::LEFT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+		m_PadKeys[cId][ControllerButton::RIGHT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+
+		m_PadKeys[cId][ControllerButton::A] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
+		m_PadKeys[cId][ControllerButton::B] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
+		m_PadKeys[cId][ControllerButton::X] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
+		m_PadKeys[cId][ControllerButton::Y] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
+	}
+
+	Profiler::GetInstance()->EndSubSession();
+
+	Profiler::GetInstance()->BeginSubSession<SESSION_ACTIONMAPPING_UPDATE>();
+	// Process Action mappings
+	for (const auto& amType : m_ActionMappings)
+	{
+		for (auto am : amType.second)
+			ValidateActionMapping(am);
+	}
+	
+	Profiler::GetInstance()->EndSubSession();
+
+	return false;
+}
+
+void InputManager::CheckControllerConnection()
+{
+	for (uint32_t cId = 0; cId < 4; ++cId)
+	{
 		XINPUT_STATE xState{};
 		ZeroMemory(&xState, sizeof(XINPUT_STATE));
 		DWORD dwResult = XInputGetState(cId, &xState);
@@ -66,36 +121,7 @@ bool InputManager::ProcessInput()
 
 		if (dwResult != ERROR_SUCCESS)
 			continue;
-
-		// Input management
-		m_PadKeys[cId][ControllerButton::DPAD_UP] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
-		m_PadKeys[cId][ControllerButton::DPAD_DOWN] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
-		m_PadKeys[cId][ControllerButton::DPAD_LEFT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
-		m_PadKeys[cId][ControllerButton::DPAD_RIGHT] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
-
-		m_PadKeys[cId][ControllerButton::START] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_START;
-		m_PadKeys[cId][ControllerButton::BACK] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
-
-		m_PadKeys[cId][ControllerButton::LEFT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
-		m_PadKeys[cId][ControllerButton::RIGHT_THUMB] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
-
-		m_PadKeys[cId][ControllerButton::LEFT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
-		m_PadKeys[cId][ControllerButton::RIGHT_SHOULDER] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
-
-		m_PadKeys[cId][ControllerButton::A] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-		m_PadKeys[cId][ControllerButton::B] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
-		m_PadKeys[cId][ControllerButton::X] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_X;
-		m_PadKeys[cId][ControllerButton::Y] = xState.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
 	}
-
-	// Process Action mappings
-	for (const auto& amType : m_ActionMappings)
-	{
-		for (auto am : amType.second)
-			ValidateActionMapping(am);
-	}
-
-	return false;
 }
 
 void InputManager::ValidateActionMapping(ActionMapping& am)

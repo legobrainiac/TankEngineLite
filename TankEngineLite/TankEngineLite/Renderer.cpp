@@ -9,6 +9,7 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_sdl.h"
+#include "Profiler.h"
 
 bool Renderer::Init(SDL_Window* pWin, int xw, int yh, bool vSync)
 {
@@ -72,17 +73,21 @@ void Renderer::SpriteBatchRender(ECS::System* pWorldRenderSystem) const
 // Engine related rendering and ImGui
 void Renderer::RootRenderBegin() const
 {
+	Profiler::GetInstance()->BeginSubSession<SESSION_RENDER_BEGIN>();
 	ImGui::Render();
 	m_pDirectX->Begin({ 0.f, 0.f, 0.f, 1.f });
+	Profiler::GetInstance()->EndSubSession();
 }
 
 void Renderer::RootRenderEnd() const
 {
+	Profiler::GetInstance()->BeginSubSession<SESSION_RENDER_END>();
 	// Render imgui
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	// Swap buffers and present the rendered scene  
 	m_pDirectX->End();
+	Profiler::GetInstance()->EndSubSession();
 }
 
 void Renderer::Destroy()
