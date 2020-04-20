@@ -52,6 +52,7 @@ void TEngineRunner::Cleanup()
 	SDL_Quit();
 	
 	m_pGame->Shutdown();
+	Profiler::GetInstance()->Destroy();
 	ResourceManager::GetInstance()->Destroy();
 	SoundManager::GetInstance()->Destroy();
 	Renderer::GetInstance()->Destroy();

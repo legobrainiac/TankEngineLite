@@ -137,9 +137,9 @@ public:
 	{
 	}
 
-	~Profiler()
+	void Destroy()
 	{
-		Reset();
+		Memory::Delete(m_pMainSession);
 	}
 
 	void BeginSession();
