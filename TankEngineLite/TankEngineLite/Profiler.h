@@ -119,7 +119,7 @@ struct Session
 
 		ImGui::TextColored(colours[color], stream.str().c_str());
 		ImGui::SameLine();
-		ImGui::Text(std::to_string(PercentageOf(sessionTime)).c_str());
+		ImGui::Text("%.1f", PercentageOf(sessionTime));
 
 		for (const auto pS : subSessions)
 			pS->Report(totalTime, depth + 1);
@@ -130,8 +130,10 @@ class Profiler
 	: public Singleton<Profiler>
 {
 public:
-	Profiler()
-		: m_pReportSession(nullptr)
+	constexpr Profiler()
+		: m_pMainSession(nullptr)
+		, m_pCurrentSession(nullptr)
+		, m_pReportSession(nullptr)
 	{
 	}
 

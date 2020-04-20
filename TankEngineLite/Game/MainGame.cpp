@@ -20,7 +20,7 @@ void MainGame::Initialize()
 		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<PlayerController, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<ParticleEmitter, 16, 5, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<Particle, 2048, 6, ECS::SystemExecutionStyle::ASYNCHRONOUS/*TODO(tomas): async execution*/>
+		ECS::WorldSystem<Particle, 4096, 6, ECS::SystemExecutionStyle::ASYNCHRONOUS/*TODO(tomas): async execution*/>
 	>();
 }
 
@@ -48,7 +48,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	{
 		auto pParticleSystemEntity = m_pWorld->CreateEntity();
 		auto[pParticleEmitter, pTransform] = pParticleSystemEntity->PushComponents<ParticleEmitter, TransformComponent2D>();
-		pParticleEmitter->m_ParticleSpawnInterval = 0.01f;
+		pParticleEmitter->m_ParticleSpawnInterval = 0.001f;
 		pParticleEmitter->m_ParticleLifeTime = .5f;
 		pParticleEmitter->m_ParticlesPerSpawn = 5U;
 		pParticleEmitter->m_pSpriteBatch = m_pDynamic_SB;

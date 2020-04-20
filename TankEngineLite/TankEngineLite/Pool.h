@@ -35,7 +35,7 @@ template<
 class Pool
 {
 public:
-	Pool()
+	constexpr Pool()
 	{
 		m_pPool = Memory::New<T>(S);
 		m_pLookUp = &m_LookUpInternal[0];
@@ -54,7 +54,7 @@ public:
     
     // Using this in the specific use case of ecs to initialized the object with it's parent entity
     template <typename INIT_TYPE>
-    T* GetAndInit(INIT_TYPE* pParentObj)
+    constexpr T* GetAndInit(INIT_TYPE* pParentObj)
 	{
 		// Test if pool is full
 		if (m_ActiveCount + 1 > S)
@@ -99,7 +99,7 @@ public:
 #endif
 	}
     
-	T* Get()
+	constexpr T* Get()
 	{
 		// Test if pool is full
 		if (m_ActiveCount + 1 > S)
@@ -227,9 +227,9 @@ private:
 	uint32_t m_ActiveCount;
 
 public:
-	inline T* GetPool() { return m_pPool; }
-	inline char* GetLookUp() { return m_pLookUp; }
-	inline uint32_t GetActiveCount() { return m_ActiveCount; }
+	constexpr T* GetPool() const { return m_pPool; }
+	constexpr char* GetLookUp() const { return m_pLookUp; }
+	constexpr uint32_t GetActiveCount() const noexcept { return m_ActiveCount; }
 
 	void PrintLookUpTable()
 	{

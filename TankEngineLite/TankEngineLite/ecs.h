@@ -89,7 +89,7 @@ struct SystemIdentifier
 class EntityComponent
 {
 public:
-	EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
+	constexpr EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
 	EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
 	virtual ~EntityComponent() = default;
 	virtual void Update(float dt) { (void)dt; }
@@ -186,7 +186,7 @@ private:
 class World
 {
 public:
-	inline World(uint32_t givenId)
+	constexpr World(uint32_t givenId)
 		: m_ID(givenId)
 		, m_IdCounter(0)
 	{
@@ -199,14 +199,14 @@ public:
 
 	~World();
 
-	inline Entity* CreateEntity();
+	Entity* CreateEntity();
 	inline void DestroyEntity(uint32_t id);
 
 	//////////////////////////////////////
 	// Push Systems impl
 private:
 	template<typename T>
-	inline T* PushSystem()
+	constexpr T* PushSystem()
 	{
 		auto typeIndex = std::type_index(typeid(T));
 
@@ -234,15 +234,16 @@ private:
 
 public:
 	template<typename... T>
-	inline std::tuple<T* ...> PushSystems()
+	constexpr std::tuple<T* ...> PushSystems()
 	{
 		return std::tuple<T * ...> { PushSystem<T>()... };
 	}
 
 public:
 	template<typename T>
-	System* GetSystemByComponent()
+	constexpr System* GetSystemByComponent() const
 	{
+		// Find system of type T
 		auto type = std::type_index(typeid(T));
 		auto found = std::find_if(m_Systems.begin(), m_Systems.end(),
 			[&](auto sys)
@@ -252,6 +253,7 @@ public:
 
 		System* pS = nullptr;
 
+		// If found, return it
 		if (found != m_Systems.end())
 			pS = found->second.pSystem;
 
@@ -259,7 +261,7 @@ public:
 	}
 
 public:
-	void Update(float dt/*CommandChain/SignalChain?*/)
+	void Update(float dt)
 	{
 		for (auto system : m_Systems)
 			system.second.pSystem->Update(dt);

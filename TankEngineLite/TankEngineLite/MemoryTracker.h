@@ -17,7 +17,7 @@ class Memory
 {
 public:
 	template<typename T>
-	inline static T* New(unsigned int count = 1U)
+	constexpr static T* New(unsigned int count = 1U)
 	{
 		const auto size = sizeof(T);
 		T* obj = reinterpret_cast<T*>(calloc(count, size));
@@ -35,7 +35,7 @@ public:
 	}
 
 	template<typename T>
-	inline static void Delete(T* obj, bool callDestructor = true)
+	constexpr static void Delete(T* obj, bool callDestructor = true)
 	{
 		const auto size = sizeof(T);
 		auto it = m_PointerPool.find(reinterpret_cast<void*>(obj));
@@ -53,12 +53,12 @@ public:
 			std::cout << "Memory address no allocated by this memory manager" << std::endl;
 	}
 
-	static inline bool HasLeaks()
+	static bool HasLeaks() noexcept
 	{
 		return !m_PointerPool.empty();
 	}
 
-	static inline MemoryStatus GetMemoryStatus()
+	static MemoryStatus GetMemoryStatus() noexcept
 	{
 		return { m_TotalMemory, (uint32_t)m_PointerPool.size() };
 	}

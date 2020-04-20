@@ -269,6 +269,7 @@ void Particle::Update(float dt)
 
 	XMFLOAT4 colour = m_Colour;
 	m_Colour.y = abs(cosf(m_Timer * 3.f));
+	m_Colour.x = abs(sinf(m_Timer * 3.f));
 
 	m_pSpriteBatch->PushSprite({ 8, 128, 12, 132 }, { m_Pos.x, m_Pos.y, 0 }, 0, { m_Scale , m_Scale }, { 0.5f, 0.5f }, m_Colour);
 }

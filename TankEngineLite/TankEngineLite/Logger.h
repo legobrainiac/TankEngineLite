@@ -32,7 +32,7 @@ class Logger
 {
 public:
 	template<LogType loggerType, typename... T>
-	void Log(const T& ... logs)
+	constexpr void Log(const T& ... logs)
 	{
 		std::string result;
 

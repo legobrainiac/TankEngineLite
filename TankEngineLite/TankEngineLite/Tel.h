@@ -68,11 +68,11 @@ public:
 
 			while (!done)
 			{
-				// Begin profiling session
-				pProfiler->BeginSession();
-
 				std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 				const auto currentTime = high_resolution_clock::now();
+				
+				// Begin profiling session
+				pProfiler->BeginSession();
 				
 				pProfiler->BeginSubSession<SessionId::SESSION_PROCESS_INPUT>();
 				done = pInput->ProcessInput();

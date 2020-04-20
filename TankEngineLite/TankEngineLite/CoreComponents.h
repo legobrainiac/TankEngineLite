@@ -14,7 +14,13 @@ class TransformComponent2D
 	: public ECS::EntityComponent
 {
 public:
-	TransformComponent2D() {}
+	TransformComponent2D() 
+		: position({ 0.f, 0.f, 0.f })
+		, scale({ 1.f, 1.f })
+		, rotation(0.f)
+	{
+	}
+
 	TransformComponent2D(ECS::Entity* pE)
 		: ECS::EntityComponent(pE)
 		, position({ 0.f, 0.f, 0.f })
@@ -36,7 +42,14 @@ class SpriteRenderComponent
 	: public ECS::EntityComponent
 {
 public:
-	SpriteRenderComponent() {}
+	SpriteRenderComponent()
+		: m_pTransform(nullptr)
+		, m_pSpriteBatch(nullptr)
+		, m_AtlasTransform()
+		, m_MeetsRequirements(false)
+	{
+	}
+
 	SpriteRenderComponent(ECS::Entity* pE);
 
 	inline void SetSpriteBatch(SpriteBatch* pBatch) { m_pSpriteBatch = pBatch; }
