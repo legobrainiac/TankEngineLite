@@ -44,12 +44,12 @@ public:
 	void Begin(const DirectX::XMFLOAT4& colour);
 	void End();
 
-	inline ID3D11Device* GetDevice() const { return m_pDevice; };
-	inline ID3D11DeviceContext* GetDeviceContext() const { return m_pDeviceContext; };
+	constexpr ID3D11Device* GetDevice() const { return m_pDevice; };
+	constexpr ID3D11DeviceContext* GetDeviceContext() const { return m_pDeviceContext; };
 
-	inline XMFLOAT4X4 GetProjectionMatrix() const { return m_ProjectionMatrix; }
-	inline XMFLOAT4X4 GetWorldMatrix() const { return m_WorldMatrix; }
-	inline XMFLOAT4X4 GetOrthoMatrix() const { return m_OrthoMatrix; }
+	constexpr XMFLOAT4X4 GetProjectionMatrix() noexcept { return m_ProjectionMatrix; }
+	constexpr XMFLOAT4X4 GetWorldMatrix() noexcept { return m_WorldMatrix; }
+	constexpr XMFLOAT4X4 GetOrthoMatrix() noexcept { return m_OrthoMatrix; }
 
 	std::tuple<XMFLOAT4X4, XMFLOAT4X4, XMFLOAT4X4> GetMatrices() const;
 

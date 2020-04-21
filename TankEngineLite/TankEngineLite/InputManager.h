@@ -13,7 +13,9 @@
 
 // TODO(tomas): currently action mappings are keyboard only
 
-// Helper enums
+//////////////////////////////////////////////////////////////////////////
+// Enum: Player
+// Description: PlayerController enum
 enum Player : uint32_t
 {
 	PLAYER0,
@@ -23,12 +25,18 @@ enum Player : uint32_t
 	PLAYER_INVALID
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Enum: ActionType
+// Description: If an action is key pressed or key released
 enum ActionType
 {
 	PRESSED,
 	RELEASED
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Enum: ControllerButton
+// Description: All the buttons in a controller
 enum ControllerButton
 {
 	DPAD_UP,
@@ -47,25 +55,33 @@ enum ControllerButton
 	Y
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Enum: ConnectionType
+// Description: Type of controller connections
 enum ConnectionType : uint32_t
 {
 	CONNECTED,
 	DISCONNECTED
 };
 
+//////////////////////////////////////////////////////////////////////////
 // Input processors
 using ActionMappingProcessor = std::function<void()>;
 using AxisMappingProcessor = std::function<void(float)>;
 using ControllerConnectedCallback = std::function<void(uint32_t, ConnectionType)>;
 
-// Signals get generated when an input event happens
+//////////////////////////////////////////////////////////////////////////
+// Struct: InputSignal
+// Description: Signals get generated when an input event happens
 struct InputSignal
 {
 	ActionType signalType;
 	uint32_t signal;
 };
 
-// Action Mappings get validated against signals
+//////////////////////////////////////////////////////////////////////////
+// Struct: ActionMapping
+// Description: Action Mappings get validated against signals
 struct ActionMapping
 {
 	uint32_t action;
@@ -80,6 +96,9 @@ struct ActionMapping
 	}
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Struct: RumblePack
+// Description: Keeps track of rumble events, used for clearing rumble once expired
 struct RumblePack
 {
 	unsigned short speedLeft;
@@ -90,6 +109,9 @@ struct RumblePack
 	uint32_t controller;
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Class: InputManager
+// Description: Input management handling, force feedback
 class InputManager final
 	: public Singleton<InputManager>
 {
@@ -102,30 +124,110 @@ public:
 	{
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    KeyDown
+	// FullName:  InputManager::KeyDown
+	// Access:    public 
+	// Returns:   void
+	// Parameter: SDL_Scancode key
 	void KeyDown(SDL_Scancode key);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    KeyUp
+	// FullName:  InputManager::KeyUp
+	// Access:    public 
+	// Returns:   void
+	// Parameter: SDL_Scancode key
 	void KeyUp(SDL_Scancode key);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    IsKeyDown
+	// FullName:  InputManager::IsKeyDown
+	// Access:    public 
+	// Returns:   bool
+	// Parameter: SDL_Scancode key
 	bool IsKeyDown(SDL_Scancode key);
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    ProcessInput
+	// FullName:  InputManager::ProcessInput
+	// Access:    public 
+	// Returns:   bool
+	// Description: Process all the input and generate signals for the action maps
 	bool ProcessInput();
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    CheckControllerConnection
+	// FullName:  InputManager::CheckControllerConnection
+	// Access:    public 
+	// Returns:   void
+	// Description: Check which controllers are connected, 
+	//		be ware, don't call this every frame
 	void CheckControllerConnection();
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    IsPressed
+	// FullName:  InputManager::IsPressed
+	// Access:    public 
+	// Returns:   bool
+	// Description: is button on controller with id controllerId pressed
+	// Parameter: ControllerButton button
+	// Parameter: uint32_t controllerId
 	bool IsPressed(ControllerButton button, uint32_t controllerId = 0U);
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    GetMouseState
+	// FullName:  InputManager::GetMouseState
+	// Access:    public 
+	// Returns:   std::tuple<int, int, Uint32>
+	// Description: Return the mouse state in a tuple
 	std::tuple<int, int, Uint32> GetMouseState();
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Update
+	// FullName:  InputManager::Update
+	// Access:    public 
+	// Returns:   void
+	// Description: Process rumble pack expirations, 
+	// Parameter: float dt
 	void Update(float dt);
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    RegisterActionMappin
+	// FullName:  InputManager::RegisterActionMappin
+	// Access:    public 
+	// Returns:   void
+	// Description: Register action mappings
+	// Parameter: const ActionMapping& am
 	void inline RegisterActionMappin(const ActionMapping& am)
 	{
 		LOGGER->Log<LOG_INFO>("Registered action mapping >> " + std::to_string(am.action));
 		m_ActionMappings[am.actionType].push_back(am);
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    RegisterControllerConnectedCallback
+	// FullName:  InputManager::RegisterControllerConnectedCallback
+	// Access:    public 
+	// Returns:   void
+	// Description: Register a ControllerConnectedCallback
+	// Parameter: const ControllerConnectedCallback& callback
 	void inline RegisterControllerConnectedCallback(const ControllerConnectedCallback& callback)
 	{
 		LOGGER->Log<LOG_INFO>("Registered controller connected callback");
 		m_ControllerConnectedCallbacks.push_back(callback);
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    RumbleController
+	// FullName:  InputManager::RumbleController
+	// Access:    public 
+	// Returns:   void
+	// Description: Create a rumble event
+	// Parameter: unsigned short leftMotor
+	// Parameter: unsigned short rightMotor
+	// Parameter: float time
+	// Parameter: uint32_t controllerId
 	void RumbleController(unsigned short leftMotor, unsigned short rightMotor, float time, uint32_t controllerId = 0U);
 
 private:

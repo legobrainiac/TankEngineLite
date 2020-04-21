@@ -7,14 +7,22 @@
 #include "Texture.h"
 
 //////////////////////////////////////////////////////////////////////////
-// Sprite batch renderer based on the one we did in Graphics Programming 2
-
+// Enum: BatchMode
+// Description: Describes in which way the batch rendering is handled, 
+//		particularly the discard policy
+// Enum options:
+//		BATCHMODE_DYNAMIC,
+//		BATCHMODE_STATIC
 enum BatchMode
 {
 	BATCHMODE_DYNAMIC,
 	BATCHMODE_STATIC,
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Struct: Batch item
+// Description: This is the representation of an item on the batch both here and
+//		in the GPU
 struct BatchItem
 {
 	XMFLOAT4 atlasTrasform;
@@ -24,21 +32,20 @@ struct BatchItem
 };
 
 //////////////////////////////////////////////////////////////////////////
-// The sprite batch aims to help bring down the number of draw calls
-// USE:
-//	Some init function:
-//		auto pSpriteBatch = new SpriteBatch();
-//		pSpriteBatch->InitializeBatch(vectorOfTexturePointers);
-//	
-//	Some render function:
-//		m_pRenderComponentSystem([pSpriteBatch](RenderComponent* pComp)
-//		{
-//			pSpriteBatch->PushSprite(...);
-//		});
+// Class: SpriteBatch
+// Description: SpriteBatch is built to reduced draw calls when doing 2D rendering
+// Constructor: SpriteBatch::SpriteBatch(const std::string_view& name)
+// Public Methods:
+//		SpriteBatch::InitializeBatch(...)
+//		SpriteBatch::Destroy()
+//		SpriteBatch::PushSprite(...)
+//		SpriteBatch::Render()
+//		SpriteBatch::GetTextureView()
+//		SpriteBatch::GetName()
 class SpriteBatch
 {
 public:
-	SpriteBatch(const std::string& name)
+	SpriteBatch(const std::string_view& name)
 		: m_Name(name)
 	{
 	}
@@ -50,18 +57,45 @@ public:
 	void Destroy();
 
 	//////////////////////////////////////////////////////////////////////////
-	// This will be used both for static and dynamic batch initialization
+	// Method:    PushSprite
+	// FullName:  SpriteBatch::PushSprite
+	// Access:    public 
+	// Returns:   void
+	// Description: Used to push sprites on to current batch, used for both dynamic and static initialization
+	// Parameter: XMFLOAT4 atlasTransform
+	// Parameter: XMFLOAT3 position
+	// Parameter: float rotation
+	// Parameter: XMFLOAT2 scale
+	// Parameter: XMFLOAT2 pivot
+	// Parameter: XMFLOAT4 colour
 	void PushSprite(XMFLOAT4 atlasTransform, XMFLOAT3 position, float rotation, XMFLOAT2 scale, XMFLOAT2 pivot, XMFLOAT4 colour);
 
 	//////////////////////////////////////////////////////////////////////////
-	// Render the actual sprite batch
+	// Method:    Render
+	// FullName:  SpriteBatch::Render
+	// Access:    public 
+	// Returns:   void
+	// Description: Update the buffer on the GPU(if necessary) and render the batch
 	void Render();
 
 	//////////////////////////////////////////////////////////////////////////
-	// Debugging and stuff
+	// Method:    GetTextureView
+	// FullName:  SpriteBatch::GetTextureView
+	// Access:    public 
+	// Returns:   ID3D11ShaderResourceView*
+	// Qualifier: const
+	inline ID3D11ShaderResourceView* GetTextureView() const { return m_Atlas->GetTexture(); }
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    GetName
+	// FullName:  SpriteBatch::GetName
+	// Access:    public 
+	// Returns:   constexpr std::string_view&
+	// Qualifier:
+	constexpr std::string_view& GetName() { return m_Name; }
+
+	// Don't worry about this one, only here for debugging purposes
 	void ImGuiDebug();
-	inline ID3D11ShaderResourceView* GetTextureView() { return m_Atlas->GetTexture(); }
-	inline const std::string& GetName() { return m_Name; }
 
 private:
 	//////////////////////////////////////////////////////////////////////////
@@ -79,7 +113,7 @@ private:
 	XMFLOAT4X4 m_Transform;
 
 	Texture* m_Atlas;
-	std::string m_Name;
+	std::string_view m_Name;
 	std::vector<BatchItem> m_Batch;
 	int m_BatchSize;
 	bool m_Dirty;

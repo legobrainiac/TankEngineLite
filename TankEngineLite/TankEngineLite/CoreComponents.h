@@ -47,6 +47,8 @@ public:
 		, m_pSpriteBatch(nullptr)
 		, m_AtlasTransform()
 		, m_MeetsRequirements(false)
+		, m_CustomRenderFunction()
+		, m_bShouldCustomRender(false)
 	{
 	}
 

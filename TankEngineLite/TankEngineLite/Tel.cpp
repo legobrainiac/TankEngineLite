@@ -122,7 +122,7 @@ void TEngineRunner::ImGuiDebug(float dt)
 		{
 			for (auto pBatch : m_BatchRegistry)
 			{
-				if (ImGui::BeginTabItem(pBatch->GetName().c_str()))
+				if (ImGui::BeginTabItem(pBatch->GetName().data()))
 				{
 					pBatch->ImGuiDebug();
 					ImGui::EndTabItem();

@@ -30,7 +30,12 @@ class LifeSpan
 	: public ECS::EntityComponent
 {
 public:
-	LifeSpan() = default;
+	LifeSpan()
+		: m_LifeSpan(0.f)
+		, m_Life(0.f)
+	{
+	}
+
 	LifeSpan(ECS::Entity* pE);
 
 	void Update(float dt) override;
