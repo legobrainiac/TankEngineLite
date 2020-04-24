@@ -13,6 +13,9 @@ using namespace std::chrono;
 
 #define PROFILING_ON
 
+//////////////////////////////////////////////////////////////////////////
+// Enum: SessionId
+// Description: All the sessions id's, this is temporary
 enum SessionId
 {
 	SESSION_ROOT,
@@ -63,6 +66,9 @@ Profiler::GetInstance()->BeginSubSession<ID>();\
 FUNC;\
 Profiler::GetInstance()->EndSubSession();} while (0)\
 
+//////////////////////////////////////////////////////////////////////////
+// Struct: Session
+// Description: Represents a session or a subsession for profiling a specific thing
 struct Session
 {
 	uint32_t sessionId;
@@ -74,6 +80,14 @@ struct Session
 	high_resolution_clock::time_point sessionStartTime;
 	high_resolution_clock::time_point sessionEndTime;
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Session
+	// FullName:  Session::Session
+	// Access:    public 
+	// Qualifier: : sessionId(id) , sessionResult(0.f) , subSessions() , pRootSession(pRoot) , sessionStartTime() , sessionEndTime()
+	// Parameter: uint32_t id
+	// Parameter: Session* pRoot
+	// Description: Begin the profiling session
 	explicit inline Session(uint32_t id, Session* pRoot = nullptr)
 		: sessionId(id)
 		, sessionResult(0.f)
@@ -85,17 +99,35 @@ struct Session
 		sessionStartTime = std::chrono::high_resolution_clock::now();
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    ~Session
+	// FullName:  Session::~Session
+	// Access:    public 
 	inline ~Session()
 	{
 		for (const auto s : subSessions)
 			Memory::Delete<Session>(s);
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    End
+	// FullName:  Session::End
+	// Access:    public 
+	// Returns:   void
+	// Description: End the profiling session
 	inline void End()
 	{
 		sessionEndTime = std::chrono::high_resolution_clock::now();
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Report
+	// FullName:  Session::Report
+	// Access:    public 
+	// Returns:   void
+	// Description: Generate the ImGui report card
+	// Parameter: float totalTime
+	// Parameter: int depth
 	void Report(float totalTime, int depth = 0)
 	{
 		const ImVec4 colours[4]
@@ -126,10 +158,17 @@ struct Session
 	}
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Class: Profiler
+// Description: Contains all the functionality to profile code and report results
 class Profiler
 	: public Singleton<Profiler>
 {
 public:
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Profiler
+	// FullName:  Profiler::Profiler
+	// Access:    public    
 	constexpr Profiler()
 		: m_pMainSession(nullptr)
 		, m_pCurrentSession(nullptr)
@@ -137,14 +176,40 @@ public:
 	{
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Destroy
+	// FullName:  Profiler::Destroy
+	// Access:    public 
+	// Returns:   void
+	// Description: Cleanup profiler
 	void Destroy()
 	{
 		Memory::Delete(m_pMainSession);
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    BeginSession
+	// FullName:  Profiler::BeginSession
+	// Access:    public 
+	// Returns:   void
+	// Description: Begin profiling session
 	void BeginSession();
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    EndSession
+	// FullName:  Profiler::EndSession
+	// Access:    public 
+	// Returns:   void
+	// Description: End the session
 	void EndSession();
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    BeginSubSession
+	// FullName:  Profiler::BeginSubSession<uint32_t sessionId>
+	// Access:    public 
+	// Returns:   void
+	// Description: Begin a sub session of the profiler, 
+	//		main session needs to be open
 	template<uint32_t sessionId>
 	inline void BeginSubSession()
 	{
@@ -158,6 +223,12 @@ public:
 #endif
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    EndSubSession
+	// FullName:  Profiler::EndSubSession
+	// Access:    public 
+	// Returns:   void
+	// Description: End the currently open sub session
 	inline void EndSubSession()
 	{
 #ifdef PROFILING_ON
@@ -169,6 +240,12 @@ public:
 #endif
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Report
+	// FullName:  Profiler::Report
+	// Access:    public 
+	// Returns:   void
+	// Description: Generate a report card
 	void Report()
 	{
 		if (!m_pReportSession)
