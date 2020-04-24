@@ -7,8 +7,6 @@
 
 #include "Renderer.h"
 #include "Texture.h"
-#include "Font.h"
-
 void ResourceManager::Init(const std::string& dataPath, const std::wstring& dataW)
 {
 	LOGGER->Log<LOG_INFO>("Initializing resource manager");

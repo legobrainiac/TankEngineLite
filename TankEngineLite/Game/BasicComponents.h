@@ -115,10 +115,12 @@ public:
 	SpriteBatch* m_pSpriteBatch;
 
 	void SpawnParticles(float dt);
+	inline void ToggleSpawning() { m_ShouldSpawn = !m_ShouldSpawn; }
 
 private:
 	float m_Timer;
 	bool m_MeetsRequirements;
+	bool m_ShouldSpawn;
 	
 	TransformComponent2D* m_pTransform;
 };

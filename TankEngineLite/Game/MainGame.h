@@ -23,6 +23,7 @@ private:
 	ECS::World* m_pWorld;
 	SpriteBatch* m_pStatic_SB;
 	SpriteBatch* m_pDynamic_SB;
+	
 	TransformComponent2D* m_pParticleEmitterTransform;
 
 	// Keep track of players for connect/disconnect

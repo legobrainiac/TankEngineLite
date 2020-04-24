@@ -92,7 +92,7 @@ public:
 	constexpr EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
 	EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
 	virtual ~EntityComponent() = default;
-	virtual void Update(float dt) { (void)dt; }
+	virtual void Update([[maybe_unused]] float dt) { }
 	inline Entity* GetOwner() { return m_pOwner; }
 
 	// System
@@ -128,10 +128,7 @@ public:
 		return std::type_index(typeid(T));
 	}
 
-	inline uint32_t GetSystemAsId()
-	{
-		return I;
-	}
+	constexpr uint32_t GetSystemAsId() noexcept { return I; }
 
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
@@ -355,7 +352,7 @@ private:
 
 public:
 	template<typename... T>
-	inline std::tuple<T* ...> PushComponents()
+	constexpr std::tuple<T* ...> PushComponents()
 	{
 		return std::tuple<T * ...>(PushComponentImpl<T>()...);
 	}
@@ -383,7 +380,7 @@ private:
 
 public:
 	template<typename... T>
-	inline void PopComponents()
+	constexpr void PopComponents()
 	{
 		std::tuple<T* ...> t{ PopComponentImpl<T>()... };
 	}
@@ -405,7 +402,7 @@ public:
 	}
 
 	template<typename... T>
-	inline std::tuple<T* ...> GetComponents()
+	constexpr std::tuple<T* ...> GetComponents()
 	{
 		return std::tuple<T * ...> { GetComponent<T>()... };
 	}

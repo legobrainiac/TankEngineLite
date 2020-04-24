@@ -210,6 +210,7 @@ void ProjectileComponent::Update(float dt)
 // Particle Emitter component
 ParticleEmitter::ParticleEmitter(ECS::Entity* pE)
 	: ECS::EntityComponent(pE)
+	, m_ShouldSpawn(true)
 {
 	m_MeetsRequirements = false;
 	m_pTransform = pE->GetComponent<TransformComponent2D>();
@@ -234,12 +235,15 @@ void ParticleEmitter::Update(float dt)
 
 void ParticleEmitter::SpawnParticles([[maybe_unused]] float dt)
 {
+	if (!m_ShouldSpawn)
+		return;
+
 	const XMFLOAT2 pos = { m_pTransform->position.x, m_pTransform->position.y };
 	for (uint32_t i = 0; i < m_ParticlesPerSpawn; ++i)
 	{
 		float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
 
-		XMFLOAT2 accel{ cosf(angle) * 50.f, sinf(angle) * 50.f };
+		XMFLOAT2 accel{ cosf(angle) * 500.f, sinf(angle) * 500.f };
 
 		Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pSpriteBatch, pos, accel, { 1.f, .3f, 0.3f, 1.f }, m_ParticleLifeTime, m_Gravity);
 	}

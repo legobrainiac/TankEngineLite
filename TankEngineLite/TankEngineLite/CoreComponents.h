@@ -9,7 +9,9 @@
 class SpriteBatch;
 using namespace DirectX;
 
-// Transform component
+//////////////////////////////////////////////////////////////////////////
+// Component: TransformComponent2D
+// Description: Simple 2D transform with a position, rotation and scale
 class TransformComponent2D
 	: public ECS::EntityComponent
 {
@@ -38,6 +40,10 @@ public:
 // Render Component
 using CustomRenderFunction = std::function<void(ECS::Entity*)>;
 
+//////////////////////////////////////////////////////////////////////////
+// Component: SpriteRenderComponent
+// Description: Fairly basic render component, pushes a sprite on to a sprite batch every frame.
+//	Also allows you to inject rendering code in to the sprite batch loop with a Custom Render Function
 class SpriteRenderComponent
 	: public ECS::EntityComponent
 {
@@ -54,16 +60,58 @@ public:
 
 	SpriteRenderComponent(ECS::Entity* pE);
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    SetSpriteBatch
+	// FullName:  SpriteRenderComponent::SetSpriteBatch
+	// Access:    public 
+	// Returns:   void
+	// Description: Set the SpriteBatch this renderer should use
+	// Parameter: SpriteBatch * pBatch
 	inline void SetSpriteBatch(SpriteBatch* pBatch) { m_pSpriteBatch = pBatch; }
-	inline SpriteBatch* GetSpriteBatch() const { return m_pSpriteBatch; }
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    GetSpriteBatch
+	// FullName:  SpriteRenderComponent::GetSpriteBatch
+	// Access:    public 
+	// Returns:   SpriteBatch*
+	// Qualifier: const noexcept
+	// Description: Get the SpriteBatch in use
+	inline SpriteBatch* GetSpriteBatch() const noexcept { return m_pSpriteBatch; }
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    SetAtlasTransform
+	// FullName:  SpriteRenderComponent::SetAtlasTransform
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: With in the SpriteBatch texture atlast, what transform should it use
+	// Parameter: const XMFLOAT4 & transform
 	inline void SetAtlasTransform(const XMFLOAT4& transform) { m_AtlasTransform = transform; }
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Render
+	// FullName:  SpriteRenderComponent::Render
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: const
+	// Description: Render the sprite batch
 	void Render() const;
 
-	// Custom rendering function
-	// Can also be used if you need to inject something in to the rendering loop
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    SetCustomRenderFunction
+	// FullName:  SpriteRenderComponent::SetCustomRenderFunction
+	// Access:    public 
+	// Returns:   void
+	// Description: Can be used to inject custom actions in to the rendering loop
+	// Parameter: const CustomRenderFunction & crf
 	inline void SetCustomRenderFunction(const CustomRenderFunction& crf);
-	inline void ResetToDefault() { m_bShouldCustomRender = false; } // Not sure why you'd need this but I'll leave it here anyways
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    ResetToDefault
+	// FullName:  SpriteRenderComponent::ResetToDefault
+	// Access:    public 
+	// Returns:   void
+	// Description: SpriteRenderComponent::m_bShouldCustomRender = false;
+	inline void ResetToDefault() { m_bShouldCustomRender = false; }
 
 private:
 	TransformComponent2D* m_pTransform;

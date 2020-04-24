@@ -17,6 +17,4 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#define LOGGER Logger::GetInstance()
-
 #endif // !PCH_H

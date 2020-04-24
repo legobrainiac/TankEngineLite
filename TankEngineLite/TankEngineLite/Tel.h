@@ -136,7 +136,7 @@ public:
 
 	// Debug ui
 	void ImGuiDebug(float dt);
-	inline void RegisterBatchForDebug(SpriteBatch* pBatch) { m_BatchRegistry.push_back(pBatch); };
+	inline void RegisterBatch(SpriteBatch* pBatch) { m_BatchRegistry.push_back(pBatch); };
 
 private:
 	SDL_Window* m_pWindow;

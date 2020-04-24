@@ -26,25 +26,30 @@ void MainGame::Initialize()
 
 void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_unused]] TEngineRunner* pEngine)
 {
-	// Create the sprite batches
-	m_pDynamic_SB = Memory::New<SpriteBatch>();
-	new (m_pDynamic_SB) SpriteBatch("Dynamic");
+	//////////////////////////////////////////////////////////////////////////
+	// Create the dynamic sprite batch
+	m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
 	auto pTexDyn = ResourceManager::GetInstance()->GetTexture("atlas_0");
+	
 	if (!pTexDyn)
 		pTexDyn = ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0");
+	
 	m_pDynamic_SB->InitializeBatch(pTexDyn);
-	pEngine->RegisterBatchForDebug(m_pDynamic_SB);
+	pEngine->RegisterBatch(m_pDynamic_SB);
 
-	m_pStatic_SB = Memory::New<SpriteBatch>();
-	new(m_pStatic_SB) SpriteBatch("Static");
-
+	//////////////////////////////////////////////////////////////////////////
+	// Create the static sprite batch
+	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
 	auto pTexStat = ResourceManager::GetInstance()->GetTexture("atlas_5");
+	
 	if(!pTexStat)
 		pTexStat = ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5");
+	
 	m_pStatic_SB->InitializeBatch(pTexStat, BatchMode::BATCHMODE_STATIC);
-	pEngine->RegisterBatchForDebug(m_pStatic_SB);
+	pEngine->RegisterBatch(m_pStatic_SB);
 
 	// Create particle system
+	ParticleEmitter* pParticleSystem = nullptr;
 	{
 		auto pParticleSystemEntity = m_pWorld->CreateEntity();
 		auto[pParticleEmitter, pTransform] = pParticleSystemEntity->PushComponents<ParticleEmitter, TransformComponent2D>();
@@ -55,6 +60,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		pParticleEmitter->m_Gravity = 981.f;
 
 		m_pParticleEmitterTransform = pTransform;
+		pParticleSystem = pParticleEmitter;
 	}
 
 	// Setup a smol platform
@@ -81,6 +87,14 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		});
 
 	InputManager::GetInstance()->CheckControllerConnection();
+
+	// Toggle particle emission
+	InputManager::GetInstance()->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_R, ActionType::PRESSED,
+			[pParticleSystem]()
+			{
+				pParticleSystem->ToggleSpawning();
+			}));
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
