@@ -12,6 +12,7 @@
 using namespace std::chrono;
 
 #define PROFILING_ON
+#define MAX_SUBSSESSION_COUNT 10
 
 //////////////////////////////////////////////////////////////////////////
 // Enum: SessionId
@@ -20,6 +21,7 @@ enum SessionId
 {
 	SESSION_ROOT,
 	SESSION_PROFILER,
+	SESSION_PROFILER_REPORT,
 	SESSION_UPDATE,
 	SESSION_RENDER,
 	SESSION_RENDER_BEGIN,
@@ -43,6 +45,7 @@ static std::string sessionNames[SessionId::SESSION_COUNT]
 {
 	"ROOT",
 	"PROFILER",
+	"PROFILER_REPORT",
 	"UPDATE",
 	"RENDER",
 	"RENDER_BEGIN",
@@ -74,8 +77,10 @@ struct Session
 	uint32_t sessionId;
 	float sessionResult;
 
-	std::vector<Session*> subSessions;
 	Session* pRootSession;
+	
+	Session* subSessions[MAX_SUBSSESSION_COUNT];
+	uint32_t subSessionCount;
 
 	high_resolution_clock::time_point sessionStartTime;
 	high_resolution_clock::time_point sessionEndTime;
@@ -92,6 +97,7 @@ struct Session
 		: sessionId(id)
 		, sessionResult(0.f)
 		, subSessions()
+		, subSessionCount()
 		, pRootSession(pRoot)
 		, sessionStartTime()
 		, sessionEndTime()
@@ -105,8 +111,8 @@ struct Session
 	// Access:    public 
 	inline ~Session()
 	{
-		for (const auto s : subSessions)
-			Memory::Delete<Session>(s);
+		for (uint32_t i = 0U; i < subSessionCount; ++i)
+			Memory::Delete<Session>(subSessions[i]);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -128,34 +134,7 @@ struct Session
 	// Description: Generate the ImGui report card
 	// Parameter: float totalTime
 	// Parameter: int depth
-	void Report(float totalTime, int depth = 0)
-	{
-		const ImVec4 colours[4]
-		{
-			{ 1.f, 1.f, 1.f, 1.f },
-			{ 0.f, 1.f, 0.f, 1.f },
-			{ 1.f, 1.f, 0.f, 1.f },
-			{ 1.f, 0.f, 1.f, 1.f }
-		};
-
-		const auto GetTime = [](const auto& t1, const auto& t2) -> std::chrono::duration<float> { return t2 - t1; };
-		const auto PercentageOf = [totalTime](float time) { return ((time * 100) / totalTime); };
-
-		float sessionTime = GetTime(sessionStartTime, sessionEndTime).count();
-		std::stringstream stream{};
-		for (int i = 0; i < depth; ++i)
-			stream << "  ";
-
-		stream << sessionNames[sessionId] << " %= ";
-		int color = (depth > 3) ? 3 : depth;
-
-		ImGui::TextColored(colours[color], stream.str().c_str());
-		ImGui::SameLine();
-		ImGui::Text("%.1f", PercentageOf(sessionTime));
-
-		for (const auto pS : subSessions)
-			pS->Report(totalTime, depth + 1);
-	}
+	void Report(float totalTime, int depth = 0);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -213,16 +192,17 @@ public:
 	template<uint32_t sessionId>
 	inline void BeginSubSession()
 	{
-#ifdef PROFILING_ON
-		// Create a sub session 
-		auto pSession = Memory::New<Session>();
-		new(pSession) Session(sessionId, m_pCurrentSession);
-		m_pCurrentSession->subSessions.push_back(pSession);
+#ifdef PROFILING_ON 
+		if (m_pCurrentSession->subSessionCount >= MAX_SUBSSESSION_COUNT)
+			throw std::exception("MAX_SUBSSESSION_COUNT exceeded");
 
+		// Create a sub session 
+		auto pSession = new(Memory::New<Session>()) Session(sessionId, m_pCurrentSession);
+		m_pCurrentSession->subSessions[m_pCurrentSession->subSessionCount++] = pSession;
 		m_pCurrentSession = pSession;
 #endif
 	}
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    EndSubSession
 	// FullName:  Profiler::EndSubSession
@@ -251,6 +231,8 @@ public:
 		if (!m_pReportSession)
 			return;
 
+		Profiler::GetInstance()->BeginSubSession<SESSION_PROFILER_REPORT>();
+
 		const auto GetTime = [](const auto& t1, const auto& t2) -> std::chrono::duration<float>
 		{
 			return t2 - t1;
@@ -264,6 +246,8 @@ public:
 		ImGui::End();
 
 		Memory::Delete(m_pReportSession);
+
+		Profiler::GetInstance()->EndSubSession();
 	}
 
 private:

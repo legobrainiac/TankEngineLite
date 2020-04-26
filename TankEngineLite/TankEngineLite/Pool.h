@@ -27,6 +27,10 @@ struct constexpr_mod
 	static constexpr uint32_t value = L % R;
 };
 
+//////////////////////////////////////////////////////////////////////////
+// Class: Pool<typename T, uint32_s S>
+// Description: Memory pool container that generates a block of memory of sizeof(T) * S,
+//  to the user, the memory pool behaves as an T[S] array
 template<
 	typename T,
 	uint32_t S,
@@ -52,7 +56,14 @@ public:
 		Memory::Delete(m_pPool, false);
 	}
     
-    // Using this in the specific use case of ecs to initialized the object with it's parent entity
+    //////////////////////////////////////////////////////////////////////////
+    // Method:    GetAndInit
+    // FullName:  Pool::GetAndInit<typename INIT_TYPE>
+    // Access:    public 
+    // Returns:   constexpr T*
+    // Description: Get and intialize an object from the pool
+    // Note: Using this in the specific use case of ECS to initialized the object with it's parent entity
+    // Parameter: INIT_TYPE* pParentObj
     template <typename INIT_TYPE>
     constexpr T* GetAndInit(INIT_TYPE* pParentObj)
 	{
@@ -99,6 +110,12 @@ public:
 #endif
 	}
     
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Get
+	// FullName:  Pool<T, S>::Get
+	// Access:    public 
+	// Returns:   constexpr T*
+	// Description: Get an available object from the pool
 	constexpr T* Get()
 	{
 		// Test if pool is full
@@ -144,6 +161,13 @@ public:
 #endif
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Pop
+	// FullName:  Pool<T, S>::Pop
+	// Access:    public 
+	// Returns:   void
+	// Description: Pop and object from the pool
+	// Parameter: T * pPop
 	void Pop(T* pPop)
 	{
 		if (pPop < m_pPool || pPop > m_pPool + S)
@@ -174,15 +198,28 @@ public:
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    Reset
+	// FullName:  Pool<T, S>::Reset
+	// Access:    public 
+	// Returns:   void
+	// Description: Reset the pool to an empty state
 	void Reset()
 	{
 		for (int i = 0; i < (S / 8); ++i)
 			m_pLookUp[i] = 0;
+
 		m_ActiveCount = 0;
 	}
 
-	// For all active and inactive
-	void ForAll(const std::function<void(T*)>& f)
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    ForAll
+	// FullName:  Pool<T, S>::ForAll
+	// Access:    public 
+	// Returns:   void
+	// Description: For all active and inactive objects, f(pObj)
+	// Parameter: const std::function<void(T*)>& f
+	void ForAll()
 	{
 		T* pPoolItem = m_pPool;
 
@@ -193,6 +230,13 @@ public:
 		}
 	}
 
+	//************************************
+	// Method:    ForAllActive
+	// FullName:  Pool<T, S>::ForAllActive
+	// Access:    public 
+	// Returns:   void
+	// Description: For all active objects in the pool
+	// Parameter: const std::function<void(T*)>& f
 	void ForAllActive(const std::function<void(T*)>& f)
 	{
 		T* pPoolItem = m_pPool;
@@ -227,25 +271,40 @@ private:
 	uint32_t m_ActiveCount;
 
 public:
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    GetPool
+	// FullName:  Pool<T, S>::GetPool
+	// Access:    public 
+	// Returns:   constexpr T*
+	// Qualifier: const
+	// Description: Get a pointer to the start of the pool
 	constexpr T* GetPool() const { return m_pPool; }
+
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    GetLookUp
+	// FullName:  Pool<T, S>::GetLookUp
+	// Access:    public 
+	// Returns:   constexpr char*
+	// Qualifier: const
+	// Description: Get a pointer to the start of the lookup bit table
 	constexpr char* GetLookUp() const { return m_pLookUp; }
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    GetActiveCount
+	// FullName:  Pool<T, S>::GetActiveCount
+	// Access:    public 
+	// Returns:   constexpr uint32_t
+	// Qualifier: const noexcept
+	// Description: Get active amount of items from the pool
 	constexpr uint32_t GetActiveCount() const noexcept { return m_ActiveCount; }
 
-	void PrintLookUpTable()
-	{
-		std::cout << "Active count: " << GetActiveCount() << std::endl;
-
-		char* pPoolLookUp = m_pLookUp;
-
-		for (int i = 0; i < S / 8; ++i)
-		{
-			std::cout << std::bitset<8>(*pPoolLookUp) << std::endl;
-			pPoolLookUp++;
-		}
-
-		std::cout << std::endl;
-	}
-
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    ImGuiDebugUi
+	// FullName:  Pool<T, S>::ImGuiDebugUi
+	// Access:    public 
+	// Returns:   void
+	// Description: Draw a Debug Card for this memory pool
 	void ImGuiDebugUi()
 	{
 		std::stringstream stream;

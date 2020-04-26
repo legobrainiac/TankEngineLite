@@ -83,7 +83,7 @@ public:
 	// FullName:  SpriteRenderComponent::SetAtlasTransform
 	// Access:    public 
 	// Returns:   void
-	// Qualifier: With in the SpriteBatch texture atlast, what transform should it use
+	// Qualifier: With in the SpriteBatch texture atlas, what transform should it use
 	// Parameter: const XMFLOAT4 & transform
 	inline void SetAtlasTransform(const XMFLOAT4& transform) { m_AtlasTransform = transform; }
 	
