@@ -27,68 +27,14 @@ void ResourceManager::Init(const std::string& dataPath, const std::wstring& data
 
 void ResourceManager::Destroy()
 {
-	for (auto& tex : m_pTextures)
-	{
-		tex.second->Shutdown();
-		Memory::Delete(tex.second);
-	}
+	for (auto& r : m_Resources)
+		r.second.Cleanup();
 
 	for (auto& effect : m_pEffects)
 		DXRELEASE(effect.second);
 
 	for (auto& sound : m_pSounds)
 		sound.second->release();
-}
-
-//////////////////////////////////////////////////////////////////////////
-// Texture loading
-Texture* ResourceManager::LoadTexture(const std::string& file, const std::string& name)
-{
-	// If texture already exists, we don't do anything, just return it
-	const auto it = m_pTextures.find(name);
-
-	if (it != m_pTextures.cend())
-		return it->second;
-
-	// Otherwise
-	const auto fullPath = m_DataPath + file;
-	auto pTexture = Memory::New<Texture>();
-	new (pTexture) Texture();
-    
-	try
-	{
-		bool result = pTexture->Initialize(Renderer::GetInstance()->GetDirectX()->GetDevice(), fullPath.c_str());
-
-		if (pTexture == nullptr || !result)
-			throw std::runtime_error(std::string("Failed to load texture: " + file + " as " + name));
-
-		m_pTextures[name] = pTexture;
-	}
-	catch (const std::exception& e)
-	{
-		Logger::GetInstance()->Log<LOG_ERROR>(e.what());
-
-		// Fall back exception, 
-		//  we don't want memory leaks on failed texture creation
-		delete pTexture;
-
-		return nullptr;
-	}
-
-	LOGGER->Log<LOG_SUCCESS>("Loaded ", name);
-	return pTexture;
-}
-
-Texture* ResourceManager::GetTexture(const std::string& name) const
-{
-	const auto it = m_pTextures.find(name);
-
-	if (it != m_pTextures.cend())
-		return it->second;
-
-	Logger::GetInstance()->Log<LOG_WARNING>("Failed to locate texture -> ", name);
-
-	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -5,11 +5,13 @@
 #include <string>
 
 #include "D3D.h"
+#include "ResourceManager.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Class: Texture
 // Description: Wrapper around the DirectX representations of a Texture and its resource view
 class Texture
+	: public IShutdown
 {
 public:
 	Texture();
@@ -22,9 +24,8 @@ public:
 	// Access:    public 
 	// Returns:   bool
 	// Description: Initialize texture from the given file path
-	// Parameter: ID3D11Device* pDevice
 	// Parameter: LPCSTR texName
-	bool Initialize(ID3D11Device* pDevice, LPCSTR texName);
+	bool Initialize(LPCSTR texName);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    Shutdown

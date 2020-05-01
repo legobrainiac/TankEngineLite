@@ -4,12 +4,12 @@
 #include <tuple>
 
 #include "Singleton.h"
+#include "ecs.h"
 
 struct SDL_Renderer;
 struct SDL_Window;
 
 class Texture;
-class System;
 class D3D;
 
 class Renderer

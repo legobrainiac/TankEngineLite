@@ -54,8 +54,8 @@ class Universe;
 class World;
 
 // Contains all type of one Entity Component
-enum SystemExecutionStyle { SYNCHRONOUS, ASYNCHRONOUS };
-template<typename T, uint32_t C, uint32_t I, SystemExecutionStyle E>
+enum ExecutionStyle { SYNCHRONOUS, ASYNCHRONOUS };
+template<typename T, uint32_t C, uint32_t I, ExecutionStyle E>
 class WorldSystem;
 
 // An entity inside a world
@@ -105,7 +105,7 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
-template<typename T, uint32_t C, uint32_t I, SystemExecutionStyle E>
+template<typename T, uint32_t C, uint32_t I, ExecutionStyle E>
 class WorldSystem
 	: public System
 {

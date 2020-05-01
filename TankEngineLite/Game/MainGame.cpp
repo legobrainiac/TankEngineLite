@@ -14,13 +14,13 @@ void MainGame::Initialize()
 	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		ECS::WorldSystem<TransformComponent2D, 256, 0, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<SpriteRenderComponent, 256, 1, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<LifeSpan, 256, 2, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<PlayerController, 8, 4, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<ParticleEmitter, 16, 5, ECS::SystemExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<Particle, 4096, 6, ECS::SystemExecutionStyle::ASYNCHRONOUS/*TODO(tomas): async execution*/>
+		ECS::WorldSystem<TransformComponent2D, 256, 0, ECS::ExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<SpriteRenderComponent, 256, 1, ECS::ExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<LifeSpan, 256, 2, ECS::ExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::ExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<PlayerController, 8, 4, ECS::ExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<ParticleEmitter, 16, 5, ECS::ExecutionStyle::SYNCHRONOUS>,
+		ECS::WorldSystem<Particle, 4096, 6, ECS::ExecutionStyle::ASYNCHRONOUS/*TODO(tomas): async execution*/>
 	>();
 }
 
@@ -29,10 +29,10 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	//////////////////////////////////////////////////////////////////////////
 	// Create the dynamic sprite batch
 	m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
-	auto pTexDyn = ResourceManager::GetInstance()->GetTexture("atlas_0");
+	auto pTexDyn = RESOURCES->Get<Texture>("atlas_0");
 	
 	if (!pTexDyn)
-		pTexDyn = ResourceManager::GetInstance()->LoadTexture("atlas_0.png", "atlas_0");
+		pTexDyn = RESOURCES->Load<Texture>("atlas_0.png", "atlas_0");
 	
 	m_pDynamic_SB->InitializeBatch(pTexDyn);
 	pEngine->RegisterBatch(m_pDynamic_SB);
@@ -40,10 +40,10 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	//////////////////////////////////////////////////////////////////////////
 	// Create the static sprite batch
 	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
-	auto pTexStat = ResourceManager::GetInstance()->GetTexture("atlas_5");
+	auto pTexStat = RESOURCES->Get<Texture>("atlas_5");
 	
 	if(!pTexStat)
-		pTexStat = ResourceManager::GetInstance()->LoadTexture("atlas_5.png", "atlas_5");
+		pTexStat = RESOURCES->Load<Texture>("atlas_5.png", "atlas_5");
 	
 	m_pStatic_SB->InitializeBatch(pTexStat, BatchMode::BATCHMODE_STATIC);
 	pEngine->RegisterBatch(m_pStatic_SB);
@@ -94,6 +94,14 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 			[pParticleSystem]()
 			{
 				pParticleSystem->ToggleSpawning();
+			}));
+
+	// Check for new controllers
+	InputManager::GetInstance()->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_T, ActionType::PRESSED,
+			[pParticleSystem]()
+			{
+				InputManager::GetInstance()->CheckControllerConnection();
 			}));
 }
 

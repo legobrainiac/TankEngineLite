@@ -114,7 +114,7 @@ void TEngineRunner::ImGuiDebug(float dt)
 		ImGui::SameLine();
 		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "FPS: ");
 		ImGui::SameLine();
-		ImGui::Text(std::to_string((int)(1 / dt)).c_str());
+		ImGui::Text(std::to_string(ImGui::GetIO().Framerate).c_str());
 
 		ImGui::Separator();
 		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Sprite batches");

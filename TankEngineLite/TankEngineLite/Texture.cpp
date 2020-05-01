@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "SDL_image.h"
+#include "Renderer.h"
 
 Texture::Texture()
 	: m_pTextureView(nullptr)
@@ -7,8 +8,9 @@ Texture::Texture()
 {
 }
 
-bool Texture::Initialize(ID3D11Device* pDevice, LPCSTR fileName)
+bool Texture::Initialize(LPCSTR fileName)
 {
+	const auto pDevice = Renderer::GetInstance()->GetDirectX()->GetDevice();
 	std::string f = fileName;
 	std::wstring wfilename = std::wstring(f.begin(), f.end());
 
