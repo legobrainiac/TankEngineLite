@@ -61,7 +61,7 @@ public:
     // FullName:  Pool::GetAndInit<typename INIT_TYPE>
     // Access:    public 
     // Returns:   constexpr T*
-    // Description: Get and intialize an object from the pool
+    // Description: Get and initialize an object from the pool
     // Note: Using this in the specific use case of ECS to initialized the object with it's parent entity
     // Parameter: INIT_TYPE* pParentObj
     template <typename INIT_TYPE>

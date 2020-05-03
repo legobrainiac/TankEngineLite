@@ -121,7 +121,7 @@ void SpriteBatch::PushSprite(
 
 void SpriteBatch::Render()
 {
-	if (!m_Atlas)
+	if (!m_Atlas || (m_Mode == BatchMode::BATCHMODE_DYNAMIC && m_Batch.empty()))
 		return;
 
 	// Device stuff

@@ -20,7 +20,7 @@ void MainGame::Initialize()
 		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::ExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<PlayerController, 8, 4, ECS::ExecutionStyle::SYNCHRONOUS>,
 		ECS::WorldSystem<ParticleEmitter, 16, 5, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<Particle, 4096, 6, ECS::ExecutionStyle::ASYNCHRONOUS/*TODO(tomas): async execution*/>
+		ECS::WorldSystem<Particle, 4096, 6, ECS::ExecutionStyle::ASYNCHRONOUS>
 	>();
 }
 
@@ -120,8 +120,10 @@ void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 	PROFILE(SESSION_RENDER_ECS, pRenderer->SpriteBatchRender(m_pWorld->GetSystemByComponent<SpriteRenderComponent>()));
 
 	// Render your sprite batches
+	Profiler::GetInstance()->BeginSubSession<SESSION_BATCH_RENDERING>();
 	PROFILE(SESSION_BATCH_DYNAMIC, m_pDynamic_SB->Render());
 	PROFILE(SESSION_BATCH_STATIC, m_pStatic_SB->Render());
+	Profiler::GetInstance()->EndSubSession();
 }
 
 void MainGame::Shutdown()

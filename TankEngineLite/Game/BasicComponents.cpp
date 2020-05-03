@@ -253,6 +253,14 @@ void ParticleEmitter::SpawnParticles([[maybe_unused]] float dt)
 // Particle
 Particle::Particle(ECS::Entity* pE)
 	: ECS::EntityComponent(pE)
+	, m_Timer()
+	, m_Life()
+	, m_Scale()
+	, m_Gravity()
+	, m_Pos()
+	, m_Acceleration()
+	, m_Colour()
+	,m_pSpriteBatch()
 {
 	m_Timer = 0;
 }
@@ -262,7 +270,7 @@ void Particle::Update(float dt)
 	m_Timer += dt;
 
 	if (m_Timer > m_Life)
-		m_pOwner->GetWorld()->DestroyEntity(m_pOwner->GetId());
+		m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
 
 	// SIMD, should actually test if theres a performance impact 
 	m_Pos.x += m_Acceleration.x * dt;

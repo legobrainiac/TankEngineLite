@@ -40,8 +40,14 @@ ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch
 
 ECS::Entity* Prefabs::SpawnParticle(ECS::World* pWorld, SpriteBatch* pSpriteBatch, XMFLOAT2 pos, XMFLOAT2 startingAcceleration, XMFLOAT4 colour, float life, float gravity)
 {
-	auto pEntity = pWorld->CreateEntity();
-	auto [pParticle] = pEntity->PushComponents<Particle>();
-	pParticle->Initialize(pSpriteBatch, pos, startingAcceleration, 0.25f, colour, life, gravity);
-	return pEntity;
+	pWorld->AsyncCreateEntity(
+		[pSpriteBatch, pos, startingAcceleration, colour, life, gravity](ECS::Entity* pEntity) 
+		{
+			auto [pParticle] = pEntity->PushComponents<Particle>();
+			pParticle->Initialize(pSpriteBatch, pos, startingAcceleration, 0.25f, colour, life, gravity);
+			return pEntity;
+		}
+	);
+
+	return nullptr;
 }

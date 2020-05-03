@@ -12,6 +12,8 @@
 #include <typeindex>
 #include <algorithm>
 #include <typeinfo>
+#include <thread>
+#include <future>
 #include <vector>
 #include <tuple>
 #include <map>
@@ -39,6 +41,7 @@ CLASS_NAME& operator=(CLASS_NAME&&) = delete;
 #include "Pool.h"
 #include "Logger.h"
 #include "MemoryTracker.h"
+#include "Profiler.h"
 #endif 
 
 namespace ECS
@@ -54,7 +57,7 @@ class Universe;
 class World;
 
 // Contains all type of one Entity Component
-enum ExecutionStyle { SYNCHRONOUS, ASYNCHRONOUS };
+enum ExecutionStyle { SYNCHRONOUS, ASYNCHRONOUS, DYNAMIC };
 template<typename T, uint32_t C, uint32_t I, ExecutionStyle E>
 class WorldSystem;
 
@@ -77,6 +80,8 @@ public:
 	inline virtual void Update(float dt) = 0;
 	inline virtual void ForAll(std::function<void(EntityComponent*)> execFunc) = 0;
 	inline virtual void ImGuiDebug() = 0;
+
+	inline virtual ExecutionStyle GetExecutionStyle() = 0;
 };
 
 struct SystemIdentifier
@@ -112,6 +117,7 @@ class WorldSystem
 public:
 	inline WorldSystem()
 		: m_ID(I)
+		, m_ExecutionStyle(E)
 	{
 		m_pComponentPool = Memory::New<Pool<T, C>>();
 		new (m_pComponentPool) Pool<T, C>();
@@ -129,6 +135,7 @@ public:
 	}
 
 	constexpr uint32_t GetSystemAsId() noexcept { return I; }
+	inline virtual ExecutionStyle GetExecutionStyle() override { return m_ExecutionStyle; };
 
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
@@ -176,6 +183,7 @@ public:
 
 private:
 	uint32_t m_ID;
+	ExecutionStyle m_ExecutionStyle;
 	Pool<T, C>* m_pComponentPool;
 };
 
@@ -197,7 +205,18 @@ public:
 	~World();
 
 	Entity* CreateEntity();
+	void AsyncCreateEntity(std::function<void(Entity*)> initializer)
+	{
+		// TODO(tomas): not thread safe
+		m_AsyncCreationBuffer.push_back(initializer);
+	}
+
 	inline void DestroyEntity(uint32_t id);
+	inline void AsyncDestroyEntity(uint32_t id)
+	{
+		// TODO(tomas): not thread safe
+		m_AsyncDestroyBuffer.push_back(id);
+	}
 
 	//////////////////////////////////////
 	// Push Systems impl
@@ -260,8 +279,48 @@ public:
 public:
 	void Update(float dt)
 	{
+		std::vector<std::future<void>> futures{};
+
+		// TODO(tomas): Each async system owns a thread that is waiting for 
+		//  the go ahead signal to do another loop
+		//  Right now, we create an async ting every time, not good 
+		// TODO(tomas): ExecutionStyle::DYNAMIC, let ECS decide, at runtime
+		//  which execution policy it should take
+		
+		// Async system threads launched
 		for (auto system : m_Systems)
-			system.second.pSystem->Update(dt);
+		{
+			const auto pSystem = system.second.pSystem;
+
+			if (pSystem->GetExecutionStyle() == ExecutionStyle::ASYNCHRONOUS)
+				futures.push_back(std::async(std::launch::async, &System::Update, pSystem, dt));
+		}
+
+		// Do normal updating
+		for (auto system : m_Systems)
+		{
+			const auto pSystem = system.second.pSystem;
+
+			if (pSystem->GetExecutionStyle() == ExecutionStyle::SYNCHRONOUS)
+				pSystem->Update(dt);
+		}
+
+		// Cleanup futures
+		Profiler::GetInstance()->BeginSubSession<SESSION_THREAD_WAITING>();
+		for (auto& f : futures)
+			f.get();
+		Profiler::GetInstance()->EndSubSession();
+
+		// Process async destructions
+		for (uint32_t i : m_AsyncDestroyBuffer)
+			DestroyEntity(i);
+
+		// Process async insertions
+		for (auto& asyncCreator : m_AsyncCreationBuffer)
+			asyncCreator(CreateEntity());
+
+		m_AsyncDestroyBuffer.clear();
+		m_AsyncCreationBuffer.clear();
 	}
 
 	void ImGuiDebug()
@@ -312,6 +371,9 @@ private:
 	uint32_t m_IdCounter;
 	std::unordered_map<uint32_t, Entity*> m_pEntities;
 	std::unordered_map<std::type_index, SystemIdentifier> m_Systems;
+
+	std::vector<uint32_t> m_AsyncDestroyBuffer;
+	std::vector<std::function<void(Entity*)>> m_AsyncCreationBuffer;
 };
 
 //////////////////////////////////////////////////////////////////////////
