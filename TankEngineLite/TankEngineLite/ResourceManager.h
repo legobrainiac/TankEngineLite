@@ -5,6 +5,7 @@
 #include "d3dx11effect.h"
 
 #include <unordered_map>
+#include <functional>
 #include <typeindex>
 #include <map>
 
@@ -59,6 +60,27 @@ class ResourceManager final
 public:
 	void Init(const std::string& data, const std::wstring& dataW);
 	void Destroy();
+
+	void LoadAllInFolder();
+
+	void LoadDecode([[maybe_unused]] const std::string& path)
+	{
+		const auto lastDot = path.find_last_of('.');
+		const auto lastSlash = path.find_last_of('\\');
+		
+		if (lastDot == -1)
+			return;
+
+		auto resourceType = path.substr(lastDot);
+		resourceType = resourceType.substr(0, resourceType.size() - 1);
+
+		auto resourceName = path.substr(lastSlash + 1, (lastDot - lastSlash) - 1);
+
+		// Figure out if a resolver exists
+		const auto it = TypeResolvers.find(resourceType);
+		if (it != TypeResolvers.cend())
+			it->second(resourceName + resourceType, resourceName);
+	}
 
 	template<typename T>
 	T* Load(const std::string& file, const std::string& name)
@@ -140,5 +162,8 @@ private:
 	std::unordered_map<std::string, FMOD::Sound*> m_pSounds;
 
 	std::map<std::string, ResourceDescriptor> m_Resources;
+
+	// Resource resolution
+	static std::map<std::string, std::function<void(std::string, std::string)>> TypeResolvers;
 };
 #endif // !RESOURCE_MANAGER_H

@@ -31,9 +31,6 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
 	auto pTexDyn = RESOURCES->Get<Texture>("atlas_0");
 	
-	if (!pTexDyn)
-		pTexDyn = RESOURCES->Load<Texture>("atlas_0.png", "atlas_0");
-	
 	m_pDynamic_SB->InitializeBatch(pTexDyn);
 	pEngine->RegisterBatch(m_pDynamic_SB);
 
@@ -41,9 +38,6 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	// Create the static sprite batch
 	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
 	auto pTexStat = RESOURCES->Get<Texture>("atlas_5");
-	
-	if(!pTexStat)
-		pTexStat = RESOURCES->Load<Texture>("atlas_5.png", "atlas_5");
 	
 	m_pStatic_SB->InitializeBatch(pTexStat, BatchMode::BATCHMODE_STATIC);
 	pEngine->RegisterBatch(m_pStatic_SB);

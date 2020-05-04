@@ -54,6 +54,9 @@ public:
 		// Root initialized and game initialize
 		Initialize();
 
+		// Load all the resources in folder
+		ResourceManager::GetInstance()->LoadAllInFolder();
+
 		// Feed this resource manager in to the game loader
 		LoadGame();
 
