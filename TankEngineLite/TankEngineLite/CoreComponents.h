@@ -9,6 +9,101 @@
 class SpriteBatch;
 using namespace DirectX;
 
+// TODO(tomas): Document both transform and camera components
+
+//////////////////////////////////////////////////////////////////////////
+// Component: TransformComponent
+// Description: Simple transform with a position, rotation and scale
+class TransformComponent
+	: public ECS::EntityComponent
+{
+public:
+	TransformComponent()
+		: position({ 0.f, 0.f, 0.f })
+		, rotationQ({ 0.f, 0.f, 0.f, 1.f })
+		, scale({ 1.f, 1.f, 1.f })
+	{
+	}
+
+	TransformComponent(ECS::Entity* pE)
+		: ECS::EntityComponent(pE)
+		, position({ 0.f, 0.f, 0.f })
+		, rotationQ({ 0.f, 0.f, 0.f, 1.f })
+		, scale({ 1.f, 1.f, 1.f })
+	{ }
+
+	~TransformComponent() { }
+
+	XMFLOAT4X4 GetWorldMatrix() const
+	{
+		XMFLOAT4X4 worldMatrix{};
+		
+		auto rMat = XMMatrixRotationQuaternion(XMLoadFloat4(&rotationQ));
+		auto tMat = XMMatrixTranslation(position.x, position.y, position.z);
+		auto sMat = XMMatrixScaling(scale.x, scale.y, scale.z);
+
+		auto rtMat = XMMatrixMultiply(rMat, tMat);
+		auto wM = XMMatrixMultiply(sMat, rtMat);
+
+		XMStoreFloat4x4(&worldMatrix, wM);
+		return worldMatrix;
+	}
+
+	void Translate(const XMFLOAT3& translation) 
+	{ 
+		XMStoreFloat3(&position, XMLoadFloat3(&translation) + XMLoadFloat3(&position));
+	}
+
+	void Rotate(float yaw, float pitch, float roll)
+	{
+		XMVECTOR rawRot = XMQuaternionRotationRollPitchYaw(pitch, yaw, roll);
+		XMStoreFloat4(&rotationQ, XMQuaternionMultiply(XMLoadFloat4(&rotationQ), rawRot));
+	}
+
+public:
+	XMFLOAT3 position;
+	XMFLOAT3 scale;
+	XMFLOAT4 rotationQ;
+};
+
+class CameraComponent
+	: public ECS::EntityComponent
+{
+public:
+	CameraComponent()
+		: m_pEntityTransform(nullptr)
+		, m_ViewMatrix()
+		, m_MeetsRequirements(false)
+	{
+	}
+
+	CameraComponent(ECS::Entity* pE)
+		: ECS::EntityComponent(pE)
+		, m_ViewMatrix()
+		, m_MeetsRequirements(false)
+	{
+		m_pEntityTransform = pE->GetComponent<TransformComponent>();
+
+		if (m_pEntityTransform != nullptr)
+			m_MeetsRequirements = true;
+	}
+
+	void Update([[maybe_unused]] float dt) override
+	{
+		GenerateViewMatrix();
+	}
+
+	void GenerateViewMatrix();
+
+	constexpr XMFLOAT4X4& GetViewMatrix() noexcept { return m_ViewMatrix; }
+	constexpr XMFLOAT3& GetPosition() const { return m_pEntityTransform->position; }
+
+private:
+	TransformComponent* m_pEntityTransform;
+	XMFLOAT4X4 m_ViewMatrix;
+	bool m_MeetsRequirements;
+};
+
 //////////////////////////////////////////////////////////////////////////
 // Component: TransformComponent2D
 // Description: Simple 2D transform with a position, rotation and scale

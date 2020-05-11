@@ -9,11 +9,13 @@
 
 #include "Renderer.h"
 #include "Texture.h"
+#include "Model.h"
 
 std::map<std::string, std::function<void(std::string, std::string)>> ResourceManager::TypeResolvers
 {
 	std::pair(".fx", [](std::string, std::string) { LOGGER->Log<LOG_WARNING>("Automatic .fx loading not implemented"); }),
 	std::pair(".wav", [](std::string, std::string) { LOGGER->Log<LOG_WARNING>("Automatic .wav loading not implemented"); }),
+	std::pair(".temd", [](std::string path, std::string name) { RESOURCES->Load<Model>(path, name); }),
 	std::pair(".jpg", [](std::string path, std::string name) { RESOURCES->Load<Texture>(path, name); }),
 	std::pair(".png", [](std::string path, std::string name) { RESOURCES->Load<Texture>(path, name); }),
 };

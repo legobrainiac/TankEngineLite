@@ -14,10 +14,10 @@ bool Texture::Initialize(LPCSTR fileName)
 	std::string f = fileName;
 	std::wstring wfilename = std::wstring(f.begin(), f.end());
 
-//	std::wstring extension = wfilename.substr(wfilename.find('.') + 1, wfilename.size()).c_str();
-// 	if (extension == L"png")
-// 	{
 	auto pSurface = IMG_Load(f.c_str());
+	if (!pSurface)
+		return false;
+
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Width = pSurface->w;
 	desc.Height = pSurface->h;
@@ -51,7 +51,6 @@ bool Texture::Initialize(LPCSTR fileName)
 
 	SDL_FreeSurface(pSurface);
 	return true;
-//	}
 }
 
 void Texture::Shutdown()

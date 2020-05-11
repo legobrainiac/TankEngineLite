@@ -6,21 +6,27 @@
 #include "Logger.h"
 #include "imgui.h"
 
+#include "Model.h"
+
 #include "Profiler.h"
 
 void MainGame::Initialize()
 {
+	using namespace ECS;
+
 	// Initialized world and world systems
-	m_pWorld = ECS::Universe::GetInstance()->PushWorld();
+	m_pWorld = Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		ECS::WorldSystem<TransformComponent2D, 256, 0, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<SpriteRenderComponent, 256, 1, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<LifeSpan, 256, 2, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<ProjectileComponent, 256, 3, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<PlayerController, 8, 4, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<ParticleEmitter, 16, 5, ECS::ExecutionStyle::SYNCHRONOUS>,
-		ECS::WorldSystem<Particle, 4096, 6, ECS::ExecutionStyle::ASYNCHRONOUS>
+		WorldSystem<TransformComponent2D, 256, 0, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<SpriteRenderComponent, 256, 1, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<LifeSpan, 256, 2, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ProjectileComponent, 256, 3, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<PlayerController, 8, 4, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ParticleEmitter, 16, 5, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<Particle, 4096, 6, ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<TransformComponent, 8, 7, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<CameraComponent, 8, 8, ExecutionStyle::SYNCHRONOUS>
 	>();
 }
 
@@ -29,17 +35,13 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	//////////////////////////////////////////////////////////////////////////
 	// Create the dynamic sprite batch
 	m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
-	auto pTexDyn = RESOURCES->Get<Texture>("atlas_0");
-	
-	m_pDynamic_SB->InitializeBatch(pTexDyn);
+	m_pDynamic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_0"));
 	pEngine->RegisterBatch(m_pDynamic_SB);
-
+    
 	//////////////////////////////////////////////////////////////////////////
 	// Create the static sprite batch
 	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
-	auto pTexStat = RESOURCES->Get<Texture>("atlas_5");
-	
-	m_pStatic_SB->InitializeBatch(pTexStat, BatchMode::BATCHMODE_STATIC);
+	m_pStatic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_5"), BatchMode::BATCHMODE_STATIC);
 	pEngine->RegisterBatch(m_pStatic_SB);
 
 	// Create particle system
