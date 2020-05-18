@@ -29,6 +29,8 @@
 
 using namespace DirectX;
 
+#include "CoreComponents.h"
+
 class D3D
 {
 public:
@@ -47,9 +49,23 @@ public:
 	constexpr ID3D11Device* GetDevice() const { return m_pDevice; };
 	constexpr ID3D11DeviceContext* GetDeviceContext() const { return m_pDeviceContext; };
 
-	constexpr XMFLOAT4X4 GetProjectionMatrix() noexcept { return m_ProjectionMatrix; }
-	constexpr XMFLOAT4X4 GetWorldMatrix() noexcept { return m_WorldMatrix; }
-	constexpr XMFLOAT4X4 GetOrthoMatrix() noexcept { return m_OrthoMatrix; }
+	XMFLOAT4X4 GetProjectionMatrix() noexcept { return m_ProjectionMatrix; }
+	XMFLOAT4X4 GetWorldMatrix() noexcept { return m_WorldMatrix; }
+
+	inline void SetCamera(CameraComponent* pCam) { m_pCamera = pCam; }
+	XMFLOAT4X4 GetCameraViewMatrix() noexcept 
+	{ 
+		return m_pCamera->GetViewMatrix();
+	}
+
+	void TranslateCamera(XMFLOAT3 tr) 
+	{
+		m_CameraPosition.x += tr.x; 
+		m_CameraPosition.y += tr.y;
+		m_CameraPosition.z += tr.z;
+	}
+
+	XMFLOAT4X4 GetOrthoMatrix() noexcept { return m_OrthoMatrix; }
 
 	std::tuple<XMFLOAT4X4, XMFLOAT4X4, XMFLOAT4X4> GetMatrices() const;
 
@@ -71,10 +87,14 @@ private:
 	int m_ScreenH;
 	bool m_Vsync;
 
+	XMFLOAT3 m_CameraPosition;
+
 	// Matrices
 	XMFLOAT4X4 m_ProjectionMatrix;
 	XMFLOAT4X4 m_WorldMatrix;
 	XMFLOAT4X4 m_OrthoMatrix;
+
+	CameraComponent* m_pCamera;
 };
 
 #endif // !D3D_H

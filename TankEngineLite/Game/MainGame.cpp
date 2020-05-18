@@ -9,6 +9,7 @@
 #include "Model.h"
 
 #include "Profiler.h"
+#include "BinaryInterfaces.h"
 
 void MainGame::Initialize()
 {
@@ -26,7 +27,8 @@ void MainGame::Initialize()
 		WorldSystem<ParticleEmitter, 16, 5, ExecutionStyle::SYNCHRONOUS>,
 		WorldSystem<Particle, 4096, 6, ExecutionStyle::ASYNCHRONOUS>,
 		WorldSystem<TransformComponent, 8, 7, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<CameraComponent, 8, 8, ExecutionStyle::SYNCHRONOUS>
+		WorldSystem<CameraComponent, 8, 8, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ModelRenderComponent, 8, 9, ExecutionStyle::SYNCHRONOUS>
 	>();
 }
 
@@ -57,6 +59,37 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 		m_pParticleEmitterTransform = pTransform;
 		pParticleSystem = pParticleEmitter;
+	}
+
+	// Create 3D camera
+	{
+		auto pCamera = m_pWorld->CreateEntity();
+		auto [pCameraComponent, pTransform] = pCamera->PushComponents<CameraComponent, TransformComponent>();
+		Renderer::GetInstance()->GetDirectX()->SetCamera(pCameraComponent);
+		pTransform->Translate({ 0.f, -5.f, 0.f });
+	}
+
+	// Create world model
+	{
+		auto pModel = RESOURCES->Get<Model>("arcade");
+		auto pTexture = RESOURCES->Get<Texture>("arcade_diffuse_pog");
+
+		auto pWorldModel = m_pWorld->CreateEntity();
+		auto [pModelRenderer, pTransform] = pWorldModel->PushComponents<ModelRenderComponent, TransformComponent>();
+		pModelRenderer->Initialize(pModel, pTexture);
+		pTransform->Rotate(0.f, XM_PIDIV2, 0.f);
+		pTransform->scale = { 0.01f, 0.01f, 0.01f };
+	}
+
+	// Create world model
+	{
+		auto pModel = RESOURCES->Get<Model>("skydome");
+		auto pTexture = RESOURCES->Get<Texture>("skydome_diffuse");
+
+		auto pWorldModel = m_pWorld->CreateEntity();
+		auto [pModelRenderer, pTransform] = pWorldModel->PushComponents<ModelRenderComponent, TransformComponent>();
+		pModelRenderer->Initialize(pModel, pTexture);
+		pTransform->Rotate(XM_PI, XM_PIDIV2, 0.f);
 	}
 
 	// Setup a smol platform
@@ -114,6 +147,7 @@ void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 {
 	// Populate sprite batches
 	PROFILE(SESSION_RENDER_ECS, pRenderer->SpriteBatchRender(m_pWorld->GetSystemByComponent<SpriteRenderComponent>()));
+	PROFILE(SESSION_RENDER_ECS, pRenderer->ModelRender(m_pWorld->GetSystemByComponent<ModelRenderComponent>()));
 
 	// Render your sprite batches
 	Profiler::GetInstance()->BeginSubSession<SESSION_BATCH_RENDERING>();

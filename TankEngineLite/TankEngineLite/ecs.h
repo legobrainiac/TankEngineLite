@@ -57,7 +57,7 @@ class Universe;
 class World;
 
 // Contains all type of one Entity Component
-enum ExecutionStyle { SYNCHRONOUS, ASYNCHRONOUS, DYNAMIC };
+enum ExecutionStyle { SYNCHRONOUS, ASYNCHRONOUS, DYNAMIC, NOEXEC };
 template<typename T, uint32_t C, uint32_t I, ExecutionStyle E>
 class WorldSystem;
 
@@ -129,13 +129,13 @@ public:
 	}
 
 	// System identification
-	inline std::type_index GetSystemTypeAsComponent() override
+	[[nodiscard]] inline std::type_index GetSystemTypeAsComponent() override
 	{
 		return std::type_index(typeid(T));
 	}
 
-	constexpr uint32_t GetSystemAsId() noexcept { return I; }
-	inline virtual ExecutionStyle GetExecutionStyle() override { return m_ExecutionStyle; };
+	[[nodiscard]] constexpr uint32_t GetSystemAsId() noexcept { return I; }
+	[[nodiscard]] inline virtual ExecutionStyle GetExecutionStyle() override { return m_ExecutionStyle; };
 
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
@@ -204,7 +204,7 @@ public:
 
 	~World();
 
-	Entity* CreateEntity();
+	[[nodiscard]] Entity* CreateEntity();
 	void AsyncCreateEntity(std::function<void(Entity*)> initializer)
 	{
 		// TODO(tomas): not thread safe
@@ -257,7 +257,7 @@ public:
 
 public:
 	template<typename T>
-	constexpr System* GetSystemByComponent() const
+	[[nodiscard]] constexpr System* GetSystemByComponent() const
 	{
 		// Find system of type T
 		auto type = std::type_index(typeid(T));
@@ -452,7 +452,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 public:
 	template<typename T>
-	T* GetComponent()
+	[[nodiscard]] T* GetComponent()
 	{
 		auto typeIndex = std::type_index(typeid(T));
 		auto found = m_EntityComponents.find(typeIndex);
@@ -464,7 +464,7 @@ public:
 	}
 
 	template<typename... T>
-	constexpr std::tuple<T* ...> GetComponents()
+	[[nodiscard]] constexpr std::tuple<T* ...> GetComponents()
 	{
 		return std::tuple<T * ...> { GetComponent<T>()... };
 	}
@@ -482,9 +482,9 @@ public:
 	}
 
 public:
-	inline size_t GetComponentCount() const { return m_EntityComponents.size(); }
-	inline uint32_t GetId() const { return m_ID; }
-	inline World* GetWorld() { return m_pWorld; }
+	[[nodiscard]] inline size_t GetComponentCount() const { return m_EntityComponents.size(); }
+	[[nodiscard]] inline uint32_t GetId() const noexcept { return m_ID; }
+	[[nodiscard]] inline World* GetWorld() const noexcept { return m_pWorld; }
 
 private:
 	const uint32_t m_ID;

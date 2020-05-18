@@ -16,9 +16,9 @@
 typedef struct textured_vertex
 {
 	XMFLOAT3 position;
-	XMFLOAT2 texture;
 	XMFLOAT3 normal;
-}Vertex;
+	XMFLOAT2 texture;
+}TexVertex;
 
 // YES IM FULLY AWARE OF HOW HORRIBLE THIS IS, leave me alone, this is for later
 class Model
@@ -32,9 +32,9 @@ public:
 	bool Initialize(std::string modelDescriptorPath);
 	void Shutdown();
 
-	constexpr int GetIndexCount() noexcept { return m_IndexCount; }
-	constexpr ID3D11Buffer* GetVertexBuffer() noexcept { return m_pVertexBuffer; }
-	constexpr ID3D11Buffer* GetIndexBuffer() noexcept { return m_pIndexBuffer; }
+	[[nodiscard]] constexpr int GetIndexCount() const noexcept { return m_IndexCount; }
+	[[nodiscard]] constexpr ID3D11Buffer* GetVertexBuffer() const noexcept { return m_pVertexBuffer; }
+	[[nodiscard]] constexpr ID3D11Buffer* GetIndexBuffer() const noexcept { return m_pIndexBuffer; }
 
 private:
 	bool InitializeBuffers(ID3D11Device* pDevice, std::string modelFilepath, std::string modelName, std::string uvChannel);
@@ -46,7 +46,7 @@ private:
 	bool m_LoadStatus;
 
 public:
-	static void LoadFBX(LPCSTR modelPath, LPCSTR modelName, int& vertexCount, int& indexCount, Vertex*& pVertices, ULONG*& pIndices, int& errorCounter, LPCTSTR uvchannel = "UVChannel_1")
+	static void LoadFBX(LPCSTR modelPath, LPCSTR modelName, int& vertexCount, int& indexCount, TexVertex*& pVertices, ULONG*& pIndices, int& errorCounter, LPCTSTR uvchannel = "UVChannel_1")
 	{
 		FbxManager* pSdk = FbxManager::Create();
 		FbxIOSettings* pSettings = FbxIOSettings::Create(pSdk, IOSROOT);
@@ -86,7 +86,7 @@ public:
 					vertexCount = pModelMesh->GetPolygonVertexCount();
 					indexCount = vertexCount;
 
-					pVertices = new Vertex[vertexCount];
+					pVertices = new TexVertex[vertexCount];
 					pIndices = new ULONG[indexCount];
 
 					ULONG vC = 0;
@@ -98,7 +98,7 @@ public:
 							int vertex = pModelMesh->GetPolygonVertex(i, j);
 							FbxVector4 pos = pModelMesh->GetControlPointAt(vertex);
 
-							Vertex v;
+							TexVertex v;
 							v.position = { float(pos.mData[0]), float(pos.mData[1]), -float(pos.mData[2]) };
 
 							// Get Vertex normal

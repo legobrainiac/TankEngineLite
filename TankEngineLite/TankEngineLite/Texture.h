@@ -40,16 +40,16 @@ public:
 	// FullName:  Texture::GetTexture
 	// Access:    public 
 	// Returns:   constexpr ID3D11ShaderResourceView*
-	// Qualifier: noexcept
-	constexpr ID3D11ShaderResourceView* GetTexture() noexcept { return m_pTextureView; };
+	// Qualifier: const noexcept
+	[[nodiscard]] constexpr ID3D11ShaderResourceView* GetTexture() const noexcept { return m_pTextureView; };
 
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    GetTextureSize
 	// FullName:  Texture::GetTextureSize
 	// Access:    public 
-	// Returns:   constexpr DirectX::XMFLOAT2&
-	// Qualifier: noexcept
-	constexpr XMFLOAT2& GetTextureSize() noexcept { return m_Size; }
+	// Returns:   const DirectX::XMFLOAT2&
+	// Qualifier: const noexcept
+	[[nodiscard]] const XMFLOAT2& GetTextureSize() const noexcept { return m_Size; }
 
 private:
 	ID3D11Texture2D* m_pTexture;

@@ -82,6 +82,8 @@ void TEngineRunner::ImGuiDebug(float dt)
 			if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
 			if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
 			if (ImGui::MenuItem("Logger", "")) { m_ShowLogger = !m_ShowLogger; }  // Disabled item
+			if (ImGui::MenuItem("Profiler", "")) { m_DebugProfiler = !m_DebugProfiler; }  // Disabled item
+			if (ImGui::MenuItem("Memory tracker", "")) { m_DebugMemoryTracker = !m_DebugMemoryTracker; }  // Disabled item
 
 			ImGui::EndMenu();
 		}
@@ -91,18 +93,21 @@ void TEngineRunner::ImGuiDebug(float dt)
 	if (m_DebugSystems)
 		ECS::Universe::GetInstance()->ImGuiDebug();
 
-	ImGui::Begin("Memory tracker");
-	const auto status = Memory::GetMemoryStatus();
-	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Memory::m_TotalMemoryCount = ");
-	ImGui::SameLine();
-	ImGui::Text(std::to_string(status.m_TotalMemoryCount * 0.000001f).c_str());
-	ImGui::SameLine();
-	ImGui::Text("MB");
+	if (m_DebugMemoryTracker)
+	{
+		ImGui::Begin("Memory tracker");
+		const auto status = Memory::GetMemoryStatus();
+		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Memory::m_TotalMemoryCount = ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(status.m_TotalMemoryCount * 0.000001f).c_str());
+		ImGui::SameLine();
+		ImGui::Text("MB");
 
-	ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Memory::m_LiveMemoryChuncks = ");
-	ImGui::SameLine();
-	ImGui::Text(std::to_string(status.m_MemoryChunckCount).c_str());
-	ImGui::End();
+		ImGui::TextColored(ImVec4(1.f, 1.f, 0.f, 1.f), "Memory::m_LiveMemoryChuncks = ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(status.m_MemoryChunckCount).c_str());
+		ImGui::End();
+	}
 
 	if (m_DebugRenderer)
 	{

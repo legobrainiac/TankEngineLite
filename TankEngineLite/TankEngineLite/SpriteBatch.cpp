@@ -5,6 +5,8 @@
 #include "Renderer.h"
 #include "Texture.h"
 
+#include "Effect.h"
+
 void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 {
 	m_Mode = mode;
@@ -14,10 +16,7 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 	const auto pDevice = pRenderer->GetDirectX()->GetDevice();
 
 	// Load sprite batch effect
-	m_pEffect = ResourceManager::GetInstance()->GetEffect("sprite_batch_effect");
-		
-	if (!m_pEffect)
-		m_pEffect = ResourceManager::GetInstance()->LoadEffect(L"Shaders/SpriteBatch.fx", "sprite_batch_effect");
+	m_pEffect = ResourceManager::GetInstance()->Get<Effect>("SpriteBatch")->GetEffect();
 
 	// Texture atlas setup
 	m_Atlas = atlas;

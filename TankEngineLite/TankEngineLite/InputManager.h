@@ -173,7 +173,7 @@ public:
 	// Description: is button on controller with id controllerId pressed
 	// Parameter: ControllerButton button
 	// Parameter: uint32_t controllerId
-	bool IsPressed(ControllerButton button, uint32_t controllerId = 0U);
+	[[nodiscard]] bool IsPressed(ControllerButton button, uint32_t controllerId = 0U) noexcept;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    GetMouseState
@@ -181,7 +181,7 @@ public:
 	// Access:    public 
 	// Returns:   std::tuple<int, int, Uint32>
 	// Description: Return the mouse state in a tuple
-	std::tuple<int, int, Uint32> GetMouseState();
+	[[nodiscard]] std::tuple<int, int, Uint32> GetMouseState();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    Update

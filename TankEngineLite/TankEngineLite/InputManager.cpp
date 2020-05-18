@@ -136,7 +136,7 @@ void InputManager::ValidateActionMapping(ActionMapping& am)
 	}
 }
 
-bool InputManager::IsPressed(ControllerButton button, uint32_t controllerId)
+bool InputManager::IsPressed(ControllerButton button, uint32_t controllerId) noexcept
 {
 	if (m_ControllerConnected[controllerId])
 		return m_PadKeys[controllerId][button];

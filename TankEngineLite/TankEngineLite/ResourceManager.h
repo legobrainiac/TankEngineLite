@@ -36,7 +36,7 @@ struct ResourceDescriptor
 	IShutdown* pResource;
 
 	template<typename T>
-	T* DescribedAs()
+	[[nodiscard]] T* DescribedAs()
 	{
 		if (std::type_index(typeid(T)) != resourceType)
 		{
@@ -93,8 +93,7 @@ public:
 
 		// Otherwise
 		const auto fullPath = m_DataPath + file;
-		auto pResource = Memory::New<T>();
-		new (pResource) T();
+		auto pResource = new (Memory::New<T>()) T();
 
 		try
 		{
@@ -125,7 +124,7 @@ public:
 	}
 
 	template<typename T>
-	T* Get(const std::string& name)
+	[[nodiscard]] T* Get(const std::string& name)
 	{
 		const auto it = m_Resources.find(name);
 
@@ -141,11 +140,6 @@ public:
 	//  also be used with the generalized loader
 
 	//////////////////////////////////////////////////////////////////////////
-	// Effects
-	ID3DX11Effect* LoadEffect(const std::wstring& file, const std::string& name);
-	ID3DX11Effect* GetEffect(const std::string& name) const;
-
-	//////////////////////////////////////////////////////////////////////////
 	// Sound
 	FMOD::Sound* LoadSound(const std::string& file, const std::string& name);
 	FMOD::Sound* GetSound(const std::string& name) const;
@@ -158,7 +152,6 @@ private:
 	std::wstring m_DataPathW;
 
 	// Resources
-	std::unordered_map<std::string, ID3DX11Effect*> m_pEffects;
 	std::unordered_map<std::string, FMOD::Sound*> m_pSounds;
 
 	std::map<std::string, ResourceDescriptor> m_Resources;

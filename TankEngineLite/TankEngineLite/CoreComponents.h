@@ -6,7 +6,18 @@
 #include <functional>
 #include <DirectXMath.h>
 
+#include <dxgi.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
+#include <d3dx11effect.h>
+
+#include "InputManager.h"
+
+class Model;
+class Effect;
+class Texture;
 class SpriteBatch;
+
 using namespace DirectX;
 
 // TODO(tomas): Document both transform and camera components
@@ -20,17 +31,18 @@ class TransformComponent
 public:
 	TransformComponent()
 		: position({ 0.f, 0.f, 0.f })
-		, rotationQ({ 0.f, 0.f, 0.f, 1.f })
 		, scale({ 1.f, 1.f, 1.f })
 	{
+		XMStoreFloat4(&rotationQ, XMQuaternionIdentity());
 	}
 
 	TransformComponent(ECS::Entity* pE)
 		: ECS::EntityComponent(pE)
 		, position({ 0.f, 0.f, 0.f })
-		, rotationQ({ 0.f, 0.f, 0.f, 1.f })
 		, scale({ 1.f, 1.f, 1.f })
-	{ }
+	{ 
+		XMStoreFloat4(&rotationQ, XMQuaternionIdentity());
+	}
 
 	~TransformComponent() { }
 
@@ -42,10 +54,7 @@ public:
 		auto tMat = XMMatrixTranslation(position.x, position.y, position.z);
 		auto sMat = XMMatrixScaling(scale.x, scale.y, scale.z);
 
-		auto rtMat = XMMatrixMultiply(rMat, tMat);
-		auto wM = XMMatrixMultiply(sMat, rtMat);
-
-		XMStoreFloat4x4(&worldMatrix, wM);
+		XMStoreFloat4x4(&worldMatrix, sMat * (rMat * tMat));
 		return worldMatrix;
 	}
 
@@ -85,11 +94,36 @@ public:
 		m_pEntityTransform = pE->GetComponent<TransformComponent>();
 
 		if (m_pEntityTransform != nullptr)
+		{
 			m_MeetsRequirements = true;
+			GenerateViewMatrix();
+		}
 	}
 
 	void Update([[maybe_unused]] float dt) override
 	{
+		auto pInput = InputManager::GetInstance();
+
+		dt *= 10.f;
+
+		if (pInput->IsKeyDown(SDL_SCANCODE_W))
+			m_pEntityTransform->Translate({0.f, 0.f, -1.f * dt});
+
+		if (pInput->IsKeyDown(SDL_SCANCODE_S))
+			m_pEntityTransform->Translate({0.f, 0.f, 1.f * dt});
+
+		if (pInput->IsKeyDown(SDL_SCANCODE_A))
+			m_pEntityTransform->Translate({1.f * dt, 0.f, 0.f}); 
+
+		if (pInput->IsKeyDown(SDL_SCANCODE_D))
+			m_pEntityTransform->Translate({-1.f * dt, 0.f, 0.f}); 
+
+		if (pInput->IsKeyDown(SDL_SCANCODE_E))
+			m_pEntityTransform->Translate({0.f, -1.f * dt, 0.f}); 
+
+		if (pInput->IsKeyDown(SDL_SCANCODE_Q))
+			m_pEntityTransform->Translate({0.f, 1.f * dt, 0.f}); 
+
 		GenerateViewMatrix();
 	}
 
@@ -217,6 +251,48 @@ private:
 	// Custom rendering
 	CustomRenderFunction m_CustomRenderFunction;
 	bool m_bShouldCustomRender;
+};
+
+//////////////////////////////////////////////////////////////////////////
+// TODO(tomas): seperate file
+class ModelRenderComponent
+	: public ECS::EntityComponent
+{
+public:
+	ModelRenderComponent()
+	{
+	}
+
+	~ModelRenderComponent()
+	{
+		// TODO(tomas): tis wrong ples help
+// 		m_pWorld->Release();
+// 		m_pDiffuseMap->Release();
+// 		m_pWorldViewProjection->Release();
+// 		m_pInputLayout->Release();
+// 		m_pTechnique->Release();
+	}
+
+	ModelRenderComponent(ECS::Entity* pE);
+
+	void Initialize(Model* pModel, Texture* pTexture);
+	void Render();
+
+private:
+	Model* m_pModel;
+	Texture* m_pTexture;
+	Effect* m_pEffect;
+
+	// TODO(tomas): abstraction in to materials
+	ID3DX11EffectTechnique* m_pTechnique;
+	ID3D11InputLayout* m_pInputLayout;
+
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMap;
+	ID3DX11EffectMatrixVariable* m_pWorldViewProjection;
+	ID3DX11EffectMatrixVariable* m_pWorld;
+
+	TransformComponent* m_pTransform;
+	bool m_MeetsRequirements;
 };
 
 #endif

@@ -45,7 +45,7 @@ void Model::Shutdown()
 bool Model::InitializeBuffers(ID3D11Device* pDevice, std::string modelFilepath, std::string modelName, std::string uvChannel)
 {
 	HRESULT result;
-	Vertex* pVertices{ nullptr };
+	TexVertex* pVertices{ nullptr };
 	ULONG* pIndices{ nullptr };
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
@@ -59,7 +59,7 @@ bool Model::InitializeBuffers(ID3D11Device* pDevice, std::string modelFilepath, 
 
 	// Setup the description of the static vertex buffer
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex) * m_VertexCount;
+	vertexBufferDesc.ByteWidth = sizeof(TexVertex) * m_VertexCount;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;

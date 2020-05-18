@@ -232,28 +232,36 @@ public:
 	// Access:    public 
 	// Returns:   void
 	// Description: Generate a report card
-	void Report()
+	void Report(bool doUi = true)
 	{
 		if (!m_pReportSession)
 			return;
 
-		Profiler::GetInstance()->BeginSubSession<SESSION_PROFILER_REPORT>();
-
-		const auto GetTime = [](const auto& t1, const auto& t2) -> std::chrono::duration<float>
+		if (!doUi)
 		{
-			return t2 - t1;
-		};
+			Memory::Delete(m_pReportSession);
+		}
+		else
+		{
 
-		float rootSessionTime = GetTime(m_pReportSession->sessionStartTime, m_pReportSession->sessionEndTime).count();
-		const auto PercentageOf = [rootSessionTime](float time) { return ((time * 100) / rootSessionTime); };
+			Profiler::GetInstance()->BeginSubSession<SESSION_PROFILER_REPORT>();
 
-		ImGui::Begin("Profiler");
-		m_pReportSession->Report(rootSessionTime);
-		ImGui::End();
+			const auto GetTime = [](const auto& t1, const auto& t2) -> std::chrono::duration<float>
+			{
+				return t2 - t1;
+			};
 
-		Memory::Delete(m_pReportSession);
+			float rootSessionTime = GetTime(m_pReportSession->sessionStartTime, m_pReportSession->sessionEndTime).count();
+			const auto PercentageOf = [rootSessionTime](float time) { return ((time * 100) / rootSessionTime); };
 
-		Profiler::GetInstance()->EndSubSession();
+			ImGui::Begin("Profiler");
+			m_pReportSession->Report(rootSessionTime);
+			ImGui::End();
+
+			Memory::Delete(m_pReportSession);
+
+			Profiler::GetInstance()->EndSubSession();
+		}
 	}
 
 private:

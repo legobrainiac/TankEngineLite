@@ -106,7 +106,8 @@ public:
 
 				// Debug ui
 				pProfiler->BeginSubSession<SessionId::SESSION_PROFILER>();
-				pProfiler->Report();
+				pProfiler->Report(m_DebugProfiler);
+				
 				ImGuiDebug(dt.count());
 				pProfiler->EndSubSession();
 
@@ -146,9 +147,11 @@ private:
 	Game* m_pGame;
 
 	// Debug ui stuff
-	bool m_DebugSystems = true;
-	bool m_DebugRenderer = true;
-	bool m_ShowLogger = true;
+	bool m_DebugSystems = false;
+	bool m_DebugRenderer = false;
+	bool m_ShowLogger = false;
+	bool m_DebugMemoryTracker = false;
+	bool m_DebugProfiler = false;
 
 	std::vector<SpriteBatch*> m_BatchRegistry;
 };
