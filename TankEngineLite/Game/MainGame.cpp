@@ -67,6 +67,9 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		auto [pCameraComponent, pTransform] = pCamera->PushComponents<CameraComponent, TransformComponent>();
 		Renderer::GetInstance()->GetDirectX()->SetCamera(pCameraComponent);
 		pTransform->Translate({ 0.f, -5.f, 0.f });
+		m_pCameraTransform = pTransform;
+		m_pCamera = pCameraComponent;
+		m_IntendedPosition = { 0.f, -5.f, 0.f };
 	}
 
 	// Create world model
@@ -132,6 +135,32 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 			{
 				InputManager::GetInstance()->CheckControllerConnection();
 			}));
+
+	InputManager::GetInstance()->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_C, ActionType::PRESSED,
+			[this]()
+			{
+				if (m_Animating)
+					return;
+
+				constexpr XMFLOAT3 startPosition{ 0.f, -5.f, 0.f };
+				constexpr XMFLOAT3 endPosition{ 0.f, -5.f, 22.5f };
+
+				if (m_IsDocked)
+				{
+					m_IntendedPosition = endPosition;
+
+					m_pDynamic_SB->SetIsRendering(false);
+					m_pStatic_SB->SetIsRendering(false);
+				}
+				else
+				{
+					m_IntendedPosition = startPosition;
+					m_Animating = true;
+				}
+
+				m_IsDocked = !m_IsDocked;
+			}));
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
@@ -141,6 +170,8 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 	auto [x, y, state] = pInputManager->GetMouseState();
 	m_pParticleEmitterTransform->position.x = (float)x;
 	m_pParticleEmitterTransform->position.y = (float)y;
+
+	CameraTransitions(dt);
 }
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
@@ -163,4 +194,33 @@ void MainGame::Shutdown()
 
 	m_pStatic_SB->Destroy();
 	Memory::Delete(m_pStatic_SB);
+}
+
+void MainGame::CameraTransitions(float dt)
+{
+	static float timer = 0.f;
+
+	XMStoreFloat3(&m_pCameraTransform->position, XMVectorLerp(XMLoadFloat3(&m_pCameraTransform->position), XMLoadFloat3(&m_IntendedPosition), dt));
+
+	if (m_Animating)
+		timer += dt;
+
+	if (timer > 4.f)
+	{
+		// Refresh small platform
+		// TODO(tomas): figure out why i need this, something in sb is breaking
+		for (int i = 0; i < 25; ++i)
+			m_pStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
+
+		for (int j = 1; j < 5; ++j)
+		{
+			for (int i = 0; i < 25; ++i)
+				m_pStatic_SB->PushSprite({ 16, 0, 32, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
+		}
+
+		m_pDynamic_SB->SetIsRendering(true);
+		m_pStatic_SB->SetIsRendering(true);
+		timer -= timer;
+		m_Animating = false;
+	}
 }

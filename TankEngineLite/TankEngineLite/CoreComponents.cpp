@@ -109,7 +109,7 @@ void ModelRenderComponent::Initialize(Model* pModel, Texture* pTexture)
 
 	// Get Technique
 	m_pTechnique = pEffect->GetTechniqueByIndex(0);
-
+	
 	// Create input layout
 	D3DX11_PASS_DESC passDesc{};
 	m_pTechnique->GetPassByIndex(0)->GetDesc(&passDesc);
@@ -164,7 +164,6 @@ void ModelRenderComponent::Render()
 	m_pDiffuseMap->SetResource(m_pTexture->GetTexture());
 
 	// Draw
-
 	D3DX11_TECHNIQUE_DESC techDesc;
 	m_pTechnique->GetDesc(&techDesc);
 	for (UINT p = 0; p < techDesc.Passes; ++p)

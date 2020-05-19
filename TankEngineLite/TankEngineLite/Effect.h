@@ -9,6 +9,8 @@
 #include "MemoryTracker.h"
 #include "Logger.h"
 
+#include <vector>
+
 class Effect
 	: public IShutdown
 {

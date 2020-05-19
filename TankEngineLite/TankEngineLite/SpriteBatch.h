@@ -94,6 +94,15 @@ public:
 	// Qualifier:
 	constexpr std::string_view& GetName() { return m_Name; }
 
+	//////////////////////////////////////////////////////////////////////////
+	// Method:    SetIsRendering
+	// FullName:  SpriteBatch::SetIsRendering
+	// Access:    public 
+	// Returns:   void
+	// Qualifier:
+	// Parameter: bool val
+	void SetIsRendering(bool val) { m_IsRendering = val; }
+
 	// Don't worry about this one, only here for debugging purposes
 	void ImGuiDebug();
 
@@ -117,7 +126,7 @@ private:
 	std::vector<BatchItem> m_Batch;
 	int m_BatchSize;
 	bool m_Dirty;
-
+	bool m_IsRendering = true;
 	BatchMode m_Mode;
 };
 

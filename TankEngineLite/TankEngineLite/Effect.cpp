@@ -5,6 +5,7 @@
 #include <codecvt>
 
 Effect::Effect()
+	: m_pEffect(nullptr)
 {
 }
 

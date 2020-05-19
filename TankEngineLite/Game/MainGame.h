@@ -20,11 +20,21 @@ public:
 	void Shutdown() override;
 
 private:
+	void CameraTransitions(float dt);
+
 	ECS::World* m_pWorld;
 	SpriteBatch* m_pStatic_SB;
 	SpriteBatch* m_pDynamic_SB;
 	
 	TransformComponent2D* m_pParticleEmitterTransform;
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Game camera
+	CameraComponent* m_pCamera;
+	TransformComponent* m_pCameraTransform;
+	XMFLOAT3 m_IntendedPosition;
+	bool m_IsDocked = true;
+	bool m_Animating = false;
 
 	// Keep track of players for connect/disconnect
 	ECS::Entity* m_pPlayers[4];

@@ -107,6 +107,9 @@ void SpriteBatch::PushSprite(
 	XMFLOAT2 pivot,
 	XMFLOAT4 colour)
 {
+	if (!m_IsRendering)
+		return;
+
 	BatchItem item{};
 	item.atlasTrasform = atlasTransform;
 	item.transformData0 = XMFLOAT4{ position.x, position.y, position.z, rotation };
@@ -120,7 +123,7 @@ void SpriteBatch::PushSprite(
 
 void SpriteBatch::Render()
 {
-	if (!m_Atlas || (m_Mode == BatchMode::BATCHMODE_DYNAMIC && m_Batch.empty()))
+	if (!m_Atlas || !m_IsRendering || (m_Mode == BatchMode::BATCHMODE_DYNAMIC && m_Batch.empty()))
 		return;
 
 	// Device stuff
