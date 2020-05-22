@@ -11,7 +11,7 @@
 // Class: Texture
 // Description: Wrapper around the DirectX representations of a Texture and its resource view
 class Texture
-	: public IShutdown
+	: public IResource
 {
 public:
 	Texture();

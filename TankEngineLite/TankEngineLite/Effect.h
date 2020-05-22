@@ -12,7 +12,7 @@
 #include <vector>
 
 class Effect
-	: public IShutdown
+	: public IResource
 {
 public:
 	Effect();
@@ -22,7 +22,7 @@ public:
 	bool Initialize(std::string effectPath);
 	void Shutdown();
 
-	constexpr auto GetEffect() const noexcept -> ID3DX11Effect* { return m_pEffect; }
+	[[nodiscard]] constexpr auto GetEffect() const noexcept -> ID3DX11Effect* { return m_pEffect; }
 
 private:
 	ID3DX11Effect* m_pEffect;

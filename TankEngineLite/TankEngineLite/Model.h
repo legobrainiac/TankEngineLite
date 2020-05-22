@@ -22,7 +22,7 @@ typedef struct textured_vertex
 
 // YES IM FULLY AWARE OF HOW HORRIBLE THIS IS, leave me alone, this is for later
 class Model
-	: public IShutdown
+	: public IResource
 {
 public:
 	Model();
@@ -32,9 +32,9 @@ public:
 	bool Initialize(std::string modelDescriptorPath);
 	void Shutdown();
 
-	[[nodiscard]] constexpr int GetIndexCount() const noexcept { return m_IndexCount; }
-	[[nodiscard]] constexpr ID3D11Buffer* GetVertexBuffer() const noexcept { return m_pVertexBuffer; }
-	[[nodiscard]] constexpr ID3D11Buffer* GetIndexBuffer() const noexcept { return m_pIndexBuffer; }
+	[[nodiscard]] constexpr auto GetIndexCount() const noexcept -> int { return m_IndexCount; }
+	[[nodiscard]] constexpr auto GetVertexBuffer() const noexcept -> ID3D11Buffer* { return m_pVertexBuffer; }
+	[[nodiscard]] constexpr auto GetIndexBuffer() const noexcept -> ID3D11Buffer* { return m_pIndexBuffer; }
 
 private:
 	bool InitializeBuffers(ID3D11Device* pDevice, std::string modelFilepath, std::string modelName, std::string uvChannel);

@@ -62,7 +62,7 @@ public:
 	}
 
 	template<typename T>
-	inline T Read()
+	[[nodiscard]] inline T Read()
 	{
 		static_assert(std::is_pod<T>::value, "None POD value given for T");
 
@@ -73,7 +73,7 @@ public:
 	}
 
 	template<>
-	inline std::string Read()
+	[[nodiscard]] inline std::string Read()
 	{
 		size_t strSize{};
 		std::string str{};

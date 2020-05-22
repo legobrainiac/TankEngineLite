@@ -5,6 +5,8 @@
 
 #include "SpriteBatch.h"
 
+#include "Sound.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Life span component
 LifeSpan::LifeSpan(ECS::Entity* pE)
@@ -44,9 +46,7 @@ PlayerController::PlayerController(ECS::Entity* pE)
 			}));
 
 	// Load sound
-	m_pShootingSound = ResourceManager::GetInstance()->GetSound("blep");
-	if (!m_pShootingSound)
-		m_pShootingSound = ResourceManager::GetInstance()->LoadSound("blep.wav", "blep");
+	m_pShootingSound = ResourceManager::GetInstance()->Get<Sound>("blep")->GetSound();
 }
 
 void PlayerController::Update(float dt)

@@ -65,7 +65,7 @@ public:
     // Note: Using this in the specific use case of ECS to initialized the object with it's parent entity
     // Parameter: INIT_TYPE* pParentObj
     template <typename INIT_TYPE>
-    constexpr T* GetAndInit(INIT_TYPE* pParentObj)
+    [[nodiscard]] constexpr T* GetAndInit(INIT_TYPE* pParentObj)
 	{
 		// Test if pool is full
 		if (m_ActiveCount + 1 > S)
@@ -116,7 +116,7 @@ public:
 	// Access:    public 
 	// Returns:   constexpr T*
 	// Description: Get an available object from the pool
-	constexpr T* Get()
+	[[nodiscard]] constexpr T* Get()
 	{
 		// Test if pool is full
 		if (m_ActiveCount + 1 > S)
@@ -277,18 +277,18 @@ public:
 	// FullName:  Pool<T, S>::GetPool
 	// Access:    public 
 	// Returns:   constexpr T*
-	// Qualifier: const
+	// Qualifier: const noexcept
 	// Description: Get a pointer to the start of the pool
-	constexpr T* GetPool() const { return m_pPool; }
+	[[nodiscard]] constexpr T* GetPool() const noexcept { return m_pPool; }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    GetLookUp
 	// FullName:  Pool<T, S>::GetLookUp
 	// Access:    public 
 	// Returns:   constexpr char*
-	// Qualifier: const
+	// Qualifier: const noexcept
 	// Description: Get a pointer to the start of the lookup bit table
-	constexpr char* GetLookUp() const { return m_pLookUp; }
+	[[nodiscard]] constexpr char* GetLookUp() const noexcept { return m_pLookUp; }
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    GetActiveCount
@@ -297,7 +297,7 @@ public:
 	// Returns:   constexpr uint32_t
 	// Qualifier: const noexcept
 	// Description: Get active amount of items from the pool
-	constexpr uint32_t GetActiveCount() const noexcept { return m_ActiveCount; }
+	[[nodiscard]] constexpr uint32_t GetActiveCount() const noexcept { return m_ActiveCount; }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Method:    ImGuiDebugUi

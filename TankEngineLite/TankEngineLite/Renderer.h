@@ -23,8 +23,8 @@ public:
 	void RootRenderEnd() const;
 	void Destroy();
 
-	[[nodiscard]] inline D3D* GetDirectX() const { return m_pDirectX; }
-	[[nodiscard]] inline std::tuple<int, int> GetScreenSize() { return std::make_tuple(m_Xw, m_Yh); }
+	[[nodiscard]] inline auto GetDirectX() const noexcept -> D3D* { return m_pDirectX; }
+	[[nodiscard]] inline auto GetScreenSize() const -> std::tuple<int, int> { return std::make_tuple(m_Xw, m_Yh); }
 
 private:
 

@@ -5,11 +5,12 @@
 #include "d3dx11effect.h"
 
 #include <unordered_map>
+#include <type_traits>
 #include <functional>
+#include <string_view>
 #include <typeindex>
 #include <map>
 
-#include "SoundManager.h"
 #include "MemoryTracker.h"
 #include "Logger.h"
 
@@ -18,11 +19,14 @@
 class Texture;
 class Font;
 
-class IShutdown
+class IResource
 {
 public:
+	virtual bool Initialize([[maybe_unused]] const std::string& path) { return false; };
 	virtual void Shutdown() {}
 };
+
+using TypeResolver = std::function<void(std::string, std::string)>;
 
 struct ResourceDescriptor
 {
@@ -33,9 +37,12 @@ struct ResourceDescriptor
 	}
 
 	std::type_index resourceType;
-	IShutdown* pResource;
+	IResource* pResource;
 
-	template<typename T>
+	template<
+		typename T, 
+		typename = std::enable_if_t<std::is_base_of_v<IResource, T>>
+	>
 	[[nodiscard]] T* DescribedAs()
 	{
 		if (std::type_index(typeid(T)) != resourceType)
@@ -58,7 +65,7 @@ class ResourceManager final
 	: public Singleton<ResourceManager>
 {
 public:
-	void Init(const std::string& data, const std::wstring& dataW);
+	void Init(const std::string& data);
 	void Destroy();
 
 	void LoadAllInFolder();
@@ -82,7 +89,10 @@ public:
 			it->second(resourceName + resourceType, resourceName);
 	}
 
-	template<typename T>
+	template<
+		typename T,
+		typename = std::enable_if_t<std::is_base_of_v<IResource, T>>
+	>
 	T* Load(const std::string& file, const std::string& name)
 	{
 		// If texture already exists, we don't do anything, just return it
@@ -104,7 +114,7 @@ public:
 
 			ResourceDescriptor rd{};
 			rd.resourceType = std::type_index(typeid(T));
-			rd.pResource = static_cast<IShutdown*>(pResource);
+			rd.pResource = static_cast<IResource*>(pResource);
 
 			m_Resources[name] = rd;
 		}
@@ -123,7 +133,10 @@ public:
 		return pResource;
 	}
 
-	template<typename T>
+	template<
+		typename T,
+		typename = std::enable_if_t<std::is_base_of_v<IResource, T>>
+	>
 	[[nodiscard]] T* Get(const std::string& name)
 	{
 		const auto it = m_Resources.find(name);
@@ -136,27 +149,14 @@ public:
 		return nullptr;
 	}
 
-	// TODO(tomas): Write wrappers around effect and sound so that they can 
-	//  also be used with the generalized loader
-
-	//////////////////////////////////////////////////////////////////////////
-	// Sound
-	FMOD::Sound* LoadSound(const std::string& file, const std::string& name);
-	FMOD::Sound* GetSound(const std::string& name) const;
-
 private:
 	friend class Singleton<ResourceManager>;
 	ResourceManager() = default;
 
 	std::string m_DataPath;
-	std::wstring m_DataPathW;
-
-	// Resources
-	std::unordered_map<std::string, FMOD::Sound*> m_pSounds;
-
 	std::map<std::string, ResourceDescriptor> m_Resources;
 
 	// Resource resolution
-	static std::map<std::string, std::function<void(std::string, std::string)>> TypeResolvers;
+	static std::map<std::string_view, TypeResolver> TypeResolvers;
 };
 #endif // !RESOURCE_MANAGER_H

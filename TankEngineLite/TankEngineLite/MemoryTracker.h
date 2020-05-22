@@ -31,18 +31,18 @@ public:
 	// Description: Allocate memory of size sizeof(T) * count
 	// Parameter: unsigned int count
 	template<typename T>
-	constexpr static T* New(unsigned int count = 1U)
+	[[nodiscard]] constexpr static T* New(unsigned int count = 1U)
 	{
 		const auto size = sizeof(T);
-		T* obj = reinterpret_cast<T*>(calloc(count, size));
+		auto pObj = reinterpret_cast<T*>(calloc(count, size));
 
-		if (obj)
+		if (pObj)
 		{
 			m_TotalMemory += size * count;
 
 			// Update pointer pool
-			m_PointerPool[reinterpret_cast<void*>(obj)] = size * count;
-			return obj;
+			m_PointerPool[reinterpret_cast<void*>(pObj)] = size * count;
+			return pObj;
 		}
 
 		return nullptr;
@@ -58,22 +58,22 @@ public:
 	// Parameter: T* obj
 	// Parameter: bool callDestructor
 	template<typename T>
-	constexpr static void Delete(T* obj, bool callDestructor = true)
+	constexpr static void Delete(T* pObj, bool callDestructor = true)
 	{
 		const auto size = sizeof(T);
-		auto it = m_PointerPool.find(reinterpret_cast<void*>(obj));
+		const auto it = m_PointerPool.find(reinterpret_cast<void*>(pObj));
 
-		if (it != m_PointerPool.end())
+		if (it != m_PointerPool.cend())
 		{
 			if(callDestructor)
-				obj->~T();
+				pObj->~T();
 
-			free(obj);
+			free(pObj);
 			m_TotalMemory -= it->second;
 			m_PointerPool.erase(it);
 		}
 		else
-			std::cout << "Memory address no allocated by this memory manager" << std::endl;
+			std::cout << "Memory address not allocated by this memory manager" << std::endl;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ public:
 	// Access:    public static 
 	// Returns:   bool
 	// Qualifier: noexcept
-	static bool HasLeaks() noexcept
+	[[nodiscard]] static bool HasLeaks() noexcept
 	{
 		return !m_PointerPool.empty();
 	}
@@ -93,7 +93,7 @@ public:
 	// Access:    public static 
 	// Returns:   MemoryStatus
 	// Qualifier: noexcept
-	static MemoryStatus GetMemoryStatus() noexcept
+	[[nodiscard]] static MemoryStatus GetMemoryStatus() noexcept
 	{
 		return { m_TotalMemory, (uint32_t)m_PointerPool.size() };
 	}
