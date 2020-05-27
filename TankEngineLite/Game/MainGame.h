@@ -10,7 +10,7 @@ class World;
 class TransformComponent2D;
 
 class MainGame
-	: public Game
+	: public IGame
 {
 public:
 	void Initialize() override;

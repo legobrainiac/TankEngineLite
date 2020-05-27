@@ -2,6 +2,7 @@
 #define TEL_H
 
 #include <chrono>
+#include <type_traits>
 
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
@@ -24,7 +25,7 @@ using namespace std::chrono;
 
 class TEngineRunner;
 
-class Game
+class IGame
 {
 public:
 	virtual void Initialize() {};
@@ -42,11 +43,13 @@ public:
 	void LoadGame();
 	void Cleanup();
 
-	template<typename T>
+	template<
+		typename T,
+		typename = std::enable_if_t<std::is_base_of_v<IGame, T>>
+	>
 	void Run()
 	{
-		m_pGame = Memory::New<T>();
-		new(m_pGame) T();
+		m_pGame = new(Memory::New<T>()) T();
 
 		// Initialized the resource manager with the root directory
 		ResourceManager::GetInstance()->Init("../Resources/");
@@ -144,7 +147,7 @@ public:
 
 private:
 	SDL_Window* m_pWindow;
-	Game* m_pGame;
+	IGame* m_pGame;
 
 	// Debug ui stuff
 	bool m_DebugSystems = false;
