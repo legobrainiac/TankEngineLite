@@ -34,14 +34,14 @@ public:
 	[[nodiscard]] constexpr static T* New(unsigned int count = 1U)
 	{
 		const auto size = sizeof(T);
-		auto pObj = reinterpret_cast<T*>(calloc(count, size));
+		auto pObj = static_cast<T*>(calloc(count, size));
 
 		if (pObj)
 		{
 			m_TotalMemory += size * count;
 
 			// Update pointer pool
-			m_PointerPool[reinterpret_cast<void*>(pObj)] = size * count;
+			m_PointerPool[static_cast<void*>(pObj)] = size * count;
 			return pObj;
 		}
 
@@ -61,7 +61,7 @@ public:
 	constexpr static void Delete(T* pObj, bool callDestructor = true)
 	{
 		const auto size = sizeof(T);
-		const auto it = m_PointerPool.find(reinterpret_cast<void*>(pObj));
+		const auto it = m_PointerPool.find(static_cast<void*>(pObj));
 
 		if (it != m_PointerPool.cend())
 		{

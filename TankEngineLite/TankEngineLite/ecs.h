@@ -129,25 +129,25 @@ public:
 	}
 
 	// System identification
-	[[nodiscard]] inline std::type_index GetSystemTypeAsComponent() override
+	[[nodiscard]] constexpr std::type_index GetSystemTypeAsComponent() noexcept override
 	{
 		return std::type_index(typeid(T));
 	}
 
 	[[nodiscard]] constexpr uint32_t GetSystemAsId() noexcept { return I; }
-	[[nodiscard]] inline virtual ExecutionStyle GetExecutionStyle() override { return m_ExecutionStyle; };
+	[[nodiscard]] constexpr ExecutionStyle GetExecutionStyle() noexcept override { return m_ExecutionStyle; };
 
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
 	{
-		T* pEc = m_pComponentPool->GetAndInit(pE);
+		const auto pEc = m_pComponentPool->GetAndInit(pE);
 		pEc->SetSystem(this); // This is not rly idea xd
 		return pEc;
 	}
 
 	inline void PopComponent(EntityComponent* pComp) override
 	{
-		m_pComponentPool->Pop((T*)pComp);
+		m_pComponentPool->Pop(static_cast<T*>(pComp));
 	}
 
 	inline void Update(float dt) override
