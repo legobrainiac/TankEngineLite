@@ -7,6 +7,7 @@
 #ifndef ECS_H
 #define ECS_H
 
+#include <memory_resource>
 #include <unordered_map>
 #include <functional>
 #include <typeindex>
@@ -72,7 +73,9 @@ class System
 {
 public:
 	virtual ~System() = default;
-	inline virtual std::type_index GetSystemTypeAsComponent() = 0;
+	
+	inline virtual std::type_index GetSystemTypeAsComponent() const = 0;
+	inline virtual ExecutionStyle GetExecutionStyle() const = 0;
 
 	inline virtual EntityComponent* PushComponent(Entity* pE) = 0;
 	inline virtual void PopComponent(EntityComponent* pComp) = 0;
@@ -80,8 +83,6 @@ public:
 	inline virtual void Update(float dt) = 0;
 	inline virtual void ForAll(std::function<void(EntityComponent*)> execFunc) = 0;
 	inline virtual void ImGuiDebug() = 0;
-
-	inline virtual ExecutionStyle GetExecutionStyle() = 0;
 };
 
 struct SystemIdentifier
@@ -95,14 +96,16 @@ class EntityComponent
 {
 public:
 	constexpr EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
-	EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
+	constexpr EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
+
 	virtual ~EntityComponent() = default;
 	virtual void Update([[maybe_unused]] float dt) { }
-	inline Entity* GetOwner() { return m_pOwner; }
 
 	// System
 	inline void SetSystem(System* pS) { m_pSystem = pS; }
-	inline System* GetSystem() { return m_pSystem; }
+	
+	[[nodiscard]] constexpr auto GetOwner() const noexcept -> Entity* { return m_pOwner; }
+	[[nodiscard]] constexpr auto GetSystem() const noexcept -> System* { return m_pSystem; }
 
 protected:
 	Entity* m_pOwner;
@@ -119,8 +122,7 @@ public:
 		: m_ID(I)
 		, m_ExecutionStyle(E)
 	{
-		m_pComponentPool = Memory::New<Pool<T, C>>();
-		new (m_pComponentPool) Pool<T, C>();
+		m_pComponentPool = new (Memory::New<Pool<T, C>>()) Pool<T, C>();
 	}
 
 	inline ~WorldSystem() override
@@ -129,13 +131,9 @@ public:
 	}
 
 	// System identification
-	[[nodiscard]] constexpr std::type_index GetSystemTypeAsComponent() noexcept override
-	{
-		return std::type_index(typeid(T));
-	}
-
-	[[nodiscard]] constexpr uint32_t GetSystemAsId() noexcept { return I; }
-	[[nodiscard]] constexpr ExecutionStyle GetExecutionStyle() noexcept override { return m_ExecutionStyle; };
+	[[nodiscard]] constexpr auto GetSystemTypeAsComponent() const noexcept -> std::type_index override { return std::type_index(typeid(T)); }
+	[[nodiscard]] constexpr auto GetSystemAsId() const noexcept -> uint32_t { return I; }
+	[[nodiscard]] constexpr auto GetExecutionStyle() const noexcept -> ExecutionStyle override { return m_ExecutionStyle; };
 
 	// System management
 	inline EntityComponent* PushComponent(Entity* pE) override
@@ -191,7 +189,7 @@ private:
 class World
 {
 public:
-	constexpr World(uint32_t givenId)
+	World(uint32_t givenId)
 		: m_ID(givenId)
 		, m_IdCounter(0)
 	{
@@ -227,12 +225,11 @@ private:
 		auto typeIndex = std::type_index(typeid(T));
 
 		// Create world
-		auto pWorldSystem = Memory::New<T>();
-		new (pWorldSystem) T();
+		auto pWorldSystem = new (Memory::New<T>()) T();
 
 		// Create system identifier
 		SystemIdentifier system;
-		system.pSystem = (System*)pWorldSystem;
+		system.pSystem = static_cast<System*>(pWorldSystem);
 		system.systemId = pWorldSystem->GetSystemAsId();
 
 		// Store it linked to the EntityComponent type of the system
@@ -369,6 +366,7 @@ public:
 private:
 	uint32_t m_ID;
 	uint32_t m_IdCounter;
+
 	std::unordered_map<uint32_t, Entity*> m_pEntities;
 	std::unordered_map<std::type_index, SystemIdentifier> m_Systems;
 
@@ -482,9 +480,9 @@ public:
 	}
 
 public:
-	[[nodiscard]] inline size_t GetComponentCount() const { return m_EntityComponents.size(); }
-	[[nodiscard]] inline uint32_t GetId() const noexcept { return m_ID; }
-	[[nodiscard]] inline World* GetWorld() const noexcept { return m_pWorld; }
+	[[nodiscard]] inline auto GetComponentCount() const noexcept -> size_t { return m_EntityComponents.size(); }
+	[[nodiscard]] constexpr auto GetId() const noexcept -> uint32_t { return m_ID; }
+	[[nodiscard]] constexpr auto GetWorld() const noexcept -> World* { return m_pWorld; }
 
 private:
 	const uint32_t m_ID;
@@ -496,10 +494,9 @@ private:
 // World create entity and destroy entity declaration
 inline Entity* World::CreateEntity()
 {
-	auto pEntity = Memory::New<Entity>();
-	new(pEntity) Entity(m_IdCounter, this); // Does this leak
-
+	auto pEntity = new(Memory::New<Entity>()) Entity(m_IdCounter, this);
 	m_pEntities[m_IdCounter++] = pEntity;
+
 	return pEntity;
 }
 
@@ -548,9 +545,7 @@ public:
 	{
 		uint32_t id = m_NextWorldIndex++;
 
-		auto pWorld = Memory::New<World>();
-		new(pWorld) World(id);
-
+		auto pWorld = new(Memory::New<World>()) World(id);
 		m_Worlds[id] = pWorld;
 
 		return pWorld;

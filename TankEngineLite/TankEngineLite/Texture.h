@@ -49,7 +49,7 @@ public:
 	// Access:    public 
 	// Returns:   const DirectX::XMFLOAT2&
 	// Qualifier: const noexcept
-	[[nodiscard]] const XMFLOAT2& GetTextureSize() const noexcept { return m_Size; }
+	[[nodiscard]] constexpr XMFLOAT2 GetTextureSize() const noexcept { return m_Size; }
 
 private:
 	ID3D11Texture2D* m_pTexture;
