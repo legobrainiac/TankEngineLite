@@ -159,12 +159,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicComponents.cpp" />
+    <ClCompile Include="CTCPUGame.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Prefabs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicComponents.h" />
+    <ClInclude Include="ctcpu.h" />
+    <ClInclude Include="CTCPUGame.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Prefabs.h" />
   </ItemGroup>

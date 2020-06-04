@@ -47,7 +47,7 @@ public:
 		typename T,
 		typename = std::enable_if_t<std::is_base_of_v<IGame, T>>
 	>
-	void Run()
+	[[nodiscard]] int Run()
 	{
 		m_pGame = new(Memory::New<T>()) T();
 
@@ -139,6 +139,8 @@ public:
 		}
 
 		Cleanup();
+
+		return 0;
 	}
 
 	// Debug ui

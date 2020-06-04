@@ -1,20 +1,16 @@
 #include "pch.h"
 
-#if _DEBUG
-#include <vld.h>
-#endif
-
 #include "Tel.h"
 #include "MainGame.h"
+#include "CTCPUGame.h"
 
+#include <vld.h>
 #include <D3D.h>
 
 int main(int, char* [])
 {
-	TEngineRunner engine;
-	engine.Run<MainGame>();
-
-	return 0;
+	//return TEngineRunner{}.Run<CTCPUGame>();
+	return TEngineRunner{}.Run<MainGame>();
 }
 
 #ifdef _WIN32
