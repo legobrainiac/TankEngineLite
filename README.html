@@ -1055,4 +1055,144 @@ body .markdown-body
 .codehilite .vi{color:teal}
 .codehilite .il{color:#009999}
 .codehilite .gc{color:#999;background-color:#EAF2F5}
-</style><title>README</title></head><body><article class="markdown-body"><h1 id="tankenginelite">TankEngineLite<a class="headerlink" href="#tankenginelite" title="Permanent link"></a></h1></article></body></html>
+</style><title>README</title></head><body><article class="markdown-body"><h1 id="tank-engine-lite">Tank Engine - Lite<a class="headerlink" href="#tank-engine-lite" title="Permanent link"></a></h1>
+<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link"></a></h2>
+<p>Tank Engine Lite is young brother to the on going Tank Engine 3D project. 
+It has 2D rendering with sprite batched and 3D rendering support with audio through FMOD.
+The engine structure hinges heavily on Entity component systems as the way to manipulate information.</p>
+<h2 id="ecs">ECS<a class="headerlink" href="#ecs" title="Permanent link"></a></h2>
+<p>The ECS(<strong>E</strong>ntity <strong>C</strong>omponent <strong>S</strong>ystem) allows you to construct a game world built up of entities with components.</p>
+<h4 id="include-ecsh">Include: ecs.h<a class="headerlink" href="#include-ecsh" title="Permanent link"></a></h4>
+<p>To correctly implement ecs in to your game, you can do as follows:
+    * From the universe, create a world
+    * You populate this world with systems of the component types you need aswell as the ammount of components preallocated and their system id
+    * Then when creating an entity, push components on to it to build up behaviours</p>
+<h3 id="initialization">Initialization<a class="headerlink" href="#initialization" title="Permanent link"></a></h3>
+<div class="codehilite"><pre><span class="n">m_pWorld</span> <span class="o">=</span> <span class="n">Universe</span><span class="o">::</span><span class="n">GetInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">PushWorld</span><span class="p">();</span>
+
+<span class="n">m_pWorld</span><span class="o">-&gt;</span><span class="n">PushSystems</span><span class="o">&lt;</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">TransformComponent2D</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">SpriteRenderComponent</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">LifeSpan</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">ProjectileComponent</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">PlayerController</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">ParticleEmitter</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">Particle</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">ASYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">TransformComponent</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">CameraComponent</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">WorldSystem</span><span class="o">&lt;</span><span class="n">ModelRenderComponent</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">ExecutionStyle</span><span class="o">::</span><span class="n">SYNCHRONOUS</span><span class="o">&gt;</span>
+<span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+
+<h3 id="entity-creation-and-setup-ie-player">Entity creation and setup, ie: Player<a class="headerlink" href="#entity-creation-and-setup-ie-player" title="Permanent link"></a></h3>
+<div class="codehilite"><pre><span class="k">auto</span> <span class="n">pEntity</span> <span class="o">=</span> <span class="n">m_pWorld</span><span class="o">-&gt;</span><span class="n">CreateEntity</span><span class="p">();</span>
+<span class="k">auto</span> <span class="p">[</span><span class="n">pMovement</span><span class="p">,</span> <span class="n">pRenderer</span><span class="p">,</span> <span class="n">pTransform</span><span class="p">]</span> <span class="o">=</span> <span class="n">pEntity</span><span class="o">-&gt;</span><span class="n">PushComponents</span><span class="o">&lt;</span><span class="n">PlayerController</span><span class="p">,</span> <span class="n">SpriteRenderComponent</span><span class="p">,</span> <span class="n">TransformComponent2D</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="c1">// Component setup</span>
+<span class="n">pRenderer</span><span class="o">-&gt;</span><span class="n">SetSpriteBatch</span><span class="p">(</span><span class="n">pSpriteBatch</span><span class="p">);</span>
+<span class="n">pRenderer</span><span class="o">-&gt;</span><span class="n">SetAtlasTransform</span><span class="p">({</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span> <span class="p">});</span>
+
+<span class="n">pTransform</span><span class="o">-&gt;</span><span class="n">position</span> <span class="o">=</span> <span class="p">{</span> <span class="n">pos</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.f</span> <span class="p">};</span>
+<span class="n">pTransform</span><span class="o">-&gt;</span><span class="n">scale</span> <span class="o">=</span> <span class="p">{</span> <span class="mf">4.f</span><span class="p">,</span> <span class="mf">4.f</span> <span class="p">};</span>
+
+<span class="n">pMovement</span><span class="o">-&gt;</span><span class="n">SetInputController</span><span class="p">(</span><span class="n">player</span><span class="p">);</span>
+</pre></div>
+
+<h3 id="usage-for-a-system-ie-rendering">Usage for a system, ie: Rendering<a class="headerlink" href="#usage-for-a-system-ie-rendering" title="Permanent link"></a></h3>
+<div class="codehilite"><pre><span class="k">auto</span> <span class="n">pSystem</span> <span class="o">=</span> <span class="n">m_pWorld</span><span class="o">-&gt;</span><span class="n">GetSystemByComponent</span><span class="o">&lt;</span><span class="n">SpriteRenderComponent</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">pSystem</span><span class="o">-&gt;</span><span class="n">ForAll</span><span class="p">(</span>
+    <span class="p">[](</span><span class="n">ECS</span><span class="o">::</span><span class="n">EntityComponent</span><span class="o">*</span> <span class="n">pC</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">SpriteRenderComponent</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">pC</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Render</span><span class="p">();</span>
+    <span class="p">});</span>
+</pre></div>
+
+<h3 id="example-component-ie-projectilecomponent">Example component, ie: ProjectileComponent<a class="headerlink" href="#example-component-ie-projectilecomponent" title="Permanent link"></a></h3>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">ProjectileComponent</span>
+    <span class="o">:</span> <span class="k">public</span> <span class="n">ECS</span><span class="o">::</span><span class="n">EntityComponent</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">ProjectileComponent</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+    <span class="n">ProjectileComponent</span><span class="p">(</span><span class="n">ECS</span><span class="o">::</span><span class="n">Entity</span><span class="o">*</span> <span class="n">pE</span><span class="p">)</span>
+        <span class="o">:</span> <span class="n">ECS</span><span class="o">::</span><span class="n">EntityComponent</span><span class="p">(</span><span class="n">pE</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">m_MeetsRequirements</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="n">m_pTransform</span> <span class="o">=</span> <span class="n">pE</span><span class="o">-&gt;</span><span class="n">GetComponent</span><span class="o">&lt;</span><span class="n">TransformComponent2D</span><span class="o">&gt;</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">m_pTransform</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span>
+            <span class="n">m_MeetsRequirements</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">Update</span><span class="p">(</span><span class="kt">float</span> <span class="n">dt</span><span class="p">)</span> <span class="k">override</span>  
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">m_MeetsRequirements</span><span class="p">)</span>
+            <span class="k">return</span><span class="p">;</span>
+
+        <span class="n">m_pTransform</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">m_Direction</span><span class="p">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">m_Speed</span><span class="p">;</span>
+        <span class="n">m_pTransform</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">m_Direction</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">m_Speed</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kr">inline</span> <span class="kt">void</span> <span class="n">SetDirection</span><span class="p">(</span><span class="k">const</span> <span class="n">XMFLOAT2</span><span class="o">&amp;</span> <span class="n">direction</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_Direction</span> <span class="o">=</span> <span class="n">direction</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kr">inline</span> <span class="kt">void</span> <span class="n">SetSpeed</span><span class="p">(</span><span class="kt">float</span> <span class="n">speed</span><span class="p">)</span> <span class="p">{</span> <span class="n">m_Speed</span> <span class="o">=</span> <span class="n">speed</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">TransformComponent2D</span><span class="o">*</span> <span class="n">m_pTransform</span><span class="p">;</span>
+    <span class="n">XMFLOAT2</span> <span class="n">m_Direction</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">m_Speed</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">m_MeetsRequirements</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+
+<h2 id="input-management">Input Management<a class="headerlink" href="#input-management" title="Permanent link"></a></h2>
+<p>The input manager is not yet fully implemented but it does come with some core features as direct input manipulation as well as Action Mapping setup and a callback system for controller connections.</p>
+<h4 id="include-inputmanagerh">Include: InputManager.h<a class="headerlink" href="#include-inputmanagerh" title="Permanent link"></a></h4>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h3>
+<p><div class="codehilite"><pre><span class="c1">// Registering a callback to be called when a controller is connected</span>
+<span class="c1">//  ConnectionType::CONNECTED       -&gt; Player created for a specific controller</span>
+<span class="c1">//  ConnectionType::DISCONNECTED    -&gt; Player for specific controller is removed</span>
+<span class="n">InputManager</span><span class="o">::</span><span class="n">GetInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">RegisterControllerConnectedCallback</span><span class="p">(</span>
+    <span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="kt">uint32_t</span> <span class="n">controller</span><span class="p">,</span> <span class="n">ConnectionType</span> <span class="n">connection</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">connection</span> <span class="o">==</span> <span class="n">ConnectionType</span><span class="o">::</span><span class="n">CONNECTED</span><span class="p">)</span>
+            <span class="n">m_pPlayers</span><span class="p">[</span><span class="n">controller</span><span class="p">]</span> <span class="o">=</span> <span class="n">Prefabs</span><span class="o">::</span><span class="n">CreatePlayer</span><span class="p">(</span><span class="n">m_pWorld</span><span class="p">,</span> <span class="n">m_pDynamic_SB</span><span class="p">,</span> <span class="p">{</span> <span class="kt">float</span><span class="p">(</span><span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">+</span> <span class="mi">300</span><span class="p">),</span> <span class="mi">0</span> <span class="p">},</span> <span class="p">(</span><span class="n">Player</span><span class="p">)</span><span class="n">controller</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="n">m_pWorld</span><span class="o">-&gt;</span><span class="n">DestroyEntity</span><span class="p">(</span><span class="n">m_pPlayers</span><span class="p">[</span><span class="n">controller</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">GetId</span><span class="p">());</span>
+    <span class="p">});</span>
+
+<span class="c1">// Runs a check for connected controllers, this shouldn&#39;t be called every frame. XINPUT is expensive xD</span>
+<span class="n">InputManager</span><span class="o">::</span><span class="n">GetInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">CheckControllerConnection</span><span class="p">();</span>
+</pre></div>
+<div class="codehilite"><pre><span class="c1">// Action mapping for toggling a particle system when R is pressed</span>
+<span class="n">InputManager</span><span class="o">::</span><span class="n">GetInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">RegisterActionMappin</span><span class="p">(</span>
+    <span class="n">ActionMapping</span><span class="p">(</span><span class="n">SDL_SCANCODE_R</span><span class="p">,</span> <span class="n">ActionType</span><span class="o">::</span><span class="n">PRESSED</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">pParticleSystem</span><span class="p">]()</span>
+        <span class="p">{</span>
+            <span class="n">pParticleSystem</span><span class="o">-&gt;</span><span class="n">ToggleSpawning</span><span class="p">();</span>
+        <span class="p">}));</span>
+</pre></div>
+<div class="codehilite"><pre><span class="c1">// Direct input</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">pInputMananager</span><span class="o">-&gt;</span><span class="n">IsPressed</span><span class="p">(</span><span class="n">ControllerButton</span><span class="o">::</span><span class="n">DPAD_LEFT</span><span class="p">,</span> <span class="n">m_PlayerController</span><span class="p">))</span>
+    <span class="n">movement</span><span class="p">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">movementSpeed</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">pInputMananager</span><span class="o">-&gt;</span><span class="n">IsPressed</span><span class="p">(</span><span class="n">ControllerButton</span><span class="o">::</span><span class="n">DPAD_RIGHT</span><span class="p">,</span> <span class="n">m_PlayerController</span><span class="p">))</span>
+    <span class="n">movement</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">movementSpeed</span><span class="p">;</span>
+</pre></div></p>
+<h2 id="resource-management">Resource Management<a class="headerlink" href="#resource-management" title="Permanent link"></a></h2>
+<p>The resource manager currently support the loading of the following formats:</p>
+<ul>
+<li>fx (HLSL effects file)</li>
+<li>wav</li>
+<li>temd (Tank Engine Model Descriptor for .fbx)</li>
+<li>jpg</li>
+<li>png</li>
+</ul>
+<p>By default all assets of this type inside the resources folder will be automatically loaded when the engine starts.
+The macro: <code>#define RESOURCES ResourceManager::GetInstance()</code> is provided.</p>
+<h3 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link"></a></h3>
+<div class="codehilite"><pre><span class="c1">// Get resource with name atlas_0 and type Texture</span>
+<span class="k">const</span> <span class="k">auto</span> <span class="n">pAtlasTex</span> <span class="o">=</span> <span class="n">RESOURCES</span><span class="o">-&gt;</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">Texture</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;atlas_0&quot;</span><span class="p">);</span>
+
+<span class="c1">// Load a resource of type Sound</span>
+<span class="k">const</span> <span class="k">auto</span> <span class="n">pSound</span> <span class="o">=</span> <span class="n">RESOURCES</span><span class="o">-&gt;</span><span class="n">Load</span><span class="o">&lt;</span><span class="n">Sound</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;SomeCoolSound.wav&quot;</span><span class="p">,</span> <span class="s">&quot;SomeCoolSound&quot;</span><span class="p">);</span>
+</pre></div></article></body></html>
