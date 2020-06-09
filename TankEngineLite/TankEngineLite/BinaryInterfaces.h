@@ -19,6 +19,13 @@ public:
 	}
 
 	template<typename T>
+	inline void WriteRaw(const T& val)
+	{
+		m_File.write((const char*)& val, sizeof(T));
+	}
+
+
+	template<typename T>
 	inline void Write(const T& val)
 	{
 		static_assert(std::is_pod<T>::value, "None POD value given for T");
@@ -59,6 +66,15 @@ public:
 	inline void MoveHead(int amnt)
 	{
 		SetHead((int)m_File.tellg() + amnt);
+	}
+
+	template<typename T>
+	[[nodiscard]] inline T ReadRaw()
+	{
+		T obj;
+		m_File.read((char*)& obj, sizeof(T));
+
+		return obj;
 	}
 
 	template<typename T>
