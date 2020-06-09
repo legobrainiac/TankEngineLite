@@ -68,26 +68,31 @@ void TEngineRunner::ImGuiDebug(float dt)
 	if (m_ShowLogger)
 		Logger::GetInstance()->UpdateAndDraw();
 
-	if (ImGui::BeginMainMenuBar())
+	auto [x, y, s] = InputManager::GetInstance()->GetMouseState();
+
+	if (y < 120)
 	{
-		if (ImGui::BeginMenu("Files"))
+		if (ImGui::BeginMainMenuBar())
 		{
-			if (ImGui::MenuItem("Load script", "CTRL+O"))
-				Logger::GetInstance()->Log<LOG_WARNING>("Script loading not implemented");
+			if (ImGui::BeginMenu("Files"))
+			{
+				if (ImGui::MenuItem("Load script", "CTRL+O"))
+					Logger::GetInstance()->Log<LOG_WARNING>("Script loading not implemented");
 
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Tools"))
-		{
-			if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
-			if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
-			if (ImGui::MenuItem("Logger", "")) { m_ShowLogger = !m_ShowLogger; }  // Disabled item
-			if (ImGui::MenuItem("Profiler", "")) { m_DebugProfiler = !m_DebugProfiler; }  // Disabled item
-			if (ImGui::MenuItem("Memory tracker", "")) { m_DebugMemoryTracker = !m_DebugMemoryTracker; }  // Disabled item
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Tools"))
+			{
+				if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
+				if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
+				if (ImGui::MenuItem("Logger", "")) { m_ShowLogger = !m_ShowLogger; }  // Disabled item
+				if (ImGui::MenuItem("Profiler", "")) { m_DebugProfiler = !m_DebugProfiler; }  // Disabled item
+				if (ImGui::MenuItem("Memory tracker", "")) { m_DebugMemoryTracker = !m_DebugMemoryTracker; }  // Disabled item
 
-			ImGui::EndMenu();
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
 		}
-		ImGui::EndMainMenuBar();
 	}
 
 	if (m_DebugSystems)

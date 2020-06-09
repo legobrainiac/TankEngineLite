@@ -1,6 +1,7 @@
 float4x4 gTransform : WorldViewProjection;
 Texture2D gSpriteTexture;
 float2 gTextureSize;
+float2 gCameraPos;
 
 SamplerState samPoint
 {
@@ -132,10 +133,10 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 	float3 posRB = position + float3(texSize.x * scale.x, texSize.y * scale.y, 0.f);
 	float2 uvRB = { uv1.x, uv1.y };
 
-	CreateVertex(triStream, posLT, color, uvLT, rotation, rotationCosSin, offset, pivotOffset);
-	CreateVertex(triStream, posRT, color, uvRT, rotation, rotationCosSin, offset, pivotOffset);
-	CreateVertex(triStream, posLB, color, uvLB, rotation, rotationCosSin, offset, pivotOffset);
-	CreateVertex(triStream, posRB, color, uvRB, rotation, rotationCosSin, offset, pivotOffset);
+	CreateVertex(triStream, posLT - float3(gCameraPos, 0.f), color, uvLT, rotation, rotationCosSin, offset, pivotOffset);
+	CreateVertex(triStream, posRT - float3(gCameraPos, 0.f), color, uvRT, rotation, rotationCosSin, offset, pivotOffset);
+	CreateVertex(triStream, posLB - float3(gCameraPos, 0.f), color, uvLB, rotation, rotationCosSin, offset, pivotOffset);
+	CreateVertex(triStream, posRB - float3(gCameraPos, 0.f), color, uvRB, rotation, rotationCosSin, offset, pivotOffset);
 }
 
 //PIXEL SHADER

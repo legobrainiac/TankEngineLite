@@ -103,6 +103,8 @@ public:
 	// Parameter: bool val
 	void SetIsRendering(bool val) { m_IsRendering = val; }
 
+	constexpr void SetCamera(XMFLOAT2 camPos) noexcept { m_CameraPos = camPos; }
+
 	// Don't worry about this one, only here for debugging purposes
 	void ImGuiDebug();
 
@@ -117,9 +119,11 @@ private:
 	ID3D11InputLayout* m_pInputLayout;
 	ID3DX11EffectMatrixVariable* m_pTransfromMatrixV;
 	ID3DX11EffectVectorVariable* m_pTextureSizeV;
+	ID3DX11EffectVectorVariable* m_pCameraPos;
 	ID3DX11EffectShaderResourceVariable* m_pTextureSRV;
 	ID3D11Buffer* m_pVertexBuffer;
 	XMFLOAT4X4 m_Transform;
+	XMFLOAT2 m_CameraPos;
 
 	Texture* m_Atlas;
 	std::string_view m_Name;

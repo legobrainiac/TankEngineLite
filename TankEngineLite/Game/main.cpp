@@ -12,8 +12,8 @@
 int main(int, char* [])
 {
 	//return TEngineRunner{}.Run<CTCPUGame>();
-	return TEngineRunner{}.Run<EditorGame>();
-	//return TEngineRunner{}.Run<MainGame>();
+	//return TEngineRunner{}.Run<EditorGame>();
+	return TEngineRunner{}.Run<MainGame>();
 }
 
 #ifdef _WIN32

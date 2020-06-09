@@ -10,6 +10,7 @@
 #include "Logger.h"
 
 #include <vector>
+#include <string>
 
 class Effect
 	: public IResource

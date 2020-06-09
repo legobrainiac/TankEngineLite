@@ -26,6 +26,7 @@ void SpriteBatch::InitializeBatch(Texture* atlas, BatchMode mode)
 
 	m_pTransfromMatrixV = m_pEffect->GetVariableByName("gTransform")->AsMatrix();
 	m_pTextureSizeV = m_pEffect->GetVariableByName("gTextureSize")->AsVector();
+	m_pCameraPos = m_pEffect->GetVariableByName("gCameraPos")->AsVector();
 	m_pTextureSRV = m_pEffect->GetVariableByName("gSpriteTexture")->AsShaderResource();
 
 	// Input layout
@@ -148,6 +149,7 @@ void SpriteBatch::Render()
 	// Set shader globals
 	auto texSize = m_Atlas->GetTextureSize();
 	m_pTextureSizeV->SetFloatVector(reinterpret_cast<float*>(&texSize));
+	m_pCameraPos->SetFloatVector(reinterpret_cast<float*>(&m_CameraPos));
 
 	//Set Transform
 	m_pTransfromMatrixV->SetMatrix(reinterpret_cast<float*>(&m_Transform));

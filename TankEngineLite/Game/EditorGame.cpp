@@ -5,21 +5,7 @@
 
 void EditorGame::Initialize()
 {
-	/*BinaryWriter writer("../Resources/default.bmap");
 
-	MapHeader h{};
-	writer.WriteRaw<MapHeader>(h);
-
-	for(int i = 0; i < h.mapW * h.mapH; ++i)
-	{
-		Tile t{};
-		t.tileIndex = 72;
-		writer.WriteRaw<Tile>(t);
-	}
-
-	MapFooter f{};
-	writer.WriteRaw<MapFooter>(f);
-	*/
 }
 
 void EditorGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_unused]] TEngineRunner* pEngine)

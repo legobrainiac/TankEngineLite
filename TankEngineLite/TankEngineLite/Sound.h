@@ -4,6 +4,8 @@
 #include "ResourceManager.h"
 #include "SoundManager.h"
 
+#include <string>
+
 class Sound :
 	public IResource
 {

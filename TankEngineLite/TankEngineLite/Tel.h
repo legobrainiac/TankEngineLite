@@ -154,7 +154,7 @@ private:
 	// Debug ui stuff
 	bool m_DebugSystems = false;
 	bool m_DebugRenderer = false;
-	bool m_ShowLogger = true;
+	bool m_ShowLogger = false;
 	bool m_DebugMemoryTracker = false;
 	bool m_DebugProfiler = false;
 

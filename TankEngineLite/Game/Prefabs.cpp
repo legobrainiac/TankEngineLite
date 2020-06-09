@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Prefabs.h"
+#include "BBLevel.h"
 
 ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2& position, const XMFLOAT2& direction, SpriteBatch* pSpriteBatch)
 {
@@ -21,7 +22,7 @@ ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2&
 	return pEntity;
 }
 
-ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch, XMFLOAT2 pos, Player player)
+ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch, XMFLOAT2 pos, Player player, BBLevel* pLevel)
 {
 	auto pEntity = pWorld->CreateEntity();
 	auto [pMovement, pRenderer, pTransform] = pEntity->PushComponents<PlayerController, SpriteRenderComponent, TransformComponent2D>();
@@ -34,6 +35,7 @@ ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch
 	pTransform->scale = { 4.f, 4.f };
 
 	pMovement->SetInputController(player);
+	pMovement->SetLevel(pLevel);
 
 	return pEntity;
 }
@@ -44,7 +46,7 @@ ECS::Entity* Prefabs::SpawnParticle(ECS::World* pWorld, SpriteBatch* pSpriteBatc
 		[pSpriteBatch, pos, startingAcceleration, colour, life, gravity](ECS::Entity* pEntity) 
 		{
 			auto [pParticle] = pEntity->PushComponents<Particle>();
-			pParticle->Initialize(pSpriteBatch, pos, startingAcceleration, 0.25f, colour, life, gravity);
+			pParticle->Initialize(pSpriteBatch, pos, startingAcceleration, 0.35f, colour, life, gravity);
 			return pEntity;
 		}
 	);

@@ -11,6 +11,12 @@
 #include "Profiler.h"
 #include "BinaryInterfaces.h"
 
+#include "BBLevel.h"
+
+#define TINY	8
+#define SMALL	256
+#define BIG		4096
+
 void MainGame::Initialize()
 {
 	using namespace ECS;
@@ -19,17 +25,22 @@ void MainGame::Initialize()
 	m_pWorld = Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		WorldSystem<TransformComponent2D, 256, 0, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<SpriteRenderComponent, 256, 1, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<LifeSpan, 256, 2, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ProjectileComponent, 256, 3, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<PlayerController, 8, 4, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ParticleEmitter, 16, 5, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<Particle, 4096, 6, ExecutionStyle::ASYNCHRONOUS>,
-		WorldSystem<TransformComponent, 8, 7, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<CameraComponent, 8, 8, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ModelRenderComponent, 8, 9, ExecutionStyle::SYNCHRONOUS>
+		WorldSystem<TransformComponent2D,	SMALL,	0,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<SpriteRenderComponent,	SMALL,	1,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<LifeSpan,				SMALL,	2,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ProjectileComponent,	SMALL,	3,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<PlayerController,		TINY,	4,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ParticleEmitter,		TINY,	5,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<Particle,				SMALL,	6,	ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<TransformComponent,		TINY,	7,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<CameraComponent,		TINY,	8,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ModelRenderComponent,	TINY,	9,	ExecutionStyle::SYNCHRONOUS>
 	>();
+
+	// Initialize custom resource loaders
+	ResourceManager::AddTypeResolver(
+		std::pair(".bmap", [](std::string path, std::string name) { RESOURCES->Load<BBLevel>(path, name); })
+	);
 }
 
 void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_unused]] TEngineRunner* pEngine)
@@ -39,31 +50,27 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
 	m_pDynamic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_0"));
 	pEngine->RegisterBatch(m_pDynamic_SB);
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// Create the static sprite batch
 	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
-	m_pStatic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_5"), BatchMode::BATCHMODE_STATIC);
+	m_pStatic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_7"), BatchMode::BATCHMODE_STATIC);
 	pEngine->RegisterBatch(m_pStatic_SB);
 
-	// Create particle system
-	ParticleEmitter* pParticleSystem = nullptr;
-	{
-		auto pParticleSystemEntity = m_pWorld->CreateEntity();
-		auto[pParticleEmitter, pTransform] = pParticleSystemEntity->PushComponents<ParticleEmitter, TransformComponent2D>();
-		pParticleEmitter->m_ParticleSpawnInterval = 0.001f;
-		pParticleEmitter->m_ParticleLifeTime = .5f;
-		pParticleEmitter->m_ParticlesPerSpawn = 5U;
-		pParticleEmitter->m_pSpriteBatch = m_pDynamic_SB;
-		pParticleEmitter->m_Gravity = 981.f;
+	//////////////////////////////////////////////////////////////////////////
+	// Set camera for sprite batches
+	m_pDynamic_SB->SetCamera({ -320.f, 0.f });
+	m_pStatic_SB->SetCamera({ -320.f, 0.f });
 
-		m_pParticleEmitterTransform = pTransform;
-		pParticleSystem = pParticleEmitter;
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// Load level
+	m_pCurrentLevel = RESOURCES->Get<BBLevel>("wiki");
+	m_pCurrentLevel->SetupBatch(m_pStatic_SB);
 
+	//////////////////////////////////////////////////////////////////////////
 	// Create 3D camera
 	{
-		auto pCamera = m_pWorld->CreateEntity();
+		auto pCamera = m_pWorld->CreateEntity(); 
 		auto [pCameraComponent, pTransform] = pCamera->PushComponents<CameraComponent, TransformComponent>();
 		Renderer::GetInstance()->GetDirectX()->SetCamera(pCameraComponent);
 		pTransform->Translate({ 0.f, -5.f, 0.f });
@@ -72,6 +79,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		m_IntendedPosition = { 0.f, -5.f, 0.f };
 	}
 
+	//////////////////////////////////////////////////////////////////////////
 	// Create world model
 	{
 		auto pModel = RESOURCES->Get<Model>("arcade");
@@ -84,7 +92,8 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		pTransform->scale = { 0.01f, 0.01f, 0.01f };
 	}
 
-	// Create world model
+	//////////////////////////////////////////////////////////////////////////
+	// Create sky dome model
 	{
 		auto pModel = RESOURCES->Get<Model>("skydome");
 		auto pTexture = RESOURCES->Get<Texture>("skydome_diffuse");
@@ -95,16 +104,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		pTransform->Rotate(XM_PI, XM_PIDIV2, 0.f);
 	}
 
-	// Setup a smol platform
-	for (int i = 0; i < 25; ++i)
-		m_pStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
-
-	for (int j = 1; j < 5; ++j)
-	{
-		for (int i = 0; i < 25; ++i)
-			m_pStatic_SB->PushSprite({ 16, 0, 32, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
-	}
-
+	//////////////////////////////////////////////////////////////////////////
 	// If a controller is connected, 
 	//  spawn a player for it
 	// If a controller is disconnected
@@ -113,25 +113,18 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		[this](uint32_t controller, ConnectionType connection) 
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 0 }, (Player)controller);
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 0 }, (Player)controller, m_pCurrentLevel);
 			else
 				m_pWorld->DestroyEntity(m_pPlayers[controller]->GetId());
 		});
 
 	InputManager::GetInstance()->CheckControllerConnection();
 
-	// Toggle particle emission
-	InputManager::GetInstance()->RegisterActionMappin(
-		ActionMapping(SDL_SCANCODE_R, ActionType::PRESSED,
-			[pParticleSystem]()
-			{
-				pParticleSystem->ToggleSpawning();
-			}));
-
+	//////////////////////////////////////////////////////////////////////////
 	// Check for new controllers
 	InputManager::GetInstance()->RegisterActionMappin(
 		ActionMapping(SDL_SCANCODE_T, ActionType::PRESSED,
-			[pParticleSystem]()
+			[]()
 			{
 				InputManager::GetInstance()->CheckControllerConnection();
 			}));
@@ -166,11 +159,6 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
 {
 	PROFILE(SESSION_UPDATE_ECS, ECS::Universe::GetInstance()->Update(dt));
-
-	auto [x, y, state] = pInputManager->GetMouseState();
-	m_pParticleEmitterTransform->position.x = (float)x;
-	m_pParticleEmitterTransform->position.y = (float)y;
-
 	CameraTransitions(dt);
 }
 
@@ -207,17 +195,7 @@ void MainGame::CameraTransitions(float dt)
 
 	if (timer > 4.f)
 	{
-		// Refresh small platform
-		// TODO(tomas): figure out why i need this, something in sb is breaking
-		for (int i = 0; i < 25; ++i)
-			m_pStatic_SB->PushSprite({ 0, 0, 16, 16 }, { (float)i * 64, 600, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
-
-		for (int j = 1; j < 5; ++j)
-		{
-			for (int i = 0; i < 25; ++i)
-				m_pStatic_SB->PushSprite({ 16, 0, 32, 16 }, { (float)i * 64, 600 + (float)j * 64, 0.9f }, 0, { 4, 4 }, { 0, 0 }, { 1.f, 1.f, 1.f, 1.f });
-		}
-
+		m_pCurrentLevel->SetupBatch(m_pStatic_SB); // TODO(tomas): replace batch session, shouldnt have to do this
 		m_pDynamic_SB->SetIsRendering(true);
 		m_pStatic_SB->SetIsRendering(true);
 		timer -= timer;

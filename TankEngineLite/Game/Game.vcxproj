@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicComponents.cpp" />
+    <ClCompile Include="BBLevel.cpp" />
     <ClCompile Include="CTCPUGame.cpp" />
     <ClCompile Include="EditorGame.cpp" />
     <ClCompile Include="main.cpp" />
@@ -167,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicComponents.h" />
+    <ClInclude Include="BBLevel.h" />
     <ClInclude Include="ctcpu.h" />
     <ClInclude Include="CTCPUGame.h" />
     <ClInclude Include="EditorGame.h" />

@@ -7,13 +7,14 @@
 #include "SoundManager.h"
 #include "ResourceManager.h"
 
+class BBLevel;
 class SpriteBatch;
 
 class Utils
 {
 public:
 	template<typename T>
-	static T Lerp(T start, T end, float percent)
+	static constexpr T Lerp(T start, T end, float percent)
 	{
 		return (start + percent * (end - start));
 	}
@@ -77,12 +78,17 @@ public:
 
 	void Update(float dt) override;
 	inline void SetInputController(Player player) { m_PlayerController = player; }
+	inline void SetLevel(BBLevel* pLevel) { m_pLevel = pLevel; }
 
 private:
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
+	XMFLOAT3 m_PreviousPosition;
+	BBLevel* m_pLevel;
 
 	FMOD::Sound* m_pShootingSound;
+
+	bool m_CanJump = true;
 
 	// Timers
 	float m_Timer;

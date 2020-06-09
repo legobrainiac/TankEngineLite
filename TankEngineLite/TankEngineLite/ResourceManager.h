@@ -149,6 +149,11 @@ public:
 		return nullptr;
 	}
 
+	static void AddTypeResolver(const std::pair<std::string_view, TypeResolver>& resolver)
+	{
+		TypeResolvers[resolver.first] = resolver.second;
+	}
+
 private:
 	friend class Singleton<ResourceManager>;
 	ResourceManager() = default;

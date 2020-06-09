@@ -4,6 +4,7 @@
 #include "Tel.h"
 
 class SpriteBatch;
+class BBLevel;
 class Entity;
 class World;
 
@@ -23,10 +24,9 @@ private:
 	void CameraTransitions(float dt);
 
 	ECS::World* m_pWorld;
+	BBLevel* m_pCurrentLevel;
 	SpriteBatch* m_pStatic_SB;
 	SpriteBatch* m_pDynamic_SB;
-	
-	TransformComponent2D* m_pParticleEmitterTransform;
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Game camera

@@ -3,6 +3,7 @@
 
 #include "Prefabs.h"
 
+#include "BBLevel.h"
 #include "SpriteBatch.h"
 
 #include "Sound.h"
@@ -37,13 +38,6 @@ PlayerController::PlayerController(ECS::Entity* pE)
 	if (m_pTransform != nullptr && m_pRenderComponent != nullptr)
 		m_MeetsRequirements = true;
 
-	// Action mapping test
-	InputManager::GetInstance()->RegisterActionMappin(
-		ActionMapping(SDL_SCANCODE_Q, ActionType::PRESSED,
-			[this]()
-			{
-				m_pTransform->position = { 1600 / 2.f, 900.f / 2.f, 0.f };
-			}));
 
 	// Load sound
 	m_pShootingSound = ResourceManager::GetInstance()->Get<Sound>("blep")->GetSound();
@@ -72,19 +66,20 @@ void PlayerController::Update(float dt)
 		movement.x += dt * movementSpeed;
 
 	//////////////////////////////////////////////////////////////////////////
-	// hard coded physics
-
+	// hard coded physics 
 	m_VerticalAcceleration = (m_VerticalAcceleration + dt * 2.f * (0 - m_VerticalAcceleration));
-
-	if (m_pTransform->position.y < 600.f - 32.f)
+	if (!m_pLevel->IsOverlapping({ m_pTransform->position.x, m_pTransform->position.y }, { m_pTransform->position.x + 32, m_pTransform->position.y + 32 }))
 	{
 		float totalMovement = 981.f * dt;
 		movement.y += totalMovement;
+		m_CanJump = true;
 	}
 	else
 	{
-		if (pInputMananager->IsPressed(ControllerButton::A, m_PlayerController))
+		if (pInputMananager->IsPressed(ControllerButton::A, m_PlayerController) && m_CanJump)
 		{
+			m_CanJump = false;
+
 			// Spawn particles for jumping
 			const XMFLOAT2 pos = { m_pTransform->position.x, m_pTransform->position.y + 32.f };
 			for (uint32_t i = 0; i < 10; ++i)
@@ -260,7 +255,7 @@ Particle::Particle(ECS::Entity* pE)
 	, m_Pos()
 	, m_Acceleration()
 	, m_Colour()
-	,m_pSpriteBatch()
+	, m_pSpriteBatch()
 {
 	m_Timer = 0;
 }
@@ -283,7 +278,8 @@ void Particle::Update(float dt)
 	m_Colour.y = abs(cosf(m_Timer * 3.f));
 	m_Colour.x = abs(sinf(m_Timer * 3.f));
 
-	m_pSpriteBatch->PushSprite({ 8, 128, 12, 132 }, { m_Pos.x, m_Pos.y, 0 }, 0, { m_Scale , m_Scale }, { 0.5f, 0.5f }, m_Colour);
+	float scale = m_Scale - ((m_Scale / m_Life) * m_Timer);
+	m_pSpriteBatch->PushSprite({ 8, 128, 12, 132 }, { m_Pos.x, m_Pos.y, 0 }, 0, { scale, scale }, { 0.5f, 0.5f }, m_Colour);
 }
 
 void Particle::Initialize(SpriteBatch* pSpriteBatch, XMFLOAT2 pos, XMFLOAT2 startAcceleration, float scale, XMFLOAT4 colour, float life, float gravity)
