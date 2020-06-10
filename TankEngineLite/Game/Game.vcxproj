@@ -160,19 +160,23 @@
   <ItemGroup>
     <ClCompile Include="BasicComponents.cpp" />
     <ClCompile Include="BBLevel.cpp" />
+    <ClCompile Include="ColliderComponent.cpp" />
     <ClCompile Include="CTCPUGame.cpp" />
     <ClCompile Include="EditorGame.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGame.cpp" />
+    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="Prefabs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicComponents.h" />
     <ClInclude Include="BBLevel.h" />
+    <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="ctcpu.h" />
     <ClInclude Include="CTCPUGame.h" />
     <ClInclude Include="EditorGame.h" />
     <ClInclude Include="MainGame.h" />
+    <ClInclude Include="PlayerController.h" />
     <ClInclude Include="Prefabs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

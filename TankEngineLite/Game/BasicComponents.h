@@ -9,21 +9,7 @@
 
 class BBLevel;
 class SpriteBatch;
-
-class Utils
-{
-public:
-	template<typename T>
-	static constexpr T Lerp(T start, T end, float percent)
-	{
-		return (start + percent * (end - start));
-	}
-
-	static int RandInterval(int min, int max)
-	{
-		return min + rand() % (max + 1 - min);
-	}
-};
+class ColliderComponent;
 
 //////////////////////////////////////////////////////////////////////////
 // Lifespan component
@@ -62,43 +48,10 @@ public:
 
 private:
 	TransformComponent2D* m_pTransform;
+	ColliderComponent* m_pCollider;
+
 	XMFLOAT2 m_Direction;
 	float m_Speed;
-	bool m_MeetsRequirements;
-};
-
-//////////////////////////////////////////////////////////////////////////
-// Player movement component
-class PlayerController
-	: public ECS::EntityComponent
-{
-public:
-	PlayerController() {}
-	PlayerController(ECS::Entity* pE);
-
-	void Update(float dt) override;
-	inline void SetInputController(Player player) { m_PlayerController = player; }
-	inline void SetLevel(BBLevel* pLevel) { m_pLevel = pLevel; }
-
-private:
-	TransformComponent2D* m_pTransform;
-	SpriteRenderComponent* m_pRenderComponent;
-	XMFLOAT3 m_PreviousPosition;
-	BBLevel* m_pLevel;
-
-	FMOD::Sound* m_pShootingSound;
-
-	bool m_CanJump = true;
-
-	// Timers
-	float m_Timer;
-	float m_SpriteTimer;
-
-	float m_VerticalAcceleration;
-	int m_SpriteIndex;
-	bool m_FacingRight;
-
-	Player m_PlayerController;
 	bool m_MeetsRequirements;
 };
 

@@ -25,7 +25,7 @@ void SpriteRenderComponent::Render() const
 		m_pTransform->position,
 		m_pTransform->rotation,
 		m_pTransform->scale,
-		{ 0.5f, 0.5f },
+		m_Pivot,
 		{ 1.f, 1.f, 1.f, 1.f }
 	);
 }

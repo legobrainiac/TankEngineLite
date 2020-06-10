@@ -10,6 +10,8 @@
 
 #include "Singleton.h"
 
+#define SOUND SoundManager::GetInstance()
+
 //////////////////////////////////////////////////////////////////////////
 // Class: SoundManager
 // Description: Singleton wrapper around FMOD::System's functionalities 
@@ -60,7 +62,7 @@ public:
 	// Qualifier: const
 	// Description: Play sound without any directionality or world position
 	// Parameter: FMOD::Sound * pSound
-	FMOD::Channel* PlaySound(FMOD::Sound* pSound) const;
+	FMOD::Channel* Play(FMOD::Sound* pSound) const;
 
 private:
 	FMOD::System* m_pFMOD = nullptr;

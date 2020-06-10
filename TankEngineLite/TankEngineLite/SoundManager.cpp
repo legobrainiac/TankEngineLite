@@ -53,7 +53,7 @@ void SoundManager::Update([[maybe_unused]] float dt)
 	Profiler::GetInstance()->EndSubSession();
 }
 
-FMOD::Channel* SoundManager::PlaySound(FMOD::Sound* pSound) const
+FMOD::Channel* SoundManager::Play(FMOD::Sound* pSound) const
 {
 	FMOD::Channel* pChannel = nullptr;
 	auto result = m_pFMOD->playSound(pSound, m_pChannels, false, &pChannel);

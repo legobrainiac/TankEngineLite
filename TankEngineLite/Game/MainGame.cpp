@@ -11,6 +11,9 @@
 #include "Profiler.h"
 #include "BinaryInterfaces.h"
 
+#include "ColliderComponent.h"
+#include "PlayerController.h"
+
 #include "BBLevel.h"
 
 #define TINY	8
@@ -29,12 +32,13 @@ void MainGame::Initialize()
 		WorldSystem<SpriteRenderComponent,	SMALL,	1,	ExecutionStyle::SYNCHRONOUS>,
 		WorldSystem<LifeSpan,				SMALL,	2,	ExecutionStyle::SYNCHRONOUS>,
 		WorldSystem<ProjectileComponent,	SMALL,	3,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<PlayerController,		TINY,	4,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ParticleEmitter,		TINY,	5,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<Particle,				SMALL,	6,	ExecutionStyle::ASYNCHRONOUS>,
-		WorldSystem<TransformComponent,		TINY,	7,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<CameraComponent,		TINY,	8,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ModelRenderComponent,	TINY,	9,	ExecutionStyle::SYNCHRONOUS>
+		WorldSystem<ColliderComponent,		SMALL,	4,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<PlayerController,		TINY,	5,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ParticleEmitter,		TINY,	6,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<Particle,				SMALL,	7,	ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<TransformComponent,		TINY,	8,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<CameraComponent,		TINY,	9,	ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ModelRenderComponent,	TINY,	10,	ExecutionStyle::SYNCHRONOUS>
 	>();
 
 	// Initialize custom resource loaders
@@ -64,7 +68,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 	//////////////////////////////////////////////////////////////////////////
 	// Load level
-	m_pCurrentLevel = RESOURCES->Get<BBLevel>("wiki");
+	m_pCurrentLevel = RESOURCES->Get<BBLevel>("fire2");
 	m_pCurrentLevel->SetupBatch(m_pStatic_SB);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -113,7 +117,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		[this](uint32_t controller, ConnectionType connection) 
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 0 }, (Player)controller, m_pCurrentLevel);
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 90 }, (Player)controller, m_pCurrentLevel);
 			else
 				m_pWorld->DestroyEntity(m_pPlayers[controller]->GetId());
 		});

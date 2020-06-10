@@ -20,6 +20,22 @@ class SpriteBatch;
 
 using namespace DirectX;
 
+class Utils
+{
+public:
+	template<typename T>
+	static constexpr T Lerp(T start, T end, float percent)
+	{
+		return (start + percent * (end - start));
+	}
+
+	static int RandInterval(int min, int max)
+	{
+		return min + rand() % (max + 1 - min);
+	}
+};
+
+
 // TODO(tomas): Document both transform and camera components
 
 //////////////////////////////////////////////////////////////////////////
@@ -235,6 +251,15 @@ public:
 	inline void SetCustomRenderFunction(const CustomRenderFunction& crf);
 
 	//////////////////////////////////////////////////////////////////////////
+	// Method:    SetPivot
+	// FullName:  SpriteRenderComponent::SetPivot
+	// Access:    public 
+	// Returns:   void
+	// Description: Set Rendering Pivot
+	// Parameter: const XMFLOAT2& piv
+	inline void SetPivot(const XMFLOAT2& piv) { m_Pivot = piv; }
+
+	//////////////////////////////////////////////////////////////////////////
 	// Method:    ResetToDefault
 	// FullName:  SpriteRenderComponent::ResetToDefault
 	// Access:    public 
@@ -246,6 +271,7 @@ private:
 	TransformComponent2D* m_pTransform;
 	SpriteBatch* m_pSpriteBatch;
 	XMFLOAT4 m_AtlasTransform;
+	XMFLOAT2 m_Pivot{ 0.5f, 0.5f };
 	bool m_MeetsRequirements;
 
 	// Custom rendering
