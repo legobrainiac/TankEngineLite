@@ -23,7 +23,12 @@ ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2&
 	pProjectile->SetSpeed(1000.f);
 
 	pCollider->SetLevel(pLevel);
-
+	pCollider->SetOnDynamicCollisionCB([]([[maybe_unused]] ECS::Entity* pOther) 
+		{
+			if (pOther->GetTag() != 69U)
+				pOther->GetWorld()->AsyncDestroyEntity(pOther->GetId());
+		});
+	
 	return pEntity;
 }
 
@@ -42,6 +47,8 @@ ECS::Entity* Prefabs::CreatePlayer(ECS::World* pWorld, SpriteBatch* pSpriteBatch
 
 	pMovement->SetInputController(player);
 	pCollider->SetLevel(pLevel);
+
+	pEntity->SetTag(69U);
 
 	return pEntity;
 }

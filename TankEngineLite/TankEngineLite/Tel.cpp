@@ -83,6 +83,15 @@ void TEngineRunner::ImGuiDebug(float dt)
 			}
 			if (ImGui::BeginMenu("Tools"))
 			{
+				if (ImGui::MenuItem("Toggle All", "")) 
+				{ 
+					m_DebugSystems = !m_DebugSystems; 
+					m_DebugRenderer = !m_DebugRenderer;
+					m_ShowLogger = !m_ShowLogger;
+					m_DebugProfiler = !m_DebugProfiler;
+					m_DebugMemoryTracker = !m_DebugMemoryTracker;
+				}
+
 				if (ImGui::MenuItem("System debugger", "")) { m_DebugSystems = !m_DebugSystems; }
 				if (ImGui::MenuItem("Renderer settings", "")) { m_DebugRenderer = !m_DebugRenderer; }  // Disabled item
 				if (ImGui::MenuItem("Logger", "")) { m_ShowLogger = !m_ShowLogger; }  // Disabled item

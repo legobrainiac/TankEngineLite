@@ -80,7 +80,7 @@ bool Model::InitializeBuffers(ID3D11Device* pDevice, std::string modelFilepath, 
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
-
+	
 	// Set sub resource pointer
 	indexData.pSysMem = pIndices;
 	indexData.SysMemPitch = 0;

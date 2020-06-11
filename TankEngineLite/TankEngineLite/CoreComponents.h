@@ -291,12 +291,6 @@ public:
 
 	~ModelRenderComponent()
 	{
-		// TODO(tomas): tis wrong ples help
-// 		m_pWorld->Release();
-// 		m_pDiffuseMap->Release();
-// 		m_pWorldViewProjection->Release();
-// 		m_pInputLayout->Release();
-// 		m_pTechnique->Release();
 	}
 
 	ModelRenderComponent(ECS::Entity* pE);
@@ -308,10 +302,6 @@ private:
 	Model* m_pModel;
 	Texture* m_pTexture;
 	Effect* m_pEffect;
-
-	// TODO(tomas): abstraction in to materials
-	ID3DX11EffectTechnique* m_pTechnique;
-	ID3D11InputLayout* m_pInputLayout;
 
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMap;
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjection;

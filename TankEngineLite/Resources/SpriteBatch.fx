@@ -2,6 +2,7 @@ float4x4 gTransform : WorldViewProjection;
 Texture2D gSpriteTexture;
 float2 gTextureSize;
 float2 gCameraPos;
+float gScale;
 
 SamplerState samPoint
 {
@@ -119,18 +120,26 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 
 	// VERTEX 1 [LT]
 	float3 posLT = position;
+	posLT.x *= gScale;
+	posLT.y *= gScale;
 	float2 uvLT = uv0; 
 
 	// VERTEX 2 [RT]
 	float3 posRT = position + float3(texSize.x * scale.x, 0.f, 0.f);
+	posRT.x *= gScale;
+	posRT.y *= gScale;
 	float2 uvRT = { uv1.x, uv0.y };
 
 	// VERTEX 3 [LB]
 	float3 posLB = position + float3(0.f, texSize.y * scale.y, 0.f);
+	posLB.x *= gScale;
+	posLB.y *= gScale;
 	float2 uvLB = { uv0.x, uv1.y };
 
 	// VERTEX 4 [RB]
 	float3 posRB = position + float3(texSize.x * scale.x, texSize.y * scale.y, 0.f);
+	posRB.x *= gScale;
+	posRB.y *= gScale;
 	float2 uvRB = { uv1.x, uv1.y };
 
 	CreateVertex(triStream, posLT - float3(gCameraPos, 0.f), color, uvLT, rotation, rotationCosSin, offset, pivotOffset);

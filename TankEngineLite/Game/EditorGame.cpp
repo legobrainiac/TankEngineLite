@@ -96,9 +96,11 @@ void EditorGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager
 			m_Tiles[xi + yi * m_Header.mapH].tileIndex = (uint8_t)tile;
 			m_Tiles[xi + yi * m_Header.mapH].tileBehaviour = 0U;
 		}
-
+		
 		if (s & SDL_BUTTON(SDL_BUTTON_RIGHT))
-			m_Tiles[xi + yi * m_Header.mapH].tileBehaviour = 1U;
+			m_Tiles[xi + yi * m_Header.mapH].tileBehaviour = 1U; // Wall
+		else if (s & SDL_BUTTON(SDL_BUTTON_MIDDLE))
+			m_Tiles[xi + yi * m_Header.mapH].tileBehaviour = 2U; // Platform
 	}
 
 	PushBatch();
@@ -126,7 +128,7 @@ void EditorGame::PushBatch()
 			float xt = (float)(t.tileIndex % 16) * m_Header.tileW;
 			float yt = (float)(t.tileIndex / 16) * m_Header.tileH;
 
-			float alpha = (t.tileBehaviour == 0) ? 1.f : 0.75f;
+			XMFLOAT4 c = (t.tileBehaviour == 2U) ? XMFLOAT4{ 1.f, 0.f, 0.f, 1.f } : XMFLOAT4{ 1.f, 1.f, 1.f, (t.tileBehaviour == 0U) ? 1.f : 0.75f };
 
 			m_pSB->PushSprite(
 				{ 
@@ -139,7 +141,7 @@ void EditorGame::PushBatch()
 				0, 
 				{ SCALE, SCALE },
 				{ 0, 0 }, 
-				{ 1.f, 1.f, 1.f, alpha }
+				{ c.x, c.y, c.z, c.w }
 			);
 		}
 	}

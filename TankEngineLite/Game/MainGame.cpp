@@ -18,6 +18,7 @@
 
 #define TINY	8
 #define SMALL	256
+#define MED		1024
 #define BIG		4096
 
 void MainGame::Initialize()
@@ -28,17 +29,17 @@ void MainGame::Initialize()
 	m_pWorld = Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		WorldSystem<TransformComponent2D,	SMALL,	0,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<SpriteRenderComponent,	SMALL,	1,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<LifeSpan,				SMALL,	2,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ProjectileComponent,	SMALL,	3,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ColliderComponent,		SMALL,	4,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<PlayerController,		TINY,	5,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ParticleEmitter,		TINY,	6,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<Particle,				SMALL,	7,	ExecutionStyle::ASYNCHRONOUS>,
-		WorldSystem<TransformComponent,		TINY,	8,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<CameraComponent,		TINY,	9,	ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ModelRenderComponent,	TINY,	10,	ExecutionStyle::SYNCHRONOUS>
+		WorldSystem<TransformComponent2D, SMALL, 0, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<SpriteRenderComponent, SMALL, 1, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<LifeSpan, SMALL, 2, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ProjectileComponent, SMALL, 3, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ColliderComponent, SMALL, 4, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<PlayerController, TINY, 5, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ParticleEmitter, TINY, 6, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<Particle, MED, 7, ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<TransformComponent, TINY, 8, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<CameraComponent, TINY, 9, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ModelRenderComponent, TINY, 10, ExecutionStyle::SYNCHRONOUS>
 	>();
 
 	// Initialize custom resource loaders
@@ -54,7 +55,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
 	m_pDynamic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_0"));
 	pEngine->RegisterBatch(m_pDynamic_SB);
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Create the static sprite batch
 	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
@@ -66,28 +67,31 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	m_pDynamic_SB->SetCamera({ -320.f, 0.f });
 	m_pStatic_SB->SetCamera({ -320.f, 0.f });
 
+	m_pDynamic_SB->SetScale(0.0f);
+	m_pStatic_SB->SetScale(0.0f);
+
 	//////////////////////////////////////////////////////////////////////////
 	// Load level
-	m_pCurrentLevel = RESOURCES->Get<BBLevel>("fire2");
+	m_pCurrentLevel = RESOURCES->Get<BBLevel>("tech");
 	m_pCurrentLevel->SetupBatch(m_pStatic_SB);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Create 3D camera
 	{
-		auto pCamera = m_pWorld->CreateEntity(); 
+		auto pCamera = m_pWorld->CreateEntity();
 		auto [pCameraComponent, pTransform] = pCamera->PushComponents<CameraComponent, TransformComponent>();
 		Renderer::GetInstance()->GetDirectX()->SetCamera(pCameraComponent);
 		pTransform->Translate({ 0.f, -5.f, 0.f });
 		m_pCameraTransform = pTransform;
 		m_pCamera = pCameraComponent;
-		m_IntendedPosition = { 0.f, -5.f, 0.f };
+		m_IntendedPosition = { 0.f, -5.f, 22.5f };
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Create world model
 	{
-		auto pModel = RESOURCES->Get<Model>("arcade");
-		auto pTexture = RESOURCES->Get<Texture>("arcade_diffuse_pog");
+		[[maybe_unused]] auto pModel = RESOURCES->Get<Model>("arcade");
+		[[maybe_unused]] auto pTexture = RESOURCES->Get<Texture>("arcade_diffuse_pog");
 
 		auto pWorldModel = m_pWorld->CreateEntity();
 		auto [pModelRenderer, pTransform] = pWorldModel->PushComponents<ModelRenderComponent, TransformComponent>();
@@ -114,7 +118,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	// If a controller is disconnected
 	//  destroy the corresponding player
 	InputManager::GetInstance()->RegisterControllerConnectedCallback(
-		[this](uint32_t controller, ConnectionType connection) 
+		[this](uint32_t controller, ConnectionType connection)
 		{
 			if (connection == ConnectionType::CONNECTED)
 				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 90 }, (Player)controller, m_pCurrentLevel);
@@ -137,26 +141,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		ActionMapping(SDL_SCANCODE_C, ActionType::PRESSED,
 			[this]()
 			{
-				if (m_Animating)
-					return;
-
-				constexpr XMFLOAT3 startPosition{ 0.f, -5.f, 0.f };
-				constexpr XMFLOAT3 endPosition{ 0.f, -5.f, 22.5f };
-
-				if (m_IsDocked)
-				{
-					m_IntendedPosition = endPosition;
-
-					m_pDynamic_SB->SetIsRendering(false);
-					m_pStatic_SB->SetIsRendering(false);
-				}
-				else
-				{
-					m_IntendedPosition = startPosition;
-					m_Animating = true;
-				}
-
-				m_IsDocked = !m_IsDocked;
+				m_Playing = true;
 			}));
 }
 
@@ -192,17 +177,18 @@ void MainGame::CameraTransitions(float dt)
 {
 	static float timer = 0.f;
 
-	XMStoreFloat3(&m_pCameraTransform->position, XMVectorLerp(XMLoadFloat3(&m_pCameraTransform->position), XMLoadFloat3(&m_IntendedPosition), dt));
-
-	if (m_Animating)
-		timer += dt;
-
-	if (timer > 4.f)
+	if (m_Playing)
 	{
-		m_pCurrentLevel->SetupBatch(m_pStatic_SB); // TODO(tomas): replace batch session, shouldnt have to do this
-		m_pDynamic_SB->SetIsRendering(true);
-		m_pStatic_SB->SetIsRendering(true);
-		timer -= timer;
-		m_Animating = false;
+		timer += dt;
+		m_IntendedPosition = { 0.f, -5.f, 0.f };
+
+		if (timer > 3.f)
+			m_IntendedScale = 1.f;
 	}
+
+	float cameraInterpDT = dt;
+	XMStoreFloat3(&m_pCameraTransform->position, XMVectorLerp(XMLoadFloat3(&m_pCameraTransform->position), XMLoadFloat3(&m_IntendedPosition), cameraInterpDT));
+	m_CurrentScale = Utils::Lerp(m_CurrentScale, m_IntendedScale, dt * 4);
+	m_pDynamic_SB->SetScale(m_CurrentScale);
+	m_pStatic_SB->SetScale(m_CurrentScale);
 }

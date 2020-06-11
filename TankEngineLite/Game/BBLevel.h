@@ -45,7 +45,7 @@ public:
 	void SetupBatch(SpriteBatch* m_pBatch) const;
 	void Shutdown();
 
-	[[nodiscard]] bool IsOverlapping(DirectX::XMFLOAT2 tl, DirectX::XMFLOAT2 br) const noexcept;
+	[[nodiscard]] bool IsOverlapping(DirectX::XMFLOAT2 tl, DirectX::XMFLOAT2 br, uint8_t* behaviour = nullptr) const noexcept;
 
 private:
 	MapHeader m_Header;

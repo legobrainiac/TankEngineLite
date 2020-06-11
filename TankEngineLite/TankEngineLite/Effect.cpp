@@ -6,6 +6,7 @@
 
 Effect::Effect()
 	: m_pEffect(nullptr)
+	, m_Cleanup()
 {
 }
 
@@ -70,7 +71,54 @@ bool Effect::Initialize(std::string effectPath)
 	return true;
 }
 
+void Effect::CreateResources()
+{
+	if (!m_pInputLayout)
+	{
+		auto pRenderer = Renderer::GetInstance();
+		auto pD3D = pRenderer->GetDirectX();
+		auto pDevice = pD3D->GetDevice();
+
+		// IL
+		HRESULT result = S_OK;
+		static const uint32_t numElements = 3;
+		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
+
+		vertexDesc[0].SemanticName = "POSITION";
+		vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[0].AlignedByteOffset = 0;
+		vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[1].SemanticName = "NORMAL";
+		vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[1].AlignedByteOffset = 12;
+		vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[2].SemanticName = "TEXCOORD";
+		vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+		vertexDesc[2].AlignedByteOffset = 24;
+		vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		// Get Technique
+		m_pTechnique = m_pEffect->GetTechniqueByIndex(0);
+
+		// Create input layout
+		D3DX11_PASS_DESC passDesc{};
+		auto pPass = m_pTechnique->GetPassByIndex(0);
+		pPass->GetDesc(&passDesc);
+
+		result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
+	}
+}
+
 void Effect::Shutdown()
 {
+	for (int i = 0; i < m_Cleanup.size(); ++i)
+	{
+		m_Cleanup.top()->Release();
+		m_Cleanup.pop();
+	}
+
+	DXRELEASE(m_pInputLayout);
 	DXRELEASE(m_pEffect);
 }

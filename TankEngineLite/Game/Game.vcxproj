@@ -101,7 +101,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)TankEngineLite;$(SolutionDir)Libraries\SDL2_ttf\include;$(SolutionDir)Libraries\dxEffects;$(SolutionDir)Libraries\SDL2_image\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\SDL2\include;$(SolutionDir)Libraries\fmod\inc;$(SolutionDir)Libraries\fbx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

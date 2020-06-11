@@ -47,6 +47,7 @@ class SpriteBatch
 public:
 	SpriteBatch(const std::string_view& name)
 		: m_Name(name)
+		, m_Batch()
 	{
 	}
 
@@ -104,6 +105,7 @@ public:
 	void SetIsRendering(bool val) { m_IsRendering = val; }
 
 	constexpr void SetCamera(XMFLOAT2 camPos) noexcept { m_CameraPos = camPos; }
+	constexpr void SetScale(float scale) noexcept { m_Scale = scale; }
 
 	// Don't worry about this one, only here for debugging purposes
 	void ImGuiDebug();
@@ -120,10 +122,13 @@ private:
 	ID3DX11EffectMatrixVariable* m_pTransfromMatrixV;
 	ID3DX11EffectVectorVariable* m_pTextureSizeV;
 	ID3DX11EffectVectorVariable* m_pCameraPos;
+	ID3DX11EffectScalarVariable* m_pScale;
 	ID3DX11EffectShaderResourceVariable* m_pTextureSRV;
 	ID3D11Buffer* m_pVertexBuffer;
 	XMFLOAT4X4 m_Transform;
+	
 	XMFLOAT2 m_CameraPos;
+	float m_Scale = 1.f;
 
 	Texture* m_Atlas;
 	std::string_view m_Name;

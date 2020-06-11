@@ -41,7 +41,10 @@ void BBLevel::SetupBatch(SpriteBatch* m_pBatch) const
 			float xt = (float)(t.tileIndex % 16) * m_Header.tileW;
 			float yt = (float)(t.tileIndex / 16) * m_Header.tileH;
 
-			float alpha = (t.tileBehaviour == 0) ? 1.f : 0.75f;
+			float alpha = (t.tileBehaviour == 0U || t.tileBehaviour == 2U) ? 1.f : 0.75f;
+
+			if (!m_pBatch)
+				return;
 
 			m_pBatch->PushSprite(
 				{
@@ -64,7 +67,7 @@ void BBLevel::Shutdown()
 {
 }
 
-bool BBLevel::IsOverlapping(XMFLOAT2 tl, XMFLOAT2 br) const noexcept
+bool BBLevel::IsOverlapping(XMFLOAT2 tl, XMFLOAT2 br, uint8_t* behaviour) const noexcept
 {
 	const auto scale = 2.f;
 
@@ -85,7 +88,12 @@ bool BBLevel::IsOverlapping(XMFLOAT2 tl, XMFLOAT2 br) const noexcept
 			if (tl.x > x2 || x1 > br.x || tl.y > y2 || y1 > br.y)
 				continue;
 			else
+			{
+				if (behaviour)
+					*behaviour = t.tileBehaviour;
+
 				return true;
+			}
 		}
 	}
 

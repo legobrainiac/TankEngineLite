@@ -95,21 +95,21 @@ struct SystemIdentifier
 class EntityComponent
 {
 public:
-	constexpr EntityComponent() : m_pOwner(nullptr), m_pSystem(nullptr) {}
-	constexpr EntityComponent(Entity* pE) : m_pOwner(pE), m_pSystem(nullptr) {}
+	constexpr EntityComponent() : m_pOwner(nullptr), m_pColliderSystem(nullptr) {}
+	constexpr EntityComponent(Entity* pE) : m_pOwner(pE), m_pColliderSystem(nullptr) {}
 
 	virtual ~EntityComponent() = default;
 	virtual void Update([[maybe_unused]] float dt) { }
 
 	// System
-	inline void SetSystem(System* pS) { m_pSystem = pS; }
+	inline void SetSystem(System* pS) { m_pColliderSystem = pS; }
 	
 	[[nodiscard]] constexpr auto GetOwner() const noexcept -> Entity* { return m_pOwner; }
-	[[nodiscard]] constexpr auto GetSystem() const noexcept -> System* { return m_pSystem; }
+	[[nodiscard]] constexpr auto GetSystem() const noexcept -> System* { return m_pColliderSystem; }
 
 protected:
 	Entity* m_pOwner;
-	System* m_pSystem;
+	System* m_pColliderSystem;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -484,8 +484,12 @@ public:
 	[[nodiscard]] constexpr auto GetId() const noexcept -> uint32_t { return m_ID; }
 	[[nodiscard]] constexpr auto GetWorld() const noexcept -> World* { return m_pWorld; }
 
+	constexpr auto SetTag(uint32_t tag) noexcept { m_Tag = tag; }
+	[[nodiscard]] constexpr auto GetTag() const noexcept -> uint32_t { return m_Tag; }
+
 private:
 	const uint32_t m_ID;
+	uint32_t m_Tag;
 	World* m_pWorld;
 	std::unordered_map<std::type_index, EntityComponent*> m_EntityComponents;
 };

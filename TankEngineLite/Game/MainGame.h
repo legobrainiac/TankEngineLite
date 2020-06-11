@@ -33,8 +33,10 @@ private:
 	CameraComponent* m_pCamera;
 	TransformComponent* m_pCameraTransform;
 	XMFLOAT3 m_IntendedPosition;
-	bool m_IsDocked = true;
-	bool m_Animating = false;
+	float m_CurrentScale = 0.f;
+	float m_IntendedScale;
+	bool m_IsDocked = false;
+	bool m_Playing = false;
 
 	// Keep track of players for connect/disconnect
 	ECS::Entity* m_pPlayers[4];

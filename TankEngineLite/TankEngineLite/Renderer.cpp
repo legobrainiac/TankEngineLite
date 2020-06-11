@@ -45,7 +45,7 @@ bool Renderer::Init(SDL_Window* pWin, int xw, int yh, bool vSync)
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	[[maybe_unused]] ImGuiIO& io = ImGui::GetIO();
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
