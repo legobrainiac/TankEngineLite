@@ -84,7 +84,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		pTransform->Translate({ 0.f, -5.f, 0.f });
 		m_pCameraTransform = pTransform;
 		m_pCamera = pCameraComponent;
-		m_IntendedPosition = { 0.f, -5.f, 22.5f };
+		m_IntendedPosition = { 0.f, -5.f, 20.f };
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,8 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		auto pWorldModel = m_pWorld->CreateEntity();
 		auto [pModelRenderer, pTransform] = pWorldModel->PushComponents<ModelRenderComponent, TransformComponent>();
 		pModelRenderer->Initialize(pModel, pTexture);
-		pTransform->Rotate(XM_PI, XM_PIDIV2, 0.f);
+		pTransform->Rotate(0.f, XM_PIDIV2, 0.f);
+		pTransform->scale = { 0.05f, 0.05f, 0.05f };
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -138,7 +139,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 			}));
 
 	InputManager::GetInstance()->RegisterActionMappin(
-		ActionMapping(SDL_SCANCODE_C, ActionType::PRESSED,
+		ActionMapping(SDL_SCANCODE_RETURN, ActionType::PRESSED,
 			[this]()
 			{
 				m_Playing = true;

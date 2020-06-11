@@ -118,28 +118,6 @@ public:
 
 	void Update([[maybe_unused]] float dt) override
 	{
-		auto pInput = InputManager::GetInstance();
-
-		dt *= 10.f;
-
-		if (pInput->IsKeyDown(SDL_SCANCODE_W))
-			m_pEntityTransform->Translate({0.f, 0.f, -1.f * dt});
-
-		if (pInput->IsKeyDown(SDL_SCANCODE_S))
-			m_pEntityTransform->Translate({0.f, 0.f, 1.f * dt});
-
-		if (pInput->IsKeyDown(SDL_SCANCODE_A))
-			m_pEntityTransform->Translate({1.f * dt, 0.f, 0.f}); 
-
-		if (pInput->IsKeyDown(SDL_SCANCODE_D))
-			m_pEntityTransform->Translate({-1.f * dt, 0.f, 0.f}); 
-
-		if (pInput->IsKeyDown(SDL_SCANCODE_E))
-			m_pEntityTransform->Translate({0.f, -1.f * dt, 0.f}); 
-
-		if (pInput->IsKeyDown(SDL_SCANCODE_Q))
-			m_pEntityTransform->Translate({0.f, 1.f * dt, 0.f}); 
-
 		GenerateViewMatrix();
 	}
 
