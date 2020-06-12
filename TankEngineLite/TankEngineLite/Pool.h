@@ -71,7 +71,7 @@ public:
 		if (m_ActiveCount + 1 > S)
 		{
 #ifndef POOL_NO_THROW
-			throw std::exception("Pool is full!");
+ 			throw std::exception("Pool is full!");
 #else
 			return nullptr;
 #endif

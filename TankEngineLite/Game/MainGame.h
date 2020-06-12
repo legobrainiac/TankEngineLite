@@ -20,17 +20,19 @@ public:
 	void Render(Renderer* pRenderer) override;
 	void Shutdown() override;
 
+	static bool IsRunning;
+	static BBLevel* pCurrentLevel;
+
 private:
 	void CameraTransitions(float dt);
 
 	ECS::World* m_pWorld;
-	BBLevel* m_pCurrentLevel;
+	
 	SpriteBatch* m_pStatic_SB;
 	SpriteBatch* m_pDynamic_SB;
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Game camera
-	CameraComponent* m_pCamera;
 	TransformComponent* m_pCameraTransform;
 	XMFLOAT3 m_IntendedPosition;
 	float m_CurrentScale = 0.f;
@@ -39,7 +41,7 @@ private:
 	bool m_Playing = false;
 
 	// Keep track of players for connect/disconnect
-	ECS::Entity* m_pPlayers[4];
+	ECS::Entity* m_pPlayers[4]{ nullptr, nullptr, nullptr, nullptr };
 };
 
 #endif // !MAIN_GAME_H

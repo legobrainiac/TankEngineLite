@@ -1,12 +1,12 @@
-#include "pch.h"
+#include <vld.h>
 
+#include "pch.h"
 #include "Tel.h"
 
 #include "MainGame.h"
 #include "CTCPUGame.h"
 #include "EditorGame.h"
 
-#include <vld.h>
 #include <D3D.h>
 
 int main(int, char* [])

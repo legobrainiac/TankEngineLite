@@ -1,4 +1,5 @@
 #include "ColliderComponent.h"
+#include "MainGame.h"
 #include "BBLevel.h"
 
 void ColliderComponent::Update(float dt)
@@ -11,7 +12,7 @@ void ColliderComponent::Update(float dt)
 	m_pTransform->position.x += m_Movement.x * dt;
 	m_pTransform->position.x += m_Acceleration.x * dt;
 
-	if (m_pLevel->IsOverlapping(
+	if (MainGame::pCurrentLevel->IsOverlapping(
 		{ m_pTransform->position.x, m_pTransform->position.y },
 		{ m_pTransform->position.x + m_Size.x, m_pTransform->position.y + m_Size.y }
 	))
@@ -27,7 +28,7 @@ void ColliderComponent::Update(float dt)
 	float y = (m_Gravity.y * dt) + (m_Movement.y * dt) + (m_Acceleration.y * dt);
 	m_pTransform->position.y += y;
 
-	if (m_pLevel->IsOverlapping(
+	if (MainGame::pCurrentLevel->IsOverlapping(
 		{ m_pTransform->position.x, m_pTransform->position.y },
 		{ m_pTransform->position.x + m_Size.x, m_pTransform->position.y + m_Size.y }, 
 		&behaviour))
@@ -35,7 +36,7 @@ void ColliderComponent::Update(float dt)
 		if (behaviour == 2U)
 		{
 			// Jumping through a platform
-			if (!m_pLevel->IsOverlapping(
+			if (!MainGame::pCurrentLevel->IsOverlapping(
 				{ m_PreviousPosition.x, m_PreviousPosition.y },
 				{ m_PreviousPosition.x + m_Size.x, m_PreviousPosition.y + m_Size.y }))
 			{
@@ -70,6 +71,22 @@ void ColliderComponent::Update(float dt)
 	m_Acceleration.x = Utils::Lerp(m_Acceleration.x, 0.f, dt * 2.f);
 	m_Acceleration.y = Utils::Lerp(m_Acceleration.y, 0.f, dt * 2.f);
 	m_Movement = {};
+
+	//////////////////////////////////////////////////////////////////////////
+	// Clip world
+	if (m_pTransform->position.y > 900.f)
+	{
+		m_pTransform->position.y = -30.f;
+		m_Acceleration.x = 0.f;
+		m_IsGrounded = false;
+	}
+
+	if (m_pTransform->position.y < -32.f)
+	{
+		m_pTransform->position.y = 900.f;
+		m_Acceleration.x = 0.f;
+		m_IsGrounded = false;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Dynamic

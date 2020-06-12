@@ -100,6 +100,7 @@ public:
 
 	virtual ~EntityComponent() = default;
 	virtual void Update([[maybe_unused]] float dt) { }
+	virtual void OnMessage([[maybe_unused]] uint32_t message) {}
 
 	// System
 	inline void SetSystem(System* pS) { m_pColliderSystem = pS; }
@@ -486,6 +487,15 @@ public:
 
 	constexpr auto SetTag(uint32_t tag) noexcept { m_Tag = tag; }
 	[[nodiscard]] constexpr auto GetTag() const noexcept -> uint32_t { return m_Tag; }
+
+	void Message(uint32_t message) 
+	{ 
+		std::for_each(m_EntityComponents.begin(), m_EntityComponents.end(), 
+			[message](const std::pair<std::type_index, EntityComponent*>& pC)
+			{ 
+				pC.second->OnMessage(message); 
+			}); 
+	}
 
 private:
 	const uint32_t m_ID;

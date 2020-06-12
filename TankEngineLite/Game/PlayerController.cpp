@@ -1,4 +1,5 @@
 #include "PlayerController.h"
+#include "MainGame.h"
 #include "Prefabs.h"
 #include "Sound.h"
 
@@ -22,8 +23,10 @@ PlayerController::PlayerController(ECS::Entity* pE)
 
 void PlayerController::Update(float dt)
 {
-	if (!m_MeetsRequirements)
+	if (!m_MeetsRequirements || !MainGame::IsRunning)
 		return;
+
+	m_DamageTimer += dt;
 
 	// Simple movement code
 	const float movementSpeed = 500.f;
@@ -52,14 +55,14 @@ void PlayerController::Update(float dt)
 			float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
 
 			XMFLOAT2 accel{ cosf(angle) * 100.f, -abs(sin(angle)) * 50.f };
-			Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, accel, { 0.0f, 0.6f, 1.0f, 1.f }, 0.5f, 50.f);
+			Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, accel, { 0.0f, 1.f, .0f, 1.f }, 0.5f, 50.f);
 		}
 
 		// Actually jump
 		m_pCollider->AddAcceleration({ 0.f, -1750.f });
 		m_pCollider->SetIsGrounded(false);
 	}
-	
+
 	m_FacingRight = (movement.x >= 0.f);
 	m_pCollider->AddMovement(movement);
 
@@ -75,10 +78,9 @@ void PlayerController::Update(float dt)
 
 			Prefabs::CreateBubbleProjectile(
 				pWorld,
-				{ pos.x, pos.y },
+				{ pos.x + 32.f, pos.y + 32.f },
 				direction,
-				m_pRenderComponent->GetSpriteBatch(),
-				m_pCollider->GetLevel()
+				m_pRenderComponent->GetSpriteBatch()
 			);
 
 			m_Timer -= m_Timer;
@@ -140,5 +142,42 @@ void PlayerController::Update(float dt)
 			m_pRenderComponent->SetAtlasTransform(atlasTransform);
 			m_FacingRight = true;
 		}
+	}
+}
+
+void PlayerController::OnMessage(uint32_t message)
+{
+	// Take Damage
+	if (m_DamageTimer > 2.f && message == 0U)
+	{
+		--m_Health;
+		m_DamageTimer = 0.f;
+		LOGGER->Log<LOG_INFO>("TOOK DAMAGE");
+
+		if (m_Health <= 0U)
+			m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
+
+		auto pos = m_pTransform->position;
+		pos.x += 32.f;
+		pos.y += 32.f;
+
+		InputManager::GetInstance()->RumbleController(35000, 35000, 0.2f, m_PlayerController);
+		
+		for (uint32_t i = 0; i < 10; ++i)
+		{
+			float angle = (float)Utils::RandInterval(0, 360) * (float)M_PI / 180.f;
+			XMFLOAT2 accel{ cosf(angle) * 100.f, sin(angle) * 100.f };
+			Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { pos.x, pos.y }, accel, { 0.0f, 1.f, .0f, 1.f }, 0.5f, 50.f);
+		}
+	}
+
+	// Burst bubble gives you 100 points
+	if (message == 1U)
+	{
+		LOGGER->Log<LOG_INFO>("100 SCORE");
+		InputManager::GetInstance()->RumbleController(35000, 35000, 0.2f, m_PlayerController);
+		m_Score += 100;
+
+		// TODO(tomas): spawn hit marker for 100 score
 	}
 }

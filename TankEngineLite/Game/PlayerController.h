@@ -16,8 +16,9 @@ public:
 	PlayerController(ECS::Entity* pE);
 
 	void Update(float dt) override;
+	void OnMessage(uint32_t message) override;
 	inline void SetInputController(Player player) { m_PlayerController = player; }
-	
+
 private:
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
@@ -29,6 +30,10 @@ private:
 	// Timers
 	float m_Timer;
 	float m_SpriteTimer;
+	
+	int m_Health = 4;
+	int m_Score = 0;
+	float m_DamageTimer;
 
 	int m_SpriteIndex;
 	bool m_FacingRight;

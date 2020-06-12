@@ -37,14 +37,7 @@ ProjectileComponent::ProjectileComponent(ECS::Entity* pE)
 	m_pCollider = pE->GetComponent<ColliderComponent>();
 
 	if (m_pTransform != nullptr && m_pCollider != nullptr)
-	{
-		m_pCollider->SetOnCollisionCB_X([this]() 
-			{
-				m_Direction.x *= -1.f;
-			});
-
 		m_MeetsRequirements = true;
-	}
 }
 
 void ProjectileComponent::Update([[maybe_unused]] float dt)
@@ -134,7 +127,7 @@ void Particle::Update(float dt)
 	m_Colour.x = abs(sinf(m_Timer * 3.f));
 
 	float scale = m_Scale - ((m_Scale / m_Life) * m_Timer);
-	m_pSpriteBatch->PushSprite({ 8, 128, 12, 132 }, { m_Pos.x, m_Pos.y, 0 }, 0, { scale, scale }, { 0.5f, 0.5f }, m_Colour);
+	m_pSpriteBatch->PushSprite({ 8, 128 - 16, 12, 132 - 16 }, { m_Pos.x, m_Pos.y, 0 }, 0, { scale, scale }, { 0.5f, 0.5f }, m_Colour);
 }
 
 void Particle::Initialize(SpriteBatch* pSpriteBatch, XMFLOAT2 pos, XMFLOAT2 startAcceleration, float scale, XMFLOAT4 colour, float life, float gravity)

@@ -167,6 +167,7 @@
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="Prefabs.cpp" />
+    <ClCompile Include="ZenChanController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicComponents.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="Prefabs.h" />
+    <ClInclude Include="ZenChanController.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -34,19 +34,18 @@ public:
 		m_Acceleration.y += acc.y;
 	}
 
-	constexpr void SetGravity(XMFLOAT2 g) noexcept { m_Gravity = g; }
+	constexpr void SetFixedMovement(XMFLOAT2 g) noexcept { m_Gravity = g; }
 	[[nodiscard]] constexpr auto GetGravity() const noexcept -> XMFLOAT2 { return m_Gravity; }
 
-	constexpr void SetLevel(BBLevel* pLevel) noexcept { m_pLevel = pLevel; }
-	[[nodiscard]] constexpr auto GetLevel() const noexcept -> BBLevel* { return m_pLevel; }
-	
+	constexpr void SetSize(XMFLOAT2 s) noexcept { m_Size = s; }
+	[[nodiscard]] constexpr auto GetSize() const noexcept -> XMFLOAT2 { return m_Size; }
+
 	constexpr void SetIsGrounded(bool val) noexcept { m_IsGrounded = val; }
 	[[nodiscard]] constexpr auto IsGrounded() const noexcept -> bool { return m_IsGrounded; }
 
 	constexpr void SetCollideDynamic(bool val) noexcept { m_CollidesDynamic = val; }
 	[[nodiscard]] constexpr auto GetCollidesDynamic() const noexcept -> bool { return m_CollidesDynamic; }
 	[[nodiscard]] constexpr auto GetTransform() const noexcept -> TransformComponent2D* { return m_pTransform; }
-	[[nodiscard]] constexpr auto GetSize() const noexcept -> XMFLOAT2 { return m_Size; }
 
 	void SetOnCollisionCB_X(std::function<void()> cb) { m_OnCollisionXCallback = cb; }
 	void SetOnCollisionCB_Y(std::function<void()> cb) { m_OnCollisionYCallback = cb; }
@@ -69,7 +68,6 @@ private:
 	XMFLOAT2 m_Size{ 60.f, 64.f };
 	XMFLOAT2 m_Gravity{ 0.f, 781.f };
 	XMFLOAT3 m_PreviousPosition;
-	BBLevel* m_pLevel;
 
 	bool m_MeetsRequirements;
 };

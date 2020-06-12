@@ -13,6 +13,7 @@
 
 #include "ColliderComponent.h"
 #include "PlayerController.h"
+#include "ZenChanController.h"
 
 #include "BBLevel.h"
 
@@ -20,6 +21,9 @@
 #define SMALL	256
 #define MED		1024
 #define BIG		4096
+
+bool MainGame::IsRunning = false;
+BBLevel* MainGame::pCurrentLevel = nullptr;
 
 void MainGame::Initialize()
 {
@@ -29,17 +33,18 @@ void MainGame::Initialize()
 	m_pWorld = Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		WorldSystem<TransformComponent2D, SMALL, 0, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<SpriteRenderComponent, SMALL, 1, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<LifeSpan, SMALL, 2, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ProjectileComponent, SMALL, 3, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ColliderComponent, SMALL, 4, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<PlayerController, TINY, 5, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ParticleEmitter, TINY, 6, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<Particle, MED, 7, ExecutionStyle::ASYNCHRONOUS>,
-		WorldSystem<TransformComponent, TINY, 8, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<CameraComponent, TINY, 9, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ModelRenderComponent, TINY, 10, ExecutionStyle::SYNCHRONOUS>
+		WorldSystem<TransformComponent2D,	SMALL,	0, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<SpriteRenderComponent,	SMALL,	1, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<LifeSpan,				SMALL,	2, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ProjectileComponent,	SMALL,	3, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ColliderComponent,		SMALL,	4, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<PlayerController,		TINY,	5, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ParticleEmitter,		TINY,	6, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<Particle,				MED,	7, ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<TransformComponent,		TINY,	8, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<CameraComponent,		TINY,	9, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ModelRenderComponent,	TINY,	10, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ZenChanController,		TINY,	11, ExecutionStyle::ASYNCHRONOUS>
 	>();
 
 	// Initialize custom resource loaders
@@ -72,26 +77,20 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 	//////////////////////////////////////////////////////////////////////////
 	// Load level
-	m_pCurrentLevel = RESOURCES->Get<BBLevel>("tech");
-	m_pCurrentLevel->SetupBatch(m_pStatic_SB);
+	pCurrentLevel = RESOURCES->Get<BBLevel>("fire2");
+	pCurrentLevel->SetupBatch(m_pStatic_SB);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Create 3D camera
-	{
-		auto pCamera = m_pWorld->CreateEntity();
-		auto [pCameraComponent, pTransform] = pCamera->PushComponents<CameraComponent, TransformComponent>();
-		Renderer::GetInstance()->GetDirectX()->SetCamera(pCameraComponent);
-		pTransform->Translate({ 0.f, -5.f, 0.f });
-		m_pCameraTransform = pTransform;
-		m_pCamera = pCameraComponent;
-		m_IntendedPosition = { 0.f, -5.f, 20.f };
-	}
+	const auto pCamera = Prefabs::SpawnCamera(m_pWorld, { 0.f, -5.f, 20.f });
+	m_pCameraTransform = pCamera->GetComponent<TransformComponent>();
+	m_IntendedPosition = { 0.f, -5.f, 20.f };
 
 	//////////////////////////////////////////////////////////////////////////
 	// Create world model
 	{
-		[[maybe_unused]] auto pModel = RESOURCES->Get<Model>("arcade");
-		[[maybe_unused]] auto pTexture = RESOURCES->Get<Texture>("arcade_diffuse_pog");
+		const auto pModel = RESOURCES->Get<Model>("arcade");
+		const auto pTexture = RESOURCES->Get<Texture>("arcade_diffuse_pog");
 
 		auto pWorldModel = m_pWorld->CreateEntity();
 		auto [pModelRenderer, pTransform] = pWorldModel->PushComponents<ModelRenderComponent, TransformComponent>();
@@ -103,8 +102,8 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	//////////////////////////////////////////////////////////////////////////
 	// Create sky dome model
 	{
-		auto pModel = RESOURCES->Get<Model>("skydome");
-		auto pTexture = RESOURCES->Get<Texture>("skydome_diffuse");
+		const auto pModel = RESOURCES->Get<Model>("skydome");
+		const auto pTexture = RESOURCES->Get<Texture>("skydome_diffuse");
 
 		auto pWorldModel = m_pWorld->CreateEntity();
 		auto [pModelRenderer, pTransform] = pWorldModel->PushComponents<ModelRenderComponent, TransformComponent>();
@@ -114,23 +113,17 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// If a controller is connected, 
-	//  spawn a player for it
-	// If a controller is disconnected
-	//  destroy the corresponding player
+	// Player spawning
 	InputManager::GetInstance()->RegisterControllerConnectedCallback(
 		[this](uint32_t controller, ConnectionType connection)
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { float(rand() % 1000 + 300), 90 }, (Player)controller, m_pCurrentLevel);
-			else
-				m_pWorld->DestroyEntity(m_pPlayers[controller]->GetId());
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 69, 900 - 128 }, (Player)controller);
 		});
-
-	InputManager::GetInstance()->CheckControllerConnection();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Check for new controllers
+	InputManager::GetInstance()->CheckControllerConnection();
 	InputManager::GetInstance()->RegisterActionMappin(
 		ActionMapping(SDL_SCANCODE_T, ActionType::PRESSED,
 			[]()
@@ -138,12 +131,30 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 				InputManager::GetInstance()->CheckControllerConnection();
 			}));
 
+	//////////////////////////////////////////////////////////////////////////
+	// Start play
 	InputManager::GetInstance()->RegisterActionMappin(
 		ActionMapping(SDL_SCANCODE_RETURN, ActionType::PRESSED,
 			[this]()
 			{
 				m_Playing = true;
 			}));
+
+	//m_Playing = true;
+	
+	//////////////////////////////////////////////////////////////////////////
+	std::array<TransformComponent2D*, 4> playerTransforms{};
+
+	for (uint32_t i = 0U; i < 4U; ++i)
+	{
+		if (m_pPlayers[i])
+			playerTransforms[i] = m_pPlayers[i]->GetComponent<TransformComponent2D>();
+	}
+
+	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 400.f, 90.f,  0.1f });
+	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 200.f, 90.f,  0.1f });
+	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 300.f, 190.f,  0.1f });
+	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 500.f, 290.f,  0.1f });
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
@@ -184,7 +195,10 @@ void MainGame::CameraTransitions(float dt)
 		m_IntendedPosition = { 0.f, -5.f, 0.f };
 
 		if (timer > 3.f)
+		{
 			m_IntendedScale = 1.f;
+			MainGame::IsRunning = true;
+		}
 	}
 
 	float cameraInterpDT = dt;

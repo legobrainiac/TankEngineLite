@@ -45,6 +45,12 @@ void EditorGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager
 	if (ImGui::Button("Load map"))
 		LoadMap(path);
 
+	if (ImGui::Button("Clear last row"))
+	{
+		for (size_t i = m_Tiles.size() - 1; i > m_Tiles.size() - 30; --i)
+			m_Tiles[i].tileBehaviour = 1U;
+	}
+
 	ImGui::End();
 
 	//////////////////////////////////////////////////////////////////////////
