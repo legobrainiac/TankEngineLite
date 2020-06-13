@@ -20,6 +20,7 @@ public:
 	inline void SetInputController(Player player) { m_PlayerController = player; }
 
 	constexpr auto GetIsDead() const noexcept -> bool { return (int)m_StatE == 0; }
+	void Reset();
 
 private:
 	enum PlayerState
@@ -38,10 +39,14 @@ private:
 	XMFLOAT3 m_PreviousPosition;
 
 	FMOD::Sound* m_pShootingSound;
+	FMOD::Sound* m_pPickupSound;
+	FMOD::Sound* m_pDamage;
+	FMOD::Sound* m_pDeath;
 
 	// Timers
 	float m_Timer;
 	float m_SpriteTimer;
+	float m_ParticleTimer = 0.f;
 	
 	int m_Health = 4;
 	int m_Score = 0;

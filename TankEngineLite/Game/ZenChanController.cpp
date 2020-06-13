@@ -133,6 +133,9 @@ void ZenChanController::Update(float dt)
 
 void ZenChanController::OnMessage(uint32_t message)
 {
+	if (message == 128U)
+		m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
+
 	if (message == 0U && m_State == ZCStates::NORMAL)
 	{
 		m_State = ZCStates::IN_BUBBLE;
@@ -142,6 +145,7 @@ void ZenChanController::OnMessage(uint32_t message)
 			{
 				if (pE->GetTag() == 69U)
 				{
+					MainGame::aliveEnemyCount--;
 					pE->Message(1U);
 					m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
 

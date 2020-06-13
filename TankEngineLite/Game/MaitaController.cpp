@@ -37,7 +37,7 @@ void MaitaController::Update(float dt)
 	m_SpriteTimer += dt;
 	switch (m_State)
 	{
-	case ZCStates::NORMAL:
+	case MaitaStates::NORMAL:
 	{
 		tileMultiplier = 7;
 		m_pCollider->SetFixedMovement({ (m_FacingRight) ? m_MovingSpeed : -m_MovingSpeed, 781.f });
@@ -77,7 +77,7 @@ void MaitaController::Update(float dt)
 		}
 	}
 	break;
-	case ZCStates::IN_BUBBLE:
+	case MaitaStates::IN_BUBBLE:
 		tileMultiplier = 15;
 		m_FacingRight = true;
 		m_BubbleTimer += dt;
@@ -87,7 +87,7 @@ void MaitaController::Update(float dt)
 		if (m_BubbleTimer > 5.f)
 		{
 			m_BubbleTimer = 0;
-			m_State = ZCStates::NORMAL;
+			m_State = MaitaStates::NORMAL;
 
 			// Reset callback
 			m_pCollider->SetOnDynamicCollisionCB([](ECS::Entity* pE)
@@ -139,15 +139,19 @@ void MaitaController::Update(float dt)
 
 void MaitaController::OnMessage(uint32_t message)
 {
-	if (message == 0U && m_State == ZCStates::NORMAL)
+	if (message == 128U)
+		m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
+
+	if (message == 0U && m_State == MaitaStates::NORMAL)
 	{
-		m_State = ZCStates::IN_BUBBLE;
+		m_State = MaitaStates::IN_BUBBLE;
 		Prefabs::SpawnScore(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { m_pTransform->position.x, m_pTransform->position.y }, Prefabs::WATERMELON);
 
 		m_pCollider->SetOnDynamicCollisionCB([this](ECS::Entity* pE) 
 			{
 				if (pE->GetTag() == 69U)
 				{
+					MainGame::aliveEnemyCount--;
 					pE->Message(1U);
 					m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
 

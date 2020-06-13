@@ -16,6 +16,7 @@
 std::map<std::string_view, TypeResolver> ResourceManager::TypeResolvers
 {
 	std::pair(".fx", [](std::string path, std::string name) { RESOURCES->Load<Effect>(path, name); }),
+	std::pair(".mp3", [](std::string path, std::string name) { RESOURCES->Load<Sound>(path, name); }),
 	std::pair(".wav", [](std::string path, std::string name) { RESOURCES->Load<Sound>(path, name); }),
 	std::pair(".temd", [](std::string path, std::string name) { RESOURCES->Load<Model>(path, name); }),
 	std::pair(".jpg", [](std::string path, std::string name) { RESOURCES->Load<Texture>(path, name); }),

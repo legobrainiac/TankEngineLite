@@ -11,6 +11,9 @@
 #include "Profiler.h"
 #include "BinaryInterfaces.h"
 
+#include "Sound.h"
+#include "SoundManager.h"
+
 #include "MaitaController.h"
 #include "PlayerController.h"
 #include "ColliderComponent.h"
@@ -25,6 +28,8 @@
 
 bool MainGame::IsRunning = false;
 BBLevel* MainGame::pCurrentLevel = nullptr;
+int MainGame::aliveEnemyCount = 0;
+int MainGame::alivePlayerCount = 0;
 
 void MainGame::Initialize()
 {
@@ -34,19 +39,19 @@ void MainGame::Initialize()
 	m_pWorld = Universe::GetInstance()->PushWorld();
 
 	m_pWorld->PushSystems<
-		WorldSystem<TransformComponent2D,	SMALL,	0, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<SpriteRenderComponent,	SMALL,	1, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<LifeSpan,				SMALL,	2, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ProjectileComponent,	SMALL,	3, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ColliderComponent,		SMALL,	4, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<PlayerController,		TINY,	5, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ParticleEmitter,		TINY,	6, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<Particle,				MED,	7, ExecutionStyle::ASYNCHRONOUS>,
-		WorldSystem<TransformComponent,		TINY,	8, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<CameraComponent,		TINY,	9, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ModelRenderComponent,	TINY,	10, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ZenChanController,		TINY,	11, ExecutionStyle::ASYNCHRONOUS>,
-		WorldSystem<MaitaController,		TINY,	12, ExecutionStyle::ASYNCHRONOUS>
+		WorldSystem<TransformComponent2D, SMALL, 0, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<SpriteRenderComponent, SMALL, 1, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<LifeSpan, SMALL, 2, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ProjectileComponent, SMALL, 3, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ColliderComponent, SMALL, 4, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<PlayerController, TINY, 5, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ParticleEmitter, TINY, 6, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<Particle, MED, 7, ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<TransformComponent, TINY, 8, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<CameraComponent, TINY, 9, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ModelRenderComponent, TINY, 10, ExecutionStyle::SYNCHRONOUS>,
+		WorldSystem<ZenChanController, TINY, 11, ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<MaitaController, TINY, 12, ExecutionStyle::ASYNCHRONOUS>
 	>();
 
 	// Initialize custom resource loaders
@@ -79,8 +84,10 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 	//////////////////////////////////////////////////////////////////////////
 	// Load level
-	pCurrentLevel = RESOURCES->Get<BBLevel>("wiki");
-	pCurrentLevel->SetupBatch(m_pStatic_SB);
+	m_pOST = RESOURCES->Get<Sound>("mainTheme");
+	m_pChannel = SOUND->Play(m_pOST->GetSound());
+	m_pChannel->setPaused(true);
+	m_pChannel->setVolume(0.25f);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Create 3D camera
@@ -139,70 +146,76 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		ActionMapping(SDL_SCANCODE_RETURN, ActionType::PRESSED,
 			[this]()
 			{
-				m_Playing = true;
+				m_State = CAMERA_ZOOM;
 			}));
 
-	//m_Playing = true;
-	
-	//////////////////////////////////////////////////////////////////////////
-	std::array<TransformComponent2D*, 4> playerTransforms{};
-
-	for (uint32_t i = 0U; i < 4U; ++i)
-	{
-		if (m_pPlayers[i])
-			playerTransforms[i] = m_pPlayers[i]->GetComponent<TransformComponent2D>();
-	}
-
-	// Spawn enemies
-	for (int i = 0; i < 4; ++i)
-	{
-		int index = MainGame::pCurrentLevel->m_Footer.zenSpawns[i];
-
-		if (index == 0)
-			continue;
-
-		LOGGER->Log<LOG_INFO>(std::to_string(index));
-
-		XMFLOAT3 pos
-		{
-			(float)(index % MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileW * 2.f),
-			(float)((index - MainGame::pCurrentLevel->m_Header.mapW) / MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileH * 2.f),
-			0.1f
-		};
-
-		pos.y -= 34.f;
-		pos.x -= 30.f;
-
-		Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, pos);
-	}
-
-	for (int i = 0; i < 4; ++i)
-	{
-		int index = MainGame::pCurrentLevel->m_Footer.maitaSpawns[i];
-
-		if (index == 0)
-			continue;
-
-		LOGGER->Log<LOG_INFO>(std::to_string(index));
-
-		XMFLOAT3 pos
-		{
-			(float)(index % MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileW * 2.f),
-			(float)((index - MainGame::pCurrentLevel->m_Header.mapW) / MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileH * 2.f),
-			0.1f
-		};
-
-		pos.y -= 34.f;
-		pos.x -= 30.f;
-
-		Prefabs::CreateMaita(m_pWorld, m_pDynamic_SB, playerTransforms, pos);
- 	}
+	LoadLevel("fire2");
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)
 {
+	switch (m_State)
+	{
+	case MENU:
+
+		break;
+	case START_GAME:
+		m_State = PLAYING;
+		break;
+	case CAMERA_ZOOM:
+		CameraTransitions(dt);
+		break;
+	case END_DEAD:
+		m_Timer += dt;
+
+		if (m_Timer > 10.f)
+		{
+			m_Timer = 0;
+			m_State = PLAYING;
+
+			m_pWorld->MessageAll(128U);
+
+			m_MapIndex = 0;
+			LoadLevel(m_Maps[m_MapIndex]);
+			m_State = PLAYING;
+		}
+		break;
+	case END_NEXT:
+		m_Timer += dt;
+
+		if (m_Timer > 5.f)
+		{
+			m_Timer = 0;
+			m_State = LOAD_NEXT_LEVEL;
+		}
+		break;
+	case LOAD_NEXT_LEVEL:
+		m_MapIndex++;
+		if (m_MapIndex > 2)
+			m_MapIndex = 0;
+
+		LoadLevel(m_Maps[m_MapIndex]);
+		m_State = PLAYING;
+		break;
+	case PLAYING:
+		LOGGER->Log<LOG_INFO>(std::to_string(MainGame::aliveEnemyCount));
+
+		if (MainGame::aliveEnemyCount == 0)
+			m_State = END_NEXT;
+
+		if (MainGame::alivePlayerCount == 0)
+			m_State = END_DEAD;
+		break;
+	case DEAD:
+
+		break;
+	}
+
+	m_CurrentScale = Utils::Lerp(m_CurrentScale, m_IntendedScale, dt * 4);
+	m_pDynamic_SB->SetScale(m_CurrentScale);
+	m_pStatic_SB->SetScale(m_CurrentScale);
+
 	PROFILE(SESSION_UPDATE_ECS, ECS::Universe::GetInstance()->Update(dt));
-	CameraTransitions(dt);
 }
 
 void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
@@ -227,20 +240,92 @@ void MainGame::Shutdown()
 	Memory::Delete(m_pStatic_SB);
 }
 
+void MainGame::LoadLevel(const std::string& level)
+{
+	MainGame::aliveEnemyCount = 0;
+	MainGame::alivePlayerCount = 0;
+
+	pCurrentLevel = RESOURCES->Get<BBLevel>(level);
+	pCurrentLevel->SetupBatch(m_pStatic_SB);
+
+	//////////////////////////////////////////////////////////////////////////
+	std::array<TransformComponent2D*, 4> playerTransforms{};
+
+	for (uint32_t i = 0U; i < 4U; ++i)
+	{
+		if (m_pPlayers[i])
+			playerTransforms[i] = m_pPlayers[i]->GetComponent<TransformComponent2D>();
+	}
+
+	// Spawn enemies
+	for (int i = 0; i < 4; ++i)
+	{
+		int index = MainGame::pCurrentLevel->m_Footer.zenSpawns[i];
+
+		if (index == 0)
+			continue;
+
+		MainGame::aliveEnemyCount++;
+
+		XMFLOAT3 pos
+		{
+			(float)(index % MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileW * 2.f),
+			(float)((index - MainGame::pCurrentLevel->m_Header.mapW) / MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileH * 2.f),
+			0.1f
+		};
+
+		pos.y -= 34.f;
+		pos.x -= 30.f;
+
+		Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, pos);
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		int index = MainGame::pCurrentLevel->m_Footer.maitaSpawns[i];
+
+		if (index == 0)
+			continue;
+
+		MainGame::aliveEnemyCount++;
+
+		XMFLOAT3 pos
+		{
+			(float)(index % MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileW * 2.f),
+			(float)((index - MainGame::pCurrentLevel->m_Header.mapW) / MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileH * 2.f),
+			0.1f
+		};
+
+		pos.y -= 34.f;
+		pos.x -= 30.f;
+
+		Prefabs::CreateMaita(m_pWorld, m_pDynamic_SB, playerTransforms, pos);
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		if (m_pPlayers[i])
+		{
+			m_pPlayers[i]->GetComponent<TransformComponent2D>()->position = { 84, 900 - 144, 0.f };
+			m_pPlayers[i]->GetComponent<PlayerController>()->Reset();
+			MainGame::alivePlayerCount++;
+		}
+	}
+}
+
 void MainGame::CameraTransitions(float dt)
 {
 	static float timer = 0.f;
 
-	if (m_Playing)
-	{
-		timer += dt;
-		m_IntendedPosition = { 0.f, -5.f, 0.f };
+	timer += dt;
+	m_IntendedPosition = { 0.f, -5.f, 0.f };
 
-		if (timer > 3.f)
-		{
-			m_IntendedScale = 1.f;
-			MainGame::IsRunning = true;
-		}
+	if (timer > 3.f)
+	{
+		m_IntendedScale = 1.f;
+		MainGame::IsRunning = true;
+		m_State = PLAYING;
+		m_pChannel->setPaused(false);
 	}
 
 	float cameraInterpDT = dt;

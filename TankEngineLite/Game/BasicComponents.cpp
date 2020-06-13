@@ -1,6 +1,10 @@
 #include "pch.h"
 #include "BasicComponents.h"
 
+#include "InputManager.h"
+#include "SoundManager.h"
+#include "ResourceManager.h"
+
 #include "Prefabs.h"
 
 #include "BBLevel.h"

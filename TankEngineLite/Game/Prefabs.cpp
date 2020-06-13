@@ -10,6 +10,7 @@
 #include "Renderer.h"
 #include "MainGame.h"
 #include "BBLevel.h"
+#include "Sound.h"
 
 ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2& position, const XMFLOAT2& direction, SpriteBatch* pSpriteBatch)
 {
@@ -30,12 +31,16 @@ ECS::Entity* Prefabs::CreateBubbleProjectile(ECS::World* pWorld, const XMFLOAT2&
 
 	pCollider->SetFixedMovement({ 0.f, 0.f });
 	pCollider->SetSize({ 16.f, 16.f });
-	pCollider->SetOnDynamicCollisionCB([pEntity, pWorld]([[maybe_unused]] ECS::Entity* pOther)
+
+	FMOD::Sound* pBubbleSound = RESOURCES->Get<Sound>("bubble")->GetSound();
+
+	pCollider->SetOnDynamicCollisionCB([pEntity, pWorld, pBubbleSound]([[maybe_unused]] ECS::Entity* pOther)
 		{
 			if (pOther->GetTag() == 32U)
 			{
 				pOther->Message(0U);
 				pWorld->AsyncDestroyEntity(pEntity->GetId());
+				SOUND->Play(pBubbleSound);
 			}
 		});
 

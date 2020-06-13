@@ -1,11 +1,7 @@
 #ifndef BASIC_COMPONENTS
 #define BASIC_COMPONENTS
 
-#include <D3D.h>
 #include "CoreComponents.h"
-#include "InputManager.h"
-#include "SoundManager.h"
-#include "ResourceManager.h"
 
 class BBLevel;
 class SpriteBatch;

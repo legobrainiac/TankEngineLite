@@ -1,4 +1,7 @@
 #include "Texture.h"
+
+#include "D3D.h"
+#include "ResourceManager.h"
 #include "SDL_image.h"
 #include "Renderer.h"
 

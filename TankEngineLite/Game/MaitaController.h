@@ -18,11 +18,11 @@ public:
 	void SetPlayers(const std::array<TransformComponent2D*, 4>& playerTransforms) noexcept { m_Players = playerTransforms; }
 
 private:
-	enum ZCStates
+	enum MaitaStates
 	{
 		NORMAL,
 		IN_BUBBLE
-	}m_State = ZCStates::NORMAL;
+	}m_State = MaitaStates::NORMAL;
 	float m_BubbleTimer = 0.f;
 
 	TransformComponent2D* m_pTransform;

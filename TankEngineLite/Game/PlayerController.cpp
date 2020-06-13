@@ -19,6 +19,9 @@ PlayerController::PlayerController(ECS::Entity* pE)
 
 	// Load sound
 	m_pShootingSound = RESOURCES->Get<Sound>("blep")->GetSound();
+	m_pPickupSound = RESOURCES->Get<Sound>("pickupDrop")->GetSound();
+	m_pDamage = RESOURCES->Get<Sound>("damage")->GetSound();
+	m_pDeath = RESOURCES->Get<Sound>("death")->GetSound();
 }
 
 void PlayerController::Update(float dt)
@@ -35,9 +38,6 @@ void PlayerController::Update(float dt)
 		DeadUpdate(dt);
 		break;
 	}
-
-
-	LOGGER->Log<LOG_INFO>(std::to_string(m_pTransform->position.y));
 }
 
 void PlayerController::OnMessage(uint32_t message)
@@ -47,10 +47,15 @@ void PlayerController::OnMessage(uint32_t message)
 	{
 		--m_Health;
 		m_DamageTimer = 0.f;
-		LOGGER->Log<LOG_INFO>("TOOK DAMAGE");
+		
+		SOUND->Play(m_pDamage);
 
 		if (m_Health <= 0U)
+		{
 			m_StatE = PlayerState::DEAD;
+			SOUND->Play(m_pDeath);
+			--MainGame::alivePlayerCount;
+		}
 
 		auto pos = m_pTransform->position;
 		pos.x += 32.f;
@@ -67,7 +72,7 @@ void PlayerController::OnMessage(uint32_t message)
 		InputManager::GetInstance()->RumbleController(35000, 35000, 0.2f, m_PlayerController);
 		m_Score += 100;
 		ParticleSphere();
-		// TODO(tomas): spawn hit marker for 100 score
+		SOUND->Play(m_pPickupSound);
 	}
 
 	// Pizza
@@ -77,8 +82,17 @@ void PlayerController::OnMessage(uint32_t message)
 		InputManager::GetInstance()->RumbleController(35000, 35000, 0.2f, m_PlayerController);
 		m_Score += 200;
 		ParticleSphere();
-		// TODO(tomas): spawn hit marker for 100 score
+		SOUND->Play(m_pPickupSound);
 	}
+}
+
+void PlayerController::Reset()
+{
+	m_Health = 4;
+	m_Score = 0;
+	m_StatE = PlayerState::PLAYING;
+	m_Timer = 0;
+	m_DamageTimer = 0;
 }
 
 void PlayerController::AliveUpdate(float dt)
@@ -111,11 +125,13 @@ void PlayerController::AliveUpdate(float dt)
 		pInputMananager->IsKeyDown(lookupTableRight[m_PlayerController]))
 		movement.x += movementSpeed; 
 
+	m_ParticleTimer += dt;
 	if ((pInputMananager->IsPressed(ControllerButton::A, m_PlayerController) || 
 		pInputMananager->IsKeyDown(lookupTableJump[m_PlayerController])) && 
-		m_pCollider->IsGrounded())
+		m_pCollider->IsGrounded() && m_ParticleTimer > 0.1f)
 	{
-		
+		m_ParticleTimer = 0.f;
+
 		// Spawn particles for jumping
 		const XMFLOAT2 pos = { m_pTransform->position.x + 32.f, m_pTransform->position.y + 64.f };
 		for (uint32_t i = 0; i < 10; ++i)
@@ -161,8 +177,7 @@ void PlayerController::AliveUpdate(float dt)
 			else
 				InputManager::GetInstance()->RumbleController(35000, 0, 0.1f, m_PlayerController);
 
-			const auto sound = SOUND->Play(m_pShootingSound);
-			sound->setVolume(0.5f);
+			SOUND->Play(m_pShootingSound);
 		}
 	}
 

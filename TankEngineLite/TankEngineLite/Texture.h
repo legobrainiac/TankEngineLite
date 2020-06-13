@@ -1,10 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <DirectXMath.h>
 #include <d3d11.h>
 #include <string>
 
-#include "D3D.h"
 #include "ResourceManager.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -49,13 +49,13 @@ public:
 	// Access:    public 
 	// Returns:   const DirectX::XMFLOAT2&
 	// Qualifier: const noexcept
-	[[nodiscard]] constexpr XMFLOAT2 GetTextureSize() const noexcept { return m_Size; }
+	[[nodiscard]] constexpr DirectX::XMFLOAT2 GetTextureSize() const noexcept { return m_Size; }
 
 private:
 	ID3D11Texture2D* m_pTexture;
 	ID3D11ShaderResourceView* m_pTextureView;
 
-	XMFLOAT2 m_Size;
+	DirectX::XMFLOAT2 m_Size;
 };
 
 #endif // !TEXTURE_H

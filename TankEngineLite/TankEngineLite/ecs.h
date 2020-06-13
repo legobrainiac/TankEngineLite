@@ -204,6 +204,8 @@ public:
 	~World();
 
 	[[nodiscard]] Entity* CreateEntity();
+	inline void MessageAll(uint32_t message);
+
 	void AsyncCreateEntity(std::function<void(Entity*)> initializer)
 	{
 		// TODO(tomas): not thread safe
@@ -216,6 +218,7 @@ public:
 		// TODO(tomas): not thread safe
 		m_AsyncDestroyBuffer.push_back(id);
 	}
+
 
 	//////////////////////////////////////
 	// Push Systems impl
@@ -525,6 +528,12 @@ inline void World::DestroyEntity(uint32_t id)
 		Memory::Delete(pEntity.second);
 		m_pEntities.erase(entityIt);
 	}
+}
+
+void World::MessageAll(uint32_t message)
+{
+	for (auto pe : m_pEntities)
+		pe.second->Message(message);
 }
 
 //////////////////////////////////////////////////////////////////////////
