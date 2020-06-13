@@ -27,9 +27,14 @@ public:
 private:	
 	SpriteBatch* m_pSB;
 	
+	static int maitaSpawns[4];
+	static int zenChanSpawns[4];
+
 	MapHeader m_Header;
 	MapFooter m_Footer;
 	std::vector<Tile> m_Tiles {};
+
+	int m_SelectedIndex = 0;
 };
 
 #endif // !EDITOR_GAME_H

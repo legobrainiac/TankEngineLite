@@ -45,6 +45,9 @@
     <ClCompile Include="ZenChanController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MaitaController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainGame.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ZenChanController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MaitaController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

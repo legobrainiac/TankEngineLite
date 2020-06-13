@@ -49,7 +49,12 @@ public:
 
 	void SetOnCollisionCB_X(std::function<void()> cb) { m_OnCollisionXCallback = cb; }
 	void SetOnCollisionCB_Y(std::function<void()> cb) { m_OnCollisionYCallback = cb; }
-	void SetOnDynamicCollisionCB(std::function<void(ECS::Entity*)> cb) { m_OnDynamicCollisionCallback = cb; m_CollidesDynamic = true; }
+	void SetOnDynamicCollisionCB(std::function<void(ECS::Entity*)> cb, float m_Delay = 0.f) 
+	{ 
+		m_OnDynamicCollisionCallback = cb; 
+		m_DynamicCallbackDelay = m_Delay; 
+		m_CollidesDynamic = true; 
+	}
 
 	void Update(float dt);
 
@@ -58,6 +63,8 @@ private:
 	std::function<void()> m_OnCollisionYCallback{ []() {} };
 	std::function<void(ECS::Entity*)> m_OnDynamicCollisionCallback{ [](ECS::Entity*) {} };
 
+	float m_DynamicCallbackDelay = 0.f;
+	float m_DynamicCallbackTimer = 0.f;
 	TransformComponent2D* m_pTransform;
 	ECS::System* m_pColliderSystem;
 	XMFLOAT2 m_Movement;

@@ -11,8 +11,9 @@
 #include "Profiler.h"
 #include "BinaryInterfaces.h"
 
-#include "ColliderComponent.h"
+#include "MaitaController.h"
 #include "PlayerController.h"
+#include "ColliderComponent.h"
 #include "ZenChanController.h"
 
 #include "BBLevel.h"
@@ -44,7 +45,8 @@ void MainGame::Initialize()
 		WorldSystem<TransformComponent,		TINY,	8, ExecutionStyle::SYNCHRONOUS>,
 		WorldSystem<CameraComponent,		TINY,	9, ExecutionStyle::SYNCHRONOUS>,
 		WorldSystem<ModelRenderComponent,	TINY,	10, ExecutionStyle::SYNCHRONOUS>,
-		WorldSystem<ZenChanController,		TINY,	11, ExecutionStyle::ASYNCHRONOUS>
+		WorldSystem<ZenChanController,		TINY,	11, ExecutionStyle::ASYNCHRONOUS>,
+		WorldSystem<MaitaController,		TINY,	12, ExecutionStyle::ASYNCHRONOUS>
 	>();
 
 	// Initialize custom resource loaders
@@ -77,7 +79,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 
 	//////////////////////////////////////////////////////////////////////////
 	// Load level
-	pCurrentLevel = RESOURCES->Get<BBLevel>("fire2");
+	pCurrentLevel = RESOURCES->Get<BBLevel>("wiki");
 	pCurrentLevel->SetupBatch(m_pStatic_SB);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -118,7 +120,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		[this](uint32_t controller, ConnectionType connection)
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 69, 900 - 128 }, (Player)controller);
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 69, 900 - 144 }, (Player)controller);
 		});
 
 	//////////////////////////////////////////////////////////////////////////
@@ -151,10 +153,50 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 			playerTransforms[i] = m_pPlayers[i]->GetComponent<TransformComponent2D>();
 	}
 
-	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 400.f, 90.f,  0.1f });
-	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 200.f, 90.f,  0.1f });
-	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 300.f, 190.f,  0.1f });
-	Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, { 500.f, 290.f,  0.1f });
+	// Spawn enemies
+	for (int i = 0; i < 4; ++i)
+	{
+		int index = MainGame::pCurrentLevel->m_Footer.zenSpawns[i];
+
+		if (index == 0)
+			continue;
+
+		LOGGER->Log<LOG_INFO>(std::to_string(index));
+
+		XMFLOAT3 pos
+		{
+			(float)(index % MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileW * 2.f),
+			(float)((index - MainGame::pCurrentLevel->m_Header.mapW) / MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileH * 2.f),
+			0.1f
+		};
+
+		pos.y -= 34.f;
+		pos.x -= 30.f;
+
+		Prefabs::CreateZenChan(m_pWorld, m_pDynamic_SB, playerTransforms, pos);
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		int index = MainGame::pCurrentLevel->m_Footer.maitaSpawns[i];
+
+		if (index == 0)
+			continue;
+
+		LOGGER->Log<LOG_INFO>(std::to_string(index));
+
+		XMFLOAT3 pos
+		{
+			(float)(index % MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileW * 2.f),
+			(float)((index - MainGame::pCurrentLevel->m_Header.mapW) / MainGame::pCurrentLevel->m_Header.mapW) * (MainGame::pCurrentLevel->m_Header.tileH * 2.f),
+			0.1f
+		};
+
+		pos.y -= 34.f;
+		pos.x -= 30.f;
+
+		Prefabs::CreateMaita(m_pWorld, m_pDynamic_SB, playerTransforms, pos);
+ 	}
 }
 
 void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* pInputManager)

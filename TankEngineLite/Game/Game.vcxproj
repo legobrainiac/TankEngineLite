@@ -165,6 +165,7 @@
     <ClCompile Include="EditorGame.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainGame.cpp" />
+    <ClCompile Include="MaitaController.cpp" />
     <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="Prefabs.cpp" />
     <ClCompile Include="ZenChanController.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="CTCPUGame.h" />
     <ClInclude Include="EditorGame.h" />
     <ClInclude Include="MainGame.h" />
+    <ClInclude Include="MaitaController.h" />
     <ClInclude Include="PlayerController.h" />
     <ClInclude Include="Prefabs.h" />
     <ClInclude Include="ZenChanController.h" />

@@ -10,7 +10,7 @@
 void SpriteRenderComponent::Render() const
 {
 	// Only render if all dependencies are available
-	if (!m_MeetsRequirements)
+	if (!m_MeetsRequirements || !m_Enabled)
 		return;
 
 	// If using a custom render callback, use that one instead of the normal one

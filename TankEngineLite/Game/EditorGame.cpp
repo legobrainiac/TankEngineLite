@@ -3,6 +3,9 @@
 
 #define SCALE 2
 
+int EditorGame::maitaSpawns[4] = {};
+int EditorGame::zenChanSpawns[4] = {};
+
 void EditorGame::Initialize()
 {
 
@@ -32,8 +35,8 @@ void EditorGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager
 	float yt = (float)(tile / 16) * m_Header.tileH;
 
 	ImGui::Image(
-		(void*)m_pSB->GetTextureView(), 
-		ImVec2(64, 64), 
+		(void*)m_pSB->GetTextureView(),
+		ImVec2(64, 64),
 		ImVec2(xt / 256.f, yt / 256.f),
 		ImVec2(xt / 256.f + (1.f / 16.f), yt / 256.f + (1.f / 16.f))
 	);
@@ -50,6 +53,29 @@ void EditorGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager
 		for (size_t i = m_Tiles.size() - 1; i > m_Tiles.size() - 30; --i)
 			m_Tiles[i].tileBehaviour = 1U;
 	}
+
+	ImGui::Text("Selected index: ");
+	ImGui::SameLine();
+	ImGui::Text(std::to_string(m_SelectedIndex).c_str());
+
+	maitaSpawns[0] = m_Footer.maitaSpawns[0];
+	maitaSpawns[1] = m_Footer.maitaSpawns[1];
+	maitaSpawns[2] = m_Footer.maitaSpawns[2];
+	maitaSpawns[3] = m_Footer.maitaSpawns[3];
+
+	zenChanSpawns[0] = m_Footer.zenSpawns[0];
+	zenChanSpawns[1] = m_Footer.zenSpawns[1];
+	zenChanSpawns[2] = m_Footer.zenSpawns[2];
+	zenChanSpawns[3] = m_Footer.zenSpawns[3];
+
+	ImGui::InputInt4("Maita Spawns", maitaSpawns);
+	ImGui::InputInt4("Zen Chan Spawns", zenChanSpawns); 
+
+	for (int i = 0; i < 4; ++i)
+		m_Footer.maitaSpawns[i] = (uint16_t)std::clamp(maitaSpawns[i], 0, 900);
+
+	for (int i = 0; i < 4; ++i)
+		m_Footer.zenSpawns[i] = (uint16_t)std::clamp(zenChanSpawns[i], 0, 900);
 
 	ImGui::End();
 
@@ -93,6 +119,8 @@ void EditorGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager
 
 		xi = std::clamp(xi, 0, (int)m_Header.mapW);
 		yi = std::clamp(yi, 0, (int)m_Header.mapH);
+
+		m_SelectedIndex = xi + yi * m_Header.mapH;
 
 		// End of scuff
 		//////////////////////////////////////////////////////////////////////////
@@ -185,4 +213,6 @@ void EditorGame::SaveMap(const std::string& path)
 
 	for (const auto t : m_Tiles)
 		writer.WriteRaw<Tile>(t);
+
+	writer.WriteRaw<MapFooter>(m_Footer);
 }

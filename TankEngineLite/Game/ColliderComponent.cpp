@@ -93,6 +93,11 @@ void ColliderComponent::Update(float dt)
 	if (!m_CollidesDynamic)
 		return;
 
+	m_DynamicCallbackTimer += dt;
+
+	if (m_DynamicCallbackTimer < m_DynamicCallbackDelay)
+		return;
+
 	m_pColliderSystem->ForAll([this](ECS::EntityComponent* pC)
 		{
 			if (this == pC) 

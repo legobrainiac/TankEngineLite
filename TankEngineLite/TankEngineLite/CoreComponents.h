@@ -244,12 +244,14 @@ public:
 	// Returns:   void
 	// Description: SpriteRenderComponent::m_bShouldCustomRender = false;
 	inline void ResetToDefault() { m_bShouldCustomRender = false; }
+	inline void SetEnabled(bool val) noexcept { m_Enabled = val; }
 
 private:
 	TransformComponent2D* m_pTransform;
 	SpriteBatch* m_pSpriteBatch;
 	XMFLOAT4 m_AtlasTransform;
 	XMFLOAT2 m_Pivot{ 0.5f, 0.5f };
+	bool m_Enabled = true;
 	bool m_MeetsRequirements;
 
 	// Custom rendering

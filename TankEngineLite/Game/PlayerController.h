@@ -19,7 +19,19 @@ public:
 	void OnMessage(uint32_t message) override;
 	inline void SetInputController(Player player) { m_PlayerController = player; }
 
+	constexpr auto GetIsDead() const noexcept -> bool { return (int)m_StatE == 0; }
+
 private:
+	enum PlayerState
+	{
+		PLAYING,
+		DEAD
+	}m_StatE = PlayerState::PLAYING;
+
+	void AliveUpdate(float dt);
+	void DeadUpdate(float dt);
+	void ParticleSphere();
+
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
 	ColliderComponent* m_pCollider;

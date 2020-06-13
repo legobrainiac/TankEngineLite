@@ -1,8 +1,8 @@
-#include "ZenChanController.h"
+#include "MaitaController.h"
 #include "MainGame.h"
 #include "Prefabs.h"
 
-ZenChanController::ZenChanController(ECS::Entity* pE)
+MaitaController::MaitaController(ECS::Entity* pE)
 	: ECS::EntityComponent(pE)
 {
 	m_MeetsRequirements = false;
@@ -28,18 +28,18 @@ ZenChanController::ZenChanController(ECS::Entity* pE)
 	}
 }
 
-void ZenChanController::Update(float dt)
+void MaitaController::Update(float dt)
 {
 	if (!m_MeetsRequirements || !MainGame::IsRunning)
 		return;
 
-	int tileMultiplier = 2;
+	int tileMultiplier = 7;
 	m_SpriteTimer += dt;
 	switch (m_State)
 	{
 	case ZCStates::NORMAL:
 	{
-		tileMultiplier = 2;
+		tileMultiplier = 7;
 		m_pCollider->SetFixedMovement({ (m_FacingRight) ? m_MovingSpeed : -m_MovingSpeed, 781.f });
 
 		// Jump towards closest player
@@ -59,14 +59,20 @@ void ZenChanController::Update(float dt)
 			}
 		}
 
-		if ((pClosestPlayer->position.y + 128) < m_pTransform->position.y && m_pCollider->IsGrounded() && closest < 500.f)
+		// Shoot Bolder
+		if (
+			(pClosestPlayer->position.y + 64) > m_pTransform->position.y && 
+			(pClosestPlayer->position.y - 64) < m_pTransform->position.y
+			)
 		{
-			m_JumpTimer += dt;
-			if (m_JumpTimer > 0.5f)
+			m_FacingRight = pClosestPlayer->position.x > m_pTransform->position.x;
+			m_BolderTimer += dt;
+
+			if (m_BolderTimer > 1.f)
 			{
-				m_pCollider->AddAcceleration({ 0.f, -1750.f });
-				m_pCollider->SetIsGrounded(false);
-				m_JumpTimer = 0.f;
+				m_BolderTimer = 0.f;
+				auto pos = XMFLOAT2{ m_pTransform->position.x, m_pTransform->position.y };
+				Prefabs::ShootBolder(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), pos, (m_FacingRight) ? XMFLOAT2{ 1.f, 0.f } : XMFLOAT2{ -1.f, 0.f });
 			}
 		}
 	}
@@ -121,7 +127,7 @@ void ZenChanController::Update(float dt)
 			m_SpriteIndex = 0;
 
 		// Which of the sprite should you use
-		if (!m_FacingRight)
+		if (m_FacingRight)
 		{
 			atlasTransform.x += 128;
 			atlasTransform.z += 128;
@@ -131,14 +137,14 @@ void ZenChanController::Update(float dt)
 	}
 }
 
-void ZenChanController::OnMessage(uint32_t message)
+void MaitaController::OnMessage(uint32_t message)
 {
 	if (message == 0U && m_State == ZCStates::NORMAL)
 	{
 		m_State = ZCStates::IN_BUBBLE;
 		Prefabs::SpawnScore(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { m_pTransform->position.x, m_pTransform->position.y }, Prefabs::WATERMELON);
 
-		m_pCollider->SetOnDynamicCollisionCB([this](ECS::Entity* pE)
+		m_pCollider->SetOnDynamicCollisionCB([this](ECS::Entity* pE) 
 			{
 				if (pE->GetTag() == 69U)
 				{
@@ -155,8 +161,8 @@ void ZenChanController::OnMessage(uint32_t message)
 						XMFLOAT2 accel{ cosf(angle) * 100.f, sin(angle) * 100.f };
 						Prefabs::SpawnParticle(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { pos.x, pos.y }, accel, { 0.0f, 1.f, 0.f, 1.f }, 0.5f, 50.f);
 					}
-					Prefabs::SpawnScoreItem(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { pos.x - 32.f, pos.y - 32.f }, Prefabs::WATERMELON);
-					Prefabs::SpawnScore(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { pos.x - 32.f, pos.y - 32.f }, Prefabs::WATERMELON);
+					Prefabs::SpawnScoreItem(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { pos.x - 32.f, pos.y - 32.f }, Prefabs::PIZZA);
+					Prefabs::SpawnScore(m_pOwner->GetWorld(), m_pRenderComponent->GetSpriteBatch(), { pos.x - 32.f, pos.y - 32.f }, Prefabs::PIZZA);
 				}
 			});
 	}

@@ -43,7 +43,9 @@ public:
 	ProjectileComponent(ECS::Entity* pE);
 
 	void Update(float dt) override;
-	inline void SetDirection(const XMFLOAT2& direction) { m_Direction = direction; }
+	constexpr void SetDirection(const XMFLOAT2& direction) noexcept { m_Direction = direction; }
+	[[nodiscard]] constexpr auto GetDirection() const noexcept -> XMFLOAT2 { return m_Direction; }
+
 	inline void SetSpeed(float speed) { m_Speed = speed; }
 
 private:

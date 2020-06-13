@@ -1,17 +1,17 @@
-#ifndef ZEN_CHAN_CONTROLLER_H
-#define ZEN_CHAN_CONTROLLER_H
+#ifndef MAITA_CONTROLLER_H
+#define MAITA_CONTROLLER_H
 
 #include "CoreComponents.h"
 #include "ColliderComponent.h"
 
 #include <array>
 
-class ZenChanController 
+class MaitaController 
 	: public ECS::EntityComponent
 {
 public:
-	ZenChanController() = default;
-	ZenChanController(ECS::Entity* pE);
+	MaitaController() = default;
+	MaitaController(ECS::Entity* pE);
 
 	void Update(float dt);
 	void OnMessage(uint32_t message);
@@ -24,7 +24,6 @@ private:
 		IN_BUBBLE
 	}m_State = ZCStates::NORMAL;
 	float m_BubbleTimer = 0.f;
-	float m_JumpTimer;
 
 	TransformComponent2D* m_pTransform;
 	SpriteRenderComponent* m_pRenderComponent;
@@ -32,7 +31,8 @@ private:
 
 	std::array<TransformComponent2D*, 4> m_Players;
 	
-	const float m_MovingSpeed = 150.f;
+	const float m_MovingSpeed = 100.f;
+	float m_BolderTimer = 1.f;
 
 	float m_SpriteTimer = 0.f;
 	int m_SpriteIndex = 0;
@@ -41,4 +41,4 @@ private:
 	bool m_MeetsRequirements;
 };
 
-#endif // !ZEN_CHAN_CONTROLLER_H
+#endif // !MAITA_CONTROLLER_H

@@ -16,9 +16,9 @@ struct MapHeader
 
 struct MapFooter
 {
-	uint8_t playerSpawns[4]{ 0, 0, 0, 0 };
-	uint8_t maitaSpawns[4]{ 0, 0, 0, 0 };
-	uint8_t zenSpawns[4]{ 0, 0, 0, 0 };
+	uint16_t playerSpawns[4]{ 0, 0, 0, 0 };
+	uint16_t maitaSpawns[4]{ 0, 0, 0, 0 };
+	uint16_t zenSpawns[4]{ 0, 0, 0, 0 };
 };
 
 struct Tile
@@ -47,7 +47,7 @@ public:
 
 	[[nodiscard]] bool IsOverlapping(DirectX::XMFLOAT2 tl, DirectX::XMFLOAT2 br, uint8_t* behaviour = nullptr) const noexcept;
 
-private:
+public:
 	MapHeader m_Header;
 	MapFooter m_Footer;
 	std::vector<Tile> m_Tiles;
