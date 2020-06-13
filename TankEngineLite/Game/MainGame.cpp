@@ -198,8 +198,6 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 		m_State = PLAYING;
 		break;
 	case PLAYING:
-		LOGGER->Log<LOG_INFO>(std::to_string(MainGame::aliveEnemyCount));
-
 		if (MainGame::aliveEnemyCount == 0)
 			m_State = END_NEXT;
 

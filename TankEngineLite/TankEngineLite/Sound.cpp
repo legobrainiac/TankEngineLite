@@ -2,8 +2,12 @@
 
 bool Sound::Initialize(std::string path)
 {
+	FMOD_MODE mode = FMOD_DEFAULT;
+	if (path.substr(path.find_last_of('.')) == ".mp3")
+		mode = FMOD_LOOP_NORMAL;
+
 	const auto pSoundSystem = SoundManager::GetInstance()->GetSystem();
-	auto result = pSoundSystem->createSound(path.c_str(), FMOD_DEFAULT, nullptr, &m_pSound);
+	auto result = pSoundSystem->createSound(path.c_str(), mode, nullptr, &m_pSound);
 
 	// Create sound
 	if (result != FMOD_OK)
