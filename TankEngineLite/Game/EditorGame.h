@@ -3,6 +3,7 @@
 
 #include <Tel.h>
 #include <vector>
+#include <array>
 
 #include "BinaryInterfaces.h"
 #include "BBLevel.h"
@@ -13,6 +14,12 @@ class EditorGame
 	: public IGame
 {
 public:
+
+	EditorGame()
+		: m_Tiles()
+	{
+	}
+
 	void Initialize() override;
 	void Load(ResourceManager* pResourceManager, TEngineRunner* pEngine) override;
 	void Update(float dt, InputManager* pInputManager) override;
@@ -32,7 +39,7 @@ private:
 
 	MapHeader m_Header;
 	MapFooter m_Footer;
-	std::vector<Tile> m_Tiles {};
+	std::array<Tile, 900> m_Tiles;
 
 	int m_SelectedIndex = 0;
 };

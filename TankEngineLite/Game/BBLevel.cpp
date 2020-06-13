@@ -15,8 +15,6 @@ bool BBLevel::Initialize(const std::string& path)
 		" tileH: " + std::to_string(m_Header.tileW)
 		);
 
-	m_Tiles.resize((int)m_Header.mapW * (int)m_Header.mapH);
-
 	for (int y = 0; y < (int)m_Header.mapH; ++y)
 	{
 		for (int x = 0; x < m_Header.mapW; ++x)

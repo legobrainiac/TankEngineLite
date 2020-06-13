@@ -4,6 +4,10 @@
 
 void ColliderComponent::Update(float dt)
 {
+	// First frame of the game takes longer than it should in debug, whoops
+	if (dt > 1 / 60.f)
+		dt = 1 / 60.f;
+
 	m_PreviousPosition = m_pTransform->position;
 	
 	//////////////////////////////////////////////////////////////////////////

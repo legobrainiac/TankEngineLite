@@ -120,7 +120,7 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		[this](uint32_t controller, ConnectionType connection)
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 69, 900 - 144 }, (Player)controller);
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 84, 900 - 144 }, (Player)controller);
 		});
 
 	//////////////////////////////////////////////////////////////////////////

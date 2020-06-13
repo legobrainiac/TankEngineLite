@@ -35,6 +35,9 @@ void PlayerController::Update(float dt)
 		DeadUpdate(dt);
 		break;
 	}
+
+
+	LOGGER->Log<LOG_INFO>(std::to_string(m_pTransform->position.y));
 }
 
 void PlayerController::OnMessage(uint32_t message)

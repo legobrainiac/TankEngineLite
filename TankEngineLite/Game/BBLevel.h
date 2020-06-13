@@ -4,6 +4,8 @@
 #include "ResourceManager.h"
 #include "D3D.h"
 
+#include <array>
+
 class SpriteBatch;
 
 struct MapHeader
@@ -38,6 +40,11 @@ public:
 	{
 	}
 
+	~BBLevel()
+	{
+		LOGGER->Log<LOG_INFO>("");
+	}
+
 	BBLevel(const BBLevel&) = delete;
 	BBLevel& operator=(const BBLevel&) = delete;
 
@@ -50,7 +57,7 @@ public:
 public:
 	MapHeader m_Header;
 	MapFooter m_Footer;
-	std::vector<Tile> m_Tiles;
+	std::array<Tile, 900> m_Tiles{};
 };
 
 #endif // !BB_LEVEL_H

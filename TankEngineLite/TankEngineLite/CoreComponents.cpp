@@ -84,13 +84,8 @@ void ModelRenderComponent::Initialize(Model* pModel, Texture* pTexture)
 	auto pEffect = m_pEffect->GetEffect();
 
 	m_pWorld = pEffect->GetVariableByName("gWorld")->AsMatrix();
-	m_pEffect->Register(m_pWorld);
-
 	m_pWorldViewProjection = pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	m_pEffect->Register(m_pWorldViewProjection);
-
 	m_pDiffuseMap = pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
-	m_pEffect->Register(m_pDiffuseMap);
 }
 
 void ModelRenderComponent::Render()

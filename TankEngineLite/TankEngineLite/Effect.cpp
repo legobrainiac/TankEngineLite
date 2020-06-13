@@ -6,11 +6,10 @@
 
 Effect::Effect()
 	: m_pEffect(nullptr)
-	, m_Cleanup()
 {
 }
 
-bool Effect::Initialize(std::string effectPath)
+bool Effect::Initialize(const std::string& effectPath)
 {
 	HRESULT hr = S_OK;
 	ID3D10Blob* pErrorBlob = nullptr;
@@ -113,12 +112,6 @@ void Effect::CreateResources()
 
 void Effect::Shutdown()
 {
-	for (int i = 0; i < m_Cleanup.size(); ++i)
-	{
-		m_Cleanup.top()->Release();
-		m_Cleanup.pop();
-	}
-
 	DXRELEASE(m_pInputLayout);
 	DXRELEASE(m_pEffect);
 }
