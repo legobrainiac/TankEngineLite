@@ -163,6 +163,13 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 				InputManager::GetInstance()->CheckControllerConnection();
 			}));
 
+	if (m_NextControllerIndex == 0)
+	{
+		uint32_t controller = m_NextControllerIndex++;
+		MainGame::alivePlayerCount++;
+		m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 84, 900 - 144 }, (Player)controller);
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// Start play
 	InputManager::GetInstance()->RegisterActionMappin(
