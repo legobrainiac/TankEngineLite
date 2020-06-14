@@ -28,10 +28,10 @@ public:
 
 private:
 
-	SDL_Window* m_pWindow;
-	D3D* m_pDirectX;
+	SDL_Window* m_pWindow = nullptr;
+	D3D* m_pDirectX = nullptr;
 
-	int m_Xw, m_Yh;
+	int m_Xw = 0, m_Yh = 0;
 };
 
 #endif // !RENDER_H

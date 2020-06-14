@@ -32,14 +32,14 @@ public:
 	void SaveMap(const std::string& path);
 
 private:	
-	SpriteBatch* m_pSB;
+	SpriteBatch* m_pSB = nullptr;
 	
 	static int maitaSpawns[4];
 	static int zenChanSpawns[4];
 
-	MapHeader m_Header;
-	MapFooter m_Footer;
-	std::array<Tile, 900> m_Tiles;
+	MapHeader m_Header{};
+	MapFooter m_Footer{};
+	std::array<Tile, 900> m_Tiles{};
 
 	int m_SelectedIndex = 0;
 };

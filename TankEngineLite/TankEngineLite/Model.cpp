@@ -11,6 +11,7 @@ Model::Model()
 	, m_pIndexBuffer(nullptr)
 	, m_VertexCount{}
 	, m_IndexCount{}
+	, m_LoadStatus(false)
 {
 	//m_LoadStatus = InitializeBuffers(pDevice, modelFilepath, modelName, uvChannel) && LoadTexture(pDevice, textureResourceName.c_str());
 }

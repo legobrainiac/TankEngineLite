@@ -70,31 +70,31 @@ public:
 	std::tuple<XMFLOAT4X4, XMFLOAT4X4, XMFLOAT4X4> GetMatrices() const;
 
 private:
-	ID3D11Device* m_pDevice;
-	ID3D11DeviceContext* m_pDeviceContext;
-	IDXGISwapChain* m_pSwapChain;
-	IDXGIFactory* m_pDXGIFactory;
+	ID3D11Device* m_pDevice = nullptr;
+	ID3D11DeviceContext* m_pDeviceContext = nullptr;
+	IDXGISwapChain* m_pSwapChain = nullptr;
+	IDXGIFactory* m_pDXGIFactory = nullptr;
 
-	ID3D11Debug* m_pDebug;
+	ID3D11Debug* m_pDebug = nullptr;
 
-	ID3D11Texture2D* m_pDepthStencilBuffer;
-	ID3D11DepthStencilView* m_pDepthStencilView;
+	ID3D11Texture2D* m_pDepthStencilBuffer = nullptr;
+	ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
 
-	ID3D11Resource* m_pRenderTargetBuffer;
-	ID3D11RenderTargetView* m_pRenderTargetView;
+	ID3D11Resource* m_pRenderTargetBuffer = nullptr;
+	ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
 
-	int m_ScreenW;
-	int m_ScreenH;
-	bool m_Vsync;
+	int m_ScreenW = 0;
+	int m_ScreenH = 0;
+	bool m_Vsync = false;
 
-	XMFLOAT3 m_CameraPosition;
+	XMFLOAT3 m_CameraPosition{};
 
 	// Matrices
-	XMFLOAT4X4 m_ProjectionMatrix;
-	XMFLOAT4X4 m_WorldMatrix;
-	XMFLOAT4X4 m_OrthoMatrix;
+	XMFLOAT4X4 m_ProjectionMatrix{};
+	XMFLOAT4X4 m_WorldMatrix{};
+	XMFLOAT4X4 m_OrthoMatrix{};
 
-	CameraComponent* m_pCamera;
+	CameraComponent* m_pCamera = nullptr;
 };
 
 #endif // !D3D_H

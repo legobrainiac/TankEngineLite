@@ -266,6 +266,14 @@ class ModelRenderComponent
 {
 public:
 	ModelRenderComponent()
+		: m_pModel(nullptr)
+		, m_pTexture(nullptr)
+		, m_pEffect(nullptr)
+		, m_pDiffuseMap(nullptr)
+		, m_pWorldViewProjection(nullptr)
+		, m_pWorld(nullptr)
+		, m_pTransform(nullptr)
+		, m_MeetsRequirements(false)
 	{
 	}
 

@@ -20,7 +20,10 @@ public:
 	inline void SetInputController(Player player) { m_PlayerController = player; }
 
 	constexpr auto GetIsDead() const noexcept -> bool { return (int)m_StatE == 0; }
-	void Reset();
+	constexpr auto GetHealth() const noexcept -> int { return m_Health; }
+	constexpr auto GetScore() const noexcept -> int { return m_Score; }
+
+	void Reset(bool score = false);
 
 private:
 	enum PlayerState
@@ -33,30 +36,30 @@ private:
 	void DeadUpdate(float dt);
 	void ParticleSphere();
 
-	TransformComponent2D* m_pTransform;
-	SpriteRenderComponent* m_pRenderComponent;
-	ColliderComponent* m_pCollider;
-	XMFLOAT3 m_PreviousPosition;
+	TransformComponent2D* m_pTransform = nullptr;
+	SpriteRenderComponent* m_pRenderComponent = nullptr;
+	ColliderComponent* m_pCollider = nullptr;
+	XMFLOAT3 m_PreviousPosition{};
 
-	FMOD::Sound* m_pShootingSound;
-	FMOD::Sound* m_pPickupSound;
-	FMOD::Sound* m_pDamage;
-	FMOD::Sound* m_pDeath;
+	FMOD::Sound* m_pShootingSound = nullptr;
+	FMOD::Sound* m_pPickupSound = nullptr;
+	FMOD::Sound* m_pDamage = nullptr;
+	FMOD::Sound* m_pDeath = nullptr;
 
 	// Timers
-	float m_Timer;
-	float m_SpriteTimer;
+	float m_Timer = 0.f;
+	float m_SpriteTimer = 0.f;
 	float m_ParticleTimer = 0.f;
 	
 	int m_Health = 4;
 	int m_Score = 0;
-	float m_DamageTimer;
+	float m_DamageTimer = 0.f;
 
-	int m_SpriteIndex;
-	bool m_FacingRight;
+	int m_SpriteIndex = 0;
+	bool m_FacingRight = true;
 
-	Player m_PlayerController;
-	bool m_MeetsRequirements;
+	Player m_PlayerController = PLAYER1;
+	bool m_MeetsRequirements = false;
 };
 
 #endif // !PLAYER_CONTROLLER

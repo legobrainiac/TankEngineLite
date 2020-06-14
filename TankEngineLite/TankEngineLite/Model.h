@@ -1,7 +1,9 @@
 #ifndef MODEL_H
 #define MODEL_H
-
+#pragma warning(push)
+#pragma warning(disable: 26495 26451)
 #include <fbxsdk.h>
+#pragma warning(pop)
 
 #include "D3D.h"
 #include "Texture.h"
@@ -117,8 +119,13 @@ public:
 							v.texture.x = float(uv.mData[0]);
 							v.texture.y = float(1.f - uv.mData[1]);
 
-							pVertices[vC] = v;
-							pIndices[vC] = vC;
+							int vcc = (int)vC;
+
+#pragma warning(push)
+#pragma warning(disable: 6386)
+							pVertices[vcc] = v;
+							pIndices[vcc] = vC;
+#pragma warning(pop)
 
 							vC++;
 						}

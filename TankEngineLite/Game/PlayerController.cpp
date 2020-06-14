@@ -86,10 +86,12 @@ void PlayerController::OnMessage(uint32_t message)
 	}
 }
 
-void PlayerController::Reset()
+void PlayerController::Reset(bool score)
 {
 	m_Health = 4;
-	m_Score = 0;
+	if (score)
+		m_Score = 0;
+
 	m_StatE = PlayerState::PLAYING;
 	m_Timer = 0;
 	m_DamageTimer = 0;
@@ -118,16 +120,16 @@ void PlayerController::AliveUpdate(float dt)
 
 	// Input
 	if (pInputMananager->IsPressed(ControllerButton::DPAD_LEFT, m_PlayerController) || 
-		pInputMananager->IsKeyDown(lookupTableLeft[m_PlayerController]))
+		(m_PlayerController <= 1 && pInputMananager->IsKeyDown(lookupTableLeft[m_PlayerController])))
 		movement.x -= movementSpeed;
 
 	if (pInputMananager->IsPressed(ControllerButton::DPAD_RIGHT, m_PlayerController) ||
-		pInputMananager->IsKeyDown(lookupTableRight[m_PlayerController]))
+		(m_PlayerController <= 1 && pInputMananager->IsKeyDown(lookupTableRight[m_PlayerController])))
 		movement.x += movementSpeed; 
 
 	m_ParticleTimer += dt;
 	if ((pInputMananager->IsPressed(ControllerButton::A, m_PlayerController) || 
-		pInputMananager->IsKeyDown(lookupTableJump[m_PlayerController])) && 
+		(m_PlayerController <= 1 && pInputMananager->IsKeyDown(lookupTableJump[m_PlayerController]))) &&
 		m_pCollider->IsGrounded() && m_ParticleTimer > 0.1f)
 	{
 		m_ParticleTimer = 0.f;
@@ -152,7 +154,7 @@ void PlayerController::AliveUpdate(float dt)
 
 	// Shooting
 	if (pInputMananager->IsPressed(ControllerButton::B, m_PlayerController) ||
-		pInputMananager->IsKeyDown(lookupTableUse[m_PlayerController])
+		(m_PlayerController <= 1 && pInputMananager->IsKeyDown(lookupTableUse[m_PlayerController]))
 		)
 	{
 		if (m_Timer > 0.2f)

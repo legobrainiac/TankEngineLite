@@ -68,11 +68,16 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 	m_pDynamic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_0"));
 	pEngine->RegisterBatch(m_pDynamic_SB);
 
+	m_pDynamicNumbers_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic Number");
+	m_pDynamicNumbers_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_9"));
+	pEngine->RegisterBatch(m_pDynamicNumbers_SB);
+
 	//////////////////////////////////////////////////////////////////////////
 	// Create the static sprite batch
 	m_pStatic_SB = new(Memory::New<SpriteBatch>()) SpriteBatch("Static");
 	m_pStatic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_7"), BatchMode::BATCHMODE_STATIC);
 	pEngine->RegisterBatch(m_pStatic_SB);
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Set camera for sprite batches
@@ -127,8 +132,26 @@ void MainGame::Load([[maybe_unused]] ResourceManager* pResourceManager, [[maybe_
 		[this](uint32_t controller, ConnectionType connection)
 		{
 			if (connection == ConnectionType::CONNECTED)
-				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 84, 900 - 144 }, (Player)controller);
+			{
+				if (controller >= m_NextControllerIndex)
+				{
+					m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 84, 900 - 144 }, (Player)controller);
+					m_NextControllerIndex++;
+				}
+			}
 		});
+
+	InputManager::GetInstance()->RegisterActionMappin(
+		ActionMapping(SDL_SCANCODE_P, ActionType::PRESSED,
+			[this]()
+			{
+				if (m_NextControllerIndex >= 2)
+					return;
+
+				uint32_t controller = m_NextControllerIndex++;
+				MainGame::alivePlayerCount++;
+				m_pPlayers[controller] = Prefabs::CreatePlayer(m_pWorld, m_pDynamic_SB, { 84, 900 - 144 }, (Player)controller);
+			}));
 
 	//////////////////////////////////////////////////////////////////////////
 	// Check for new controllers
@@ -198,12 +221,53 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 		m_State = PLAYING;
 		break;
 	case PLAYING:
+	{
 		if (MainGame::aliveEnemyCount == 0)
 			m_State = END_NEXT;
 
 		if (MainGame::alivePlayerCount == 0)
 			m_State = END_DEAD;
-		break;
+
+		const auto DrawNumbers = [this](uint32_t number, DirectX::XMFLOAT2 position)
+		{
+			constexpr auto offset = 48U;
+			constexpr auto ssOffset = 64.f;
+			const auto numberString = std::to_string(number);
+
+			for (size_t i = 0; i < numberString.size(); ++i)
+			{
+				int ni = numberString[i] - offset;
+
+				XMFLOAT4 rect{ni * 16.f, 0.f, (ni + 1) * 16.f, 16 };
+
+				m_pDynamicNumbers_SB->PushSprite(rect, { position.x, position.y, 0 }, 0.f, { 4.f, 4.f }, { 0.f, 0.f }, { 1.f, 1.f, 1.f, 1.f });
+				position.x += ssOffset;
+			}
+		};
+
+		for (int i = 0; i < 2; ++i)
+		{
+			float offset = -300.f;
+			float scoreOffset = 0.f;
+			if (i == 1)
+			{
+				offset = 1000.f;
+				scoreOffset = 1300.f;
+			}
+
+			if (m_pPlayers[i])
+			{
+				auto player = m_pPlayers[i]->GetComponent<PlayerController>();
+				int health = player->GetHealth();
+
+				for (int h = 0; h < health; ++h)
+					m_pDynamic_SB->PushSprite({ 128 - 16, 128, 144 - 16, 144 }, { offset + h * 64, 0, 0 }, 0.f, { 4.f, 4.f }, { 0.f, 0.f }, { 1.f, 1.f, 1.f, 1.f });
+			
+				DrawNumbers(player->GetScore(), { scoreOffset, 100.f });
+			}
+		}
+	}
+	break;
 	case DEAD:
 
 		break;
@@ -225,6 +289,7 @@ void MainGame::Render([[maybe_unused]] Renderer* pRenderer)
 	// Render your sprite batches
 	Profiler::GetInstance()->BeginSubSession<SESSION_BATCH_RENDERING>();
 	PROFILE(SESSION_BATCH_DYNAMIC, m_pDynamic_SB->Render());
+	PROFILE(SESSION_BATCH_DYNAMIC, m_pDynamicNumbers_SB->Render());
 	PROFILE(SESSION_BATCH_STATIC, m_pStatic_SB->Render());
 	Profiler::GetInstance()->EndSubSession();
 }
@@ -234,11 +299,14 @@ void MainGame::Shutdown()
 	m_pDynamic_SB->Destroy();
 	Memory::Delete(m_pDynamic_SB);
 
+	m_pDynamicNumbers_SB->Destroy();
+	Memory::Delete(m_pDynamicNumbers_SB);
+
 	m_pStatic_SB->Destroy();
 	Memory::Delete(m_pStatic_SB);
 }
 
-void MainGame::LoadLevel(const std::string& level)
+void MainGame::LoadLevel(const std::string& level, bool score)
 {
 	MainGame::aliveEnemyCount = 0;
 	MainGame::alivePlayerCount = 0;
@@ -305,7 +373,7 @@ void MainGame::LoadLevel(const std::string& level)
 		if (m_pPlayers[i])
 		{
 			m_pPlayers[i]->GetComponent<TransformComponent2D>()->position = { 84, 900 - 144, 0.f };
-			m_pPlayers[i]->GetComponent<PlayerController>()->Reset();
+			m_pPlayers[i]->GetComponent<PlayerController>()->Reset(score);
 			MainGame::alivePlayerCount++;
 		}
 	}

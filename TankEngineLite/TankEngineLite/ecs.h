@@ -379,13 +379,14 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-class Entity
+class Entity final
 {
 public:
 	Entity(uint32_t id, World* pWorld)
 		: m_ID(id)
 		, m_pWorld(pWorld)
 		, m_EntityComponents()
+		, m_Tag()
 	{
 	}
 

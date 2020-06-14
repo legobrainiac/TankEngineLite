@@ -121,6 +121,9 @@ public:
 		, m_PadKeys()
 		, m_ControllerConnected()
 		, m_SBIndex()
+		, m_ControllerComplained()
+		, m_Initialized()
+		, m_InputSB()
 	{
 	}
 

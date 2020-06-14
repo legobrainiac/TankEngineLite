@@ -39,7 +39,7 @@ template<
 class Pool
 {
 public:
-	constexpr Pool()
+	Pool()
 	{
 		m_pPool = Memory::New<T>(S);
 		m_pLookUp = &m_LookUpInternal[0];
@@ -263,10 +263,10 @@ public:
 	}
 
 private:
-	T* m_pPool;
-	char m_LookUpInternal[S / 8];
-	char* m_pLookUp;
-	uint32_t m_ActiveCount;
+	T* m_pPool = nullptr;
+	char m_LookUpInternal[S / 8]{};
+	char* m_pLookUp = nullptr;
+	uint32_t m_ActiveCount = 0U;
 
 public:
 

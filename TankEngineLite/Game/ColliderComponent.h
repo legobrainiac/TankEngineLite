@@ -65,18 +65,18 @@ private:
 
 	float m_DynamicCallbackDelay = 0.f;
 	float m_DynamicCallbackTimer = 0.f;
-	TransformComponent2D* m_pTransform;
-	ECS::System* m_pColliderSystem;
-	XMFLOAT2 m_Movement;
-	XMFLOAT2 m_Acceleration;
+	TransformComponent2D* m_pTransform = nullptr;
+	ECS::System* m_pColliderSystem = nullptr;
+	XMFLOAT2 m_Movement{};
+	XMFLOAT2 m_Acceleration{};
 	bool m_IsGrounded = true;
 	bool m_CollidesDynamic = false;
 
 	XMFLOAT2 m_Size{ 60.f, 64.f };
 	XMFLOAT2 m_Gravity{ 0.f, 781.f };
-	XMFLOAT3 m_PreviousPosition;
+	XMFLOAT3 m_PreviousPosition{};
 
-	bool m_MeetsRequirements;
+	bool m_MeetsRequirements = false;
 };
 
 #endif // !COLLIDER_COMPONENT_H

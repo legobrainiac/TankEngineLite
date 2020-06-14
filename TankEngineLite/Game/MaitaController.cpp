@@ -151,7 +151,9 @@ void MaitaController::OnMessage(uint32_t message)
 			{
 				if (pE->GetTag() == 69U)
 				{
-					MainGame::aliveEnemyCount--;
+					if (MainGame::alivePlayerCount > 0)
+						MainGame::aliveEnemyCount--;
+
 					pE->Message(1U);
 					m_pOwner->GetWorld()->AsyncDestroyEntity(m_pOwner->GetId());
 

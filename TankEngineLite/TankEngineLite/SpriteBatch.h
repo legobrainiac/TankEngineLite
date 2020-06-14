@@ -116,27 +116,27 @@ private:
 	void UpdateBuffer();
 
 private:
-	ID3DX11Effect* m_pEffect;
-	ID3DX11EffectTechnique* m_pTechnique;
-	ID3D11InputLayout* m_pInputLayout;
-	ID3DX11EffectMatrixVariable* m_pTransfromMatrixV;
-	ID3DX11EffectVectorVariable* m_pTextureSizeV;
-	ID3DX11EffectVectorVariable* m_pCameraPos;
-	ID3DX11EffectScalarVariable* m_pScale;
-	ID3DX11EffectShaderResourceVariable* m_pTextureSRV;
-	ID3D11Buffer* m_pVertexBuffer;
-	XMFLOAT4X4 m_Transform;
+	ID3DX11Effect* m_pEffect = nullptr;
+	ID3DX11EffectTechnique* m_pTechnique = nullptr;
+	ID3D11InputLayout* m_pInputLayout = nullptr;
+	ID3DX11EffectMatrixVariable* m_pTransfromMatrixV = nullptr;
+	ID3DX11EffectVectorVariable* m_pTextureSizeV = nullptr;
+	ID3DX11EffectVectorVariable* m_pCameraPos = nullptr;
+	ID3DX11EffectScalarVariable* m_pScale = nullptr;
+	ID3DX11EffectShaderResourceVariable* m_pTextureSRV = nullptr;
+	ID3D11Buffer* m_pVertexBuffer = nullptr;
+	XMFLOAT4X4 m_Transform{};
 	
-	XMFLOAT2 m_CameraPos;
+	XMFLOAT2 m_CameraPos{};
 	float m_Scale = 1.f;
 
-	Texture* m_Atlas;
-	std::string_view m_Name;
-	std::vector<BatchItem> m_Batch;
-	int m_BatchSize;
-	bool m_Dirty;
+	Texture* m_Atlas = nullptr;
+	std::string_view m_Name{};
+	std::vector<BatchItem> m_Batch{};
+	int m_BatchSize = 0;
+	bool m_Dirty = false;
 	bool m_IsRendering = true;
-	BatchMode m_Mode;
+	BatchMode m_Mode = BATCHMODE_DYNAMIC;
 };
 
 #endif // !SPRITE_BATCH_H
