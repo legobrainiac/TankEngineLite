@@ -11,10 +11,10 @@
 
 int main(int, char* [])
 {
-	//int result = TEngineRunner{}.Run<CTCPUGame>();
-	//int result = TEngineRunner{}.Run<EditorGame>();
-	int result = TEngineRunner{}.Run<MainGame>();
-	return result;
+	//return TEngineRunner{}.Run<CTCPUGame>();
+	//return TEngineRunner{}.Run<EditorGame>();
+	
+	return TEngineRunner{}.Run<MainGame>();
 }
 
 #ifdef _WIN32

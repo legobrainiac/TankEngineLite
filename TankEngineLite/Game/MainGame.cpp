@@ -196,6 +196,7 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 		CameraTransitions(dt);
 		break;
 	case END_DEAD:
+	{
 		m_Timer += dt;
 
 		if (m_Timer > 10.f)
@@ -206,10 +207,13 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 			m_pWorld->MessageAll(128U);
 
 			m_MapIndex = 0;
+			// This is horrible
+			const std::string m_Maps[3]{ "fire2", "fire", "wiki" };
 			LoadLevel(m_Maps[m_MapIndex]);
 			m_State = PLAYING;
 		}
-		break;
+	}
+	break;
 	case END_NEXT:
 		m_Timer += dt;
 
@@ -220,13 +224,17 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 		}
 		break;
 	case LOAD_NEXT_LEVEL:
+	{
 		m_MapIndex++;
 		if (m_MapIndex > 2)
 			m_MapIndex = 0;
 
+		// This is horrible
+		const std::string m_Maps[3]{ "fire2", "fire", "wiki" };
 		LoadLevel(m_Maps[m_MapIndex]);
 		m_State = PLAYING;
-		break;
+	}
+	break;
 	case PLAYING:
 	{
 		if (MainGame::aliveEnemyCount == 0)
@@ -245,7 +253,7 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 			{
 				int ni = numberString[i] - offset;
 
-				XMFLOAT4 rect{ni * 16.f, 0.f, (ni + 1) * 16.f, 16 };
+				XMFLOAT4 rect{ ni * 16.f, 0.f, (ni + 1) * 16.f, 16 };
 
 				m_pDynamicNumbers_SB->PushSprite(rect, { position.x, position.y, 0 }, 0.f, { 4.f, 4.f }, { 0.f, 0.f }, { 1.f, 1.f, 1.f, 1.f });
 				position.x += ssOffset;
@@ -269,7 +277,7 @@ void MainGame::Update([[maybe_unused]] float dt, [[maybe_unused]] InputManager* 
 
 				for (int h = 0; h < health; ++h)
 					m_pDynamic_SB->PushSprite({ 128 - 16, 128, 144 - 16, 144 }, { offset + h * 64, 0, 0 }, 0.f, { 4.f, 4.f }, { 0.f, 0.f }, { 1.f, 1.f, 1.f, 1.f });
-			
+
 				DrawNumbers(player->GetScore(), { scoreOffset, 100.f });
 			}
 		}

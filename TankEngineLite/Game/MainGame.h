@@ -67,8 +67,6 @@ private:
 	int m_MapIndex = 0;
 	uint32_t m_NextControllerIndex = 0;
 
-	std::string m_Maps[3] {"fire2", "fire", "wiki"};
-
 	// Keep track of players for connect/disconnect
 	ECS::Entity* m_pPlayers[4]{ nullptr, nullptr, nullptr, nullptr };
 };
