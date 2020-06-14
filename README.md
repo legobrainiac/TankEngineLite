@@ -1,9 +1,15 @@
 # Tank Engine - Lite
 
 ## Goal
-Tank Engine Lite is young brother to the on going Tank Engine 3D project. 
+Tank Engine Lite is the young brother to the on going Tank Engine 3D project. 
 It has 2D rendering with sprite batched and 3D rendering support with audio through FMOD.
 The engine structure hinges heavily on Entity component systems as the way to manipulate information.
+
+The main structural element of the engine is the ECS(**E**ntity **C**omponent **S**ystem). It's a memory focused implementation that allows for very fast manipulation of information both synchrounously and asynchrounously.
+
+The engine also included a basic Resource loading pipeline, a basic DX11 implementation of a 3D rendering pipeline, a DX11 implementation of a sprite batched 2D rendering pipeline, a Sound pipeline implemented with FMOD, controller input with XINPUT and all other input with SDL.
+
+The provided "Game" project serves as an example of how to build up a game using the engine. Be it through the 2D pipeline, the 3D pipeline or both.
 
 ## ECS
 
@@ -12,9 +18,10 @@ The ECS(**E**ntity **C**omponent **S**ystem) allows you to construct a game worl
 #### Include: ecs.h
 
 To correctly implement ecs in to your game, you can do as follows:
-	* From the universe, create a world
-	* You populate this world with systems of the component types you need aswell as the ammount of components preallocated and their system id
-	* Then when creating an entity, push components on to it to build up behaviours
+
+* From the universe, create a world
+* You populate this world with systems of the component types you need aswell as the ammount of components preallocated and their system id
+* Then when creating an entity, push components on to it to build up behaviours
 
 ### Initialization
 ```c++
@@ -158,3 +165,17 @@ const auto pAtlasTex = RESOURCES->Get<Texture>("atlas_0");
 // Load a resource of type Sound
 const auto pSound = RESOURCES->Load<Sound>("SomeCoolSound.wav", "SomeCoolSound");
 ```	
+
+## Sprite batches
+For the full code on how to use the sprite batches, refer to the example project!
+
+### Usage
+```c++
+m_pDynamic_SB = new (Memory::New<SpriteBatch>()) SpriteBatch("Dynamic");
+m_pDynamic_SB->InitializeBatch(RESOURCES->Get<Texture>("atlas_0"));
+pEngine->RegisterBatch(m_pDynamic_SB);
+```
+
+```c++
+m_pDynamic_SB->PushSprite(rect, { position.x, position.y, 0 }, 0.f, { 4.f, 4.f }, { 0.f, 0.f }, { 1.f, 1.f, 1.f, 1.f });
+```

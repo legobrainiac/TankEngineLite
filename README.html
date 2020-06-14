@@ -1057,16 +1057,21 @@ body .markdown-body
 .codehilite .gc{color:#999;background-color:#EAF2F5}
 </style><title>README</title></head><body><article class="markdown-body"><h1 id="tank-engine-lite">Tank Engine - Lite<a class="headerlink" href="#tank-engine-lite" title="Permanent link"></a></h1>
 <h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link"></a></h2>
-<p>Tank Engine Lite is young brother to the on going Tank Engine 3D project. 
+<p>Tank Engine Lite is the young brother to the on going Tank Engine 3D project. 
 It has 2D rendering with sprite batched and 3D rendering support with audio through FMOD.
 The engine structure hinges heavily on Entity component systems as the way to manipulate information.</p>
+<p>The main structural element of the engine is the ECS(<strong>E</strong>ntity <strong>C</strong>omponent <strong>S</strong>ystem). It&rsquo;s a memory focused implementation that allows for very fast manipulation of information both synchrounously and asynchrounously.</p>
+<p>The engine also included a basic Resource loading pipeline, a basic DX11 implementation of a 3D rendering pipeline, a DX11 implementation of a sprite batched 2D rendering pipeline, a Sound pipeline implemented with FMOD, controller input with XINPUT and all other input with SDL.</p>
+<p>The provided &ldquo;Game&rdquo; project serves as an example of how to build up a game using the engine. Be it through the 2D pipeline, the 3D pipeline or both.</p>
 <h2 id="ecs">ECS<a class="headerlink" href="#ecs" title="Permanent link"></a></h2>
 <p>The ECS(<strong>E</strong>ntity <strong>C</strong>omponent <strong>S</strong>ystem) allows you to construct a game world built up of entities with components.</p>
 <h4 id="include-ecsh">Include: ecs.h<a class="headerlink" href="#include-ecsh" title="Permanent link"></a></h4>
-<p>To correctly implement ecs in to your game, you can do as follows:
-    * From the universe, create a world
-    * You populate this world with systems of the component types you need aswell as the ammount of components preallocated and their system id
-    * Then when creating an entity, push components on to it to build up behaviours</p>
+<p>To correctly implement ecs in to your game, you can do as follows:</p>
+<ul>
+<li>From the universe, create a world</li>
+<li>You populate this world with systems of the component types you need aswell as the ammount of components preallocated and their system id</li>
+<li>Then when creating an entity, push components on to it to build up behaviours</li>
+</ul>
 <h3 id="initialization">Initialization<a class="headerlink" href="#initialization" title="Permanent link"></a></h3>
 <div class="codehilite"><pre><span class="n">m_pWorld</span> <span class="o">=</span> <span class="n">Universe</span><span class="o">::</span><span class="n">GetInstance</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">PushWorld</span><span class="p">();</span>
 
@@ -1195,4 +1200,15 @@ The macro: <code>#define RESOURCES ResourceManager::GetInstance()</code> is prov
 
 <span class="c1">// Load a resource of type Sound</span>
 <span class="k">const</span> <span class="k">auto</span> <span class="n">pSound</span> <span class="o">=</span> <span class="n">RESOURCES</span><span class="o">-&gt;</span><span class="n">Load</span><span class="o">&lt;</span><span class="n">Sound</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;SomeCoolSound.wav&quot;</span><span class="p">,</span> <span class="s">&quot;SomeCoolSound&quot;</span><span class="p">);</span>
+</pre></div>
+
+<h2 id="sprite-batches">Sprite batches<a class="headerlink" href="#sprite-batches" title="Permanent link"></a></h2>
+<p>For the full code on how to use the sprite batches, refer to the example project!</p>
+<h3 id="usage_2">Usage<a class="headerlink" href="#usage_2" title="Permanent link"></a></h3>
+<div class="codehilite"><pre><span class="n">m_pDynamic_SB</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">Memory</span><span class="o">::</span><span class="n">New</span><span class="o">&lt;</span><span class="n">SpriteBatch</span><span class="o">&gt;</span><span class="p">())</span> <span class="n">SpriteBatch</span><span class="p">(</span><span class="s">&quot;Dynamic&quot;</span><span class="p">);</span>
+<span class="n">m_pDynamic_SB</span><span class="o">-&gt;</span><span class="n">InitializeBatch</span><span class="p">(</span><span class="n">RESOURCES</span><span class="o">-&gt;</span><span class="n">Get</span><span class="o">&lt;</span><span class="n">Texture</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;atlas_0&quot;</span><span class="p">));</span>
+<span class="n">pEngine</span><span class="o">-&gt;</span><span class="n">RegisterBatch</span><span class="p">(</span><span class="n">m_pDynamic_SB</span><span class="p">);</span>
+</pre></div>
+
+<div class="codehilite"><pre><span class="n">m_pDynamic_SB</span><span class="o">-&gt;</span><span class="n">PushSprite</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="p">{</span> <span class="n">position</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">position</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">0</span> <span class="p">},</span> <span class="mf">0.f</span><span class="p">,</span> <span class="p">{</span> <span class="mf">4.f</span><span class="p">,</span> <span class="mf">4.f</span> <span class="p">},</span> <span class="p">{</span> <span class="mf">0.f</span><span class="p">,</span> <span class="mf">0.f</span> <span class="p">},</span> <span class="p">{</span> <span class="mf">1.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span> <span class="mf">1.f</span><span class="p">,</span> <span class="mf">1.f</span> <span class="p">});</span>
 </pre></div></article></body></html>
